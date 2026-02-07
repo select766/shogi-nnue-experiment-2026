@@ -1,0 +1,11 @@
+[submodule "YaneuraOu"]
+	path = YaneuraOu
+	url = https://github.com/yaneurao/YaneuraOu.git
+[submodule "tanuki-learner"]
+	path = tanuki-learner
+	url = https://github.com/select766/tanuki-
+	branch = tanuki-dr4-learner-linux
+[submodule "nnue-pytorch"]
+	path = nnue-pytorch
+	url = https://github.com/select766/nnue-pytorch
+	branch = shogi-linux-halfkp256

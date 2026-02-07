@@ -1,0 +1,30 @@
+# Datasets (large binary files)
+subset_tanuki-*/
+dataset_*/
+test_input_*/
+
+# Build artifacts
+*.so
+YaneuraOu-by-gcc
+
+# NNUE model files
+*.bin
+*.nnue
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Build directories
+build/
+
+# Training logs and checkpoints
+logs/
+
+# Claude Code
+.claude/
+
+# Editor
+*.swp
+*~
