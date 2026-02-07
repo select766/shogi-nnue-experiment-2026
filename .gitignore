@@ -2,6 +2,7 @@
 subset_tanuki-*/
 dataset_*/
 test_input_*/
+shuffle-model.md
 
 # Build artifacts and runtime
 bin/

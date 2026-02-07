@@ -11,8 +11,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 INPUT_DIR="${1:?Usage: $0 <input_dir> <output_dir> [threads]}"
 OUTPUT_DIR="${2:?Usage: $0 <input_dir> <output_dir> [threads]}"
 THREADS="${3:-8}"
-ENGINE="${SCRIPT_DIR}/bin/tanuki-learner"
-ENGINE_CWD="${SCRIPT_DIR}/bin"
+ENGINE="${SCRIPT_DIR}/bin/shuffle/tanuki-learner"
+ENGINE_CWD="${SCRIPT_DIR}/bin/shuffle"
 
 # Convert to absolute paths
 INPUT_DIR="$(cd "$INPUT_DIR" && pwd)"

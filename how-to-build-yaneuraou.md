@@ -123,10 +123,14 @@ train-nnue/
 ├── YaneuraOu/              # サブモジュール (変更を加えない)
 │   └── source/
 │       └── Makefile
-└── bin/                    # ビルド成果物・実行環境
+└── bin/                    # ビルド成果物・実行環境 (gitignore)
     ├── YaneuraOu-by-gcc    # ビルド済みバイナリ (YaneuraOu/source/ からコピー)
-    └── eval/
-        └── nn.bin          # NNUE評価関数ファイル
+    ├── eval/
+    │   └── nn.bin          # 学習済みNNUE評価関数ファイル (検証用)
+    └── shuffle/            # tanuki-learner 実行環境 (シャッフル用、別モデル)
+        ├── tanuki-learner  # tanuki-learner バイナリ
+        └── eval/
+            └── nn.bin      # 既成品モデル (qsearch用)
 ```
 
 ## 補足

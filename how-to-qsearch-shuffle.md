@@ -51,21 +51,36 @@ make evallearn BLAS=
 - `BLAS=` はOpenBLASが不要な場合にリンクをスキップするオプション
 - ビルド成功: `tanuki-learner/source/YaneuraOu-by-gcc` が生成される
 
-ビルド後、バイナリを `bin/` にコピーする (サブモジュール内にビルド成果物を残さないため):
+ビルド後、バイナリを `bin/shuffle/` にコピーする (サブモジュール内にビルド成果物を残さないため):
 
 ```bash
-cp tanuki-learner/source/YaneuraOu-by-gcc bin/tanuki-learner
+mkdir -p bin/shuffle
+cp tanuki-learner/source/YaneuraOu-by-gcc bin/shuffle/tanuki-learner
 ```
 
 ### 1.4 評価関数ファイルの配置
 
-qsearch実行に評価関数が必要。`bin/eval/nn.bin` に配置する
-(`run_shuffle.sh` は `bin/` をカレントディレクトリとしてエンジンを実行する):
+qsearch実行には既成品の評価関数が必要。学習対象のモデルとは別に、
+tanuki-専用のモデルファイルを `bin/shuffle/eval/nn.bin` に配置する。
+
+モデルファイルの取得:
 
 ```bash
-mkdir -p bin/eval
-cp /path/to/nn.bin bin/eval/nn.bin
+# tanuki- の公開リリースからダウンロード
+wget https://github.com/nodchip/tanuki-/releases/download/tanuki-.halfkp_256x2-32-32.2023-05-08/tanuki-.halfkp_256x2-32-32.2023-05-08.7z
+
+# 解凍 (7z が必要: sudo apt install p7zip-full)
+7z x tanuki-.halfkp_256x2-32-32.2023-05-08.7z
+
+# 配置
+mkdir -p bin/shuffle/eval
+cp eval/nn.bin bin/shuffle/eval/nn.bin
+
+# ダウンロードファイルの後片付け
+rm -rf tanuki-.halfkp_256x2-32-32.2023-05-08.7z eval/ gpl-3.0.txt
 ```
+
+ファイルサイズ: 64,217,066 バイト (学習済みモデルとはサイズが異なる)
 
 ## 2. 入力データの準備
 
@@ -258,10 +273,13 @@ train-nnue/
 ├── run_shuffle.sh                   # qsearchシャッフル実行スクリプト
 ├── shuffle_dataset.py               # train/val分割スクリプト
 ├── bin/                             # ビルド成果物・実行環境 (gitignore)
-│   ├── YaneuraOu-by-gcc             # やねうら王バイナリ
-│   ├── tanuki-learner               # tanuki-learner バイナリ (shuffle_kifu用)
-│   └── eval/
-│       └── nn.bin                   # NNUE評価関数ファイル
+│   ├── YaneuraOu-by-gcc             # やねうら王バイナリ (検証用)
+│   ├── eval/
+│   │   └── nn.bin                   # 学習済みモデル (検証用)
+│   └── shuffle/                     # tanuki-learner 実行環境
+│       ├── tanuki-learner           # tanuki-learner バイナリ
+│       └── eval/
+│           └── nn.bin               # 既成品モデル (qsearch用、学習対象とは別)
 ├── tanuki-learner/                  # サブモジュール: tanuki- フォーク
 │   └── source/
 │       └── tanuki_kifu_shuffler.cpp # Linux向け修正済み
