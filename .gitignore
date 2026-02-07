@@ -3,9 +3,8 @@ subset_tanuki-*/
 dataset_*/
 test_input_*/
 
-# Build artifacts
-*.so
-YaneuraOu-by-gcc
+# Build artifacts and runtime
+bin/
 
 # NNUE model files
 *.bin

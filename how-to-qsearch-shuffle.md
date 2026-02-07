@@ -51,13 +51,20 @@ make evallearn BLAS=
 - `BLAS=` はOpenBLASが不要な場合にリンクをスキップするオプション
 - ビルド成功: `tanuki-learner/source/YaneuraOu-by-gcc` が生成される
 
-### 1.4 評価関数ファイルの配置
-
-qsearch実行に評価関数が必要:
+ビルド後、バイナリを `bin/` にコピーする (サブモジュール内にビルド成果物を残さないため):
 
 ```bash
-mkdir -p tanuki-learner/source/eval
-cp YaneuraOu/source/eval/nn.bin tanuki-learner/source/eval/nn.bin
+cp tanuki-learner/source/YaneuraOu-by-gcc bin/tanuki-learner
+```
+
+### 1.4 評価関数ファイルの配置
+
+qsearch実行に評価関数が必要。`bin/eval/nn.bin` に配置する
+(`run_shuffle.sh` は `bin/` をカレントディレクトリとしてエンジンを実行する):
+
+```bash
+mkdir -p bin/eval
+cp /path/to/nn.bin bin/eval/nn.bin
 ```
 
 ## 2. 入力データの準備
@@ -179,7 +186,7 @@ python serialize.py --features "HalfKP" \
 
 ```bash
 cp logs/qsearch_run/lightning_logs/version_0/nn.nnue \
-  /home/select766/shogi/train-nnue/YaneuraOu/source/eval/nn.bin
+  /home/select766/shogi/train-nnue/bin/eval/nn.bin
 ```
 
 ## 7. 動作検証
@@ -197,11 +204,11 @@ cp logs/qsearch_run/lightning_logs/version_0/nn.nnue \
 ### 検証スクリプトの実行
 
 ```bash
-cd /home/select766/shogi/train-nnue/YaneuraOu/source
-python3 /home/select766/shogi/train-nnue/run_yaneuraou.py ./YaneuraOu-by-gcc
+cd /home/select766/shogi/train-nnue
+python3 run_yaneuraou.py
 ```
 
-`run_yaneuraou.py` は以下を自動実行する:
+`run_yaneuraou.py` はデフォルトで `bin/YaneuraOu-by-gcc` を使用し、以下を自動実行する:
 1. `usi` → `usiok` 待ち
 2. `isready` → `readyok` 待ち
 3. 初期局面で `go byoyomi 1000` → `bestmove` 待ち
@@ -248,23 +255,20 @@ python3 /home/select766/shogi/train-nnue/run_yaneuraou.py ./YaneuraOu-by-gcc
 ```
 train-nnue/
 ├── run_yaneuraou.py                 # USI動作検証スクリプト (応答待ち対応)
+├── run_shuffle.sh                   # qsearchシャッフル実行スクリプト
 ├── shuffle_dataset.py               # train/val分割スクリプト
-├── tanuki-learner/                  # tanuki- フォーク (shuffle_kifu用)
+├── bin/                             # ビルド成果物・実行環境 (gitignore)
+│   ├── YaneuraOu-by-gcc             # やねうら王バイナリ
+│   ├── tanuki-learner               # tanuki-learner バイナリ (shuffle_kifu用)
+│   └── eval/
+│       └── nn.bin                   # NNUE評価関数ファイル
+├── tanuki-learner/                  # サブモジュール: tanuki- フォーク
 │   └── source/
-│       ├── YaneuraOu-by-gcc         # evallearn ビルド済みバイナリ
-│       ├── eval/nn.bin              # qsearch用評価関数
-│       ├── run_shuffle_noreadme.sh  # シャッフル実行スクリプト
 │       └── tanuki_kifu_shuffler.cpp # Linux向け修正済み
-├── test_input_noreadme/             # .bin のみのシンボリックリンクディレクトリ
-├── dataset_qsearch_shuffled/        # shuffle_kifu 出力 (shuffled.bin)
-├── dataset_qsearch_split/           # train/val 分割後
-│   ├── train.bin
-│   └── val.bin
-├── YaneuraOu/                       # やねうら王 v9.01git
-│   └── source/
-│       ├── YaneuraOu-by-gcc         # ビルド済みバイナリ
-│       └── eval/nn.bin              # 検証用評価関数
-├── nnue-pytorch/                    # 学習フレームワーク
-│   └── logs/qsearch_run/           # 学習結果
-└── subset_tanuki-.nnue-pytorch-2024-07-30.1/  # 元データセット (.bin + README.md)
+├── YaneuraOu/                       # サブモジュール: やねうら王 v9.01git (変更なし)
+├── nnue-pytorch/                    # サブモジュール: 学習フレームワーク
+├── test_input_noreadme/             # .bin のみのシンボリックリンクディレクトリ (gitignore)
+├── dataset_qsearch_shuffled/        # shuffle_kifu 出力 (gitignore)
+├── dataset_qsearch_split/           # train/val 分割後 (gitignore)
+└── subset_tanuki-.nnue-pytorch-2024-07-30.1/  # 元データセット (gitignore)
 ```

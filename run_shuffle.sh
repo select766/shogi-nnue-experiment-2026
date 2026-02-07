@@ -11,7 +11,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 INPUT_DIR="${1:?Usage: $0 <input_dir> <output_dir> [threads]}"
 OUTPUT_DIR="${2:?Usage: $0 <input_dir> <output_dir> [threads]}"
 THREADS="${3:-8}"
-ENGINE="${SCRIPT_DIR}/tanuki-learner/source/YaneuraOu-by-gcc"
+ENGINE="${SCRIPT_DIR}/bin/tanuki-learner"
+ENGINE_CWD="${SCRIPT_DIR}/bin"
 
 # Convert to absolute paths
 INPUT_DIR="$(cd "$INPUT_DIR" && pwd)"
@@ -21,7 +22,7 @@ OUTPUT_DIR="$(cd "$OUTPUT_DIR" && pwd)"
 FIFO="/tmp/yaneuraou_shuffle_fifo_$$"
 mkfifo "$FIFO"
 
-cd "$(dirname "$ENGINE")"
+cd "$ENGINE_CWD"
 "$ENGINE" < "$FIFO" 2>&1 &
 ENGINE_PID=$!
 echo "Engine PID: $ENGINE_PID"

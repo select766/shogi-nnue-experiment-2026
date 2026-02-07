@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
 """YaneuraOu USI interaction script that properly waits for responses."""
 
+import os
 import subprocess
 import sys
-import time
 
 
 def main():
-    engine_path = sys.argv[1] if len(sys.argv) > 1 else "./YaneuraOu-by-gcc"
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    default_engine = os.path.join(script_dir, "bin", "YaneuraOu-by-gcc")
+    engine_path = sys.argv[1] if len(sys.argv) > 1 else default_engine
+    # Run engine with its directory as cwd so it finds eval/nn.bin
+    engine_cwd = os.path.dirname(os.path.abspath(engine_path))
 
     proc = subprocess.Popen(
-        [engine_path],
+        [os.path.abspath(engine_path)],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
         bufsize=1,
+        cwd=engine_cwd,
     )
 
     def send(cmd):
