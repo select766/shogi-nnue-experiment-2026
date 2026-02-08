@@ -2,12 +2,12 @@
 # Run shuffle_kifu (qsearch + shuffle) on each split directory.
 # Prerequisite: split_and_shuffle.py has been run to create input_* directories.
 #
-# Usage: bash run_shuffle_splits.sh
+# Usage: bash scripts/run_shuffle_splits.sh
 #
 # Output: split_v1/{train,val1,val2,val3,val4,test}.bin
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 SPLIT_BASE="/home/select766/exthdd/dev/train-nnue/split_v1"
 THREADS=8
 
@@ -32,7 +32,7 @@ for SPLIT in $SPLITS; do
     mkdir -p "$OUTPUT_DIR"
 
     # Run shuffle_kifu
-    bash "${SCRIPT_DIR}/run_shuffle.sh" "$INPUT_DIR" "$OUTPUT_DIR" "$THREADS"
+    bash "${SCRIPT_DIR}/scripts/run_shuffle.sh" "$INPUT_DIR" "$OUTPUT_DIR" "$THREADS"
 
     # Rename shuffled.bin to split-specific name
     if [ -f "${OUTPUT_DIR}/shuffled.bin" ]; then

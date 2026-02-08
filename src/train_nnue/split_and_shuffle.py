@@ -6,7 +6,7 @@ Creates symlink directories for each split (to be used as input for shuffle_kifu
 Data leakage is avoided by splitting at the file level, not the record level.
 
 Usage:
-    python split_and_shuffle.py
+    uv run python -m train_nnue.split_and_shuffle
 
 Output: /home/select766/exthdd/dev/train-nnue/split_v1/
 """

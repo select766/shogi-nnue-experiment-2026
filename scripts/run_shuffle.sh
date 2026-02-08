@@ -1,13 +1,13 @@
 #!/bin/bash
 # Run shuffle_kifu with qsearch applied
-# Usage: bash run_shuffle.sh <input_dir> <output_dir> [threads]
-# Example: bash run_shuffle.sh test_input_noreadme dataset_qsearch_shuffled 8
+# Usage: bash scripts/run_shuffle.sh <input_dir> <output_dir> [threads]
+# Example: bash scripts/run_shuffle.sh test_input_noreadme dataset_qsearch_shuffled 8
 #
 # IMPORTANT: input_dir must contain only .bin files (no README.md etc.)
 # See how-to-qsearch-shuffle.md for details.
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 INPUT_DIR="${1:?Usage: $0 <input_dir> <output_dir> [threads]}"
 OUTPUT_DIR="${2:?Usage: $0 <input_dir> <output_dir> [threads]}"
 THREADS="${3:-8}"

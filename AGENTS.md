@@ -21,9 +21,11 @@
 | `YaneuraOu/` | (デフォルト) | やねうら王 v9.01git (検証用、変更なし) |
 | `tanuki-learner/` | `tanuki-dr4-learner-linux` | shuffle_kifu (qsearch適用シャッフル用) |
 
-### nnue-pytorch の Python 環境
-nnue-pytorch 内のスクリプト (`train.py`, `serialize.py` 等) は `nnue-pytorch/.venv/` のvenvで実行する。
-`cd nnue-pytorch && source .venv/bin/activate` を忘れずに。
+### Python 環境 (2つの仮想環境)
+- `.venv/` (リポジトリルート): データ処理スクリプト用。`uv sync` で管理。`uv run python -m train_nnue.xxx` で実行。
+- `nnue-pytorch/.venv/`: 学習用 (PyTorch, python-chess 等)。nnue-pytorch 独自管理。`cd nnue-pytorch && source .venv/bin/activate` で使用。
+
+2つの環境は依存ライブラリが異なるため分離している。
 
 ### 大容量データのパス
 - 元データ (読み取り専用): `/home/select766/exthdd/dataset/kifu/tanuki-.nnue-pytorch-2024-07-30.1/` (~300GB, 1016個の .bin)
@@ -34,22 +36,29 @@ nnue-pytorch 内のスクリプト (`train.py`, `serialize.py` 等) は `nnue-py
 
 ```
 train-nnue/
+├── pyproject.toml                   # uv プロジェクト定義 (numpy 依存)
+├── uv.lock                          # 依存ロックファイル
+├── .python-version                  # Python バージョン (3.11)
+│
+├── src/train_nnue/                  # Python パッケージ (uv run で実行)
+│   ├── split_and_shuffle.py         #   データ分割 (ファイル単位、seed=42)
+│   ├── shuffle_dataset.py           #   簡易train/val分割 (レコード単位、検証用)
+│   └── run_yaneuraou.py             #   やねうら王USI動作検証
+│
+├── scripts/                         # Bash スクリプト
+│   ├── run_shuffle.sh               #   単一ディレクトリのqsearchシャッフル
+│   ├── run_shuffle_splits.sh        #   全splitのqsearchシャッフル実行
+│   └── run_train_halfkp.sh          #   学習実行 (中断・再開対応)
+│
 ├── nnue-pytorch/                    # [サブモジュール] 学習フレームワーク
 │   ├── model.py                     #   NNUEモデル定義 (HalfKP 256x2-32-32)
 │   ├── train.py                     #   学習エントリポイント
 │   ├── serialize.py                 #   .ckpt → .nnue 変換
 │   ├── nnue_dataset.py              #   C++データローダー
 │   ├── features.py / halfkp.py      #   特徴量定義
-│   └── .venv/                       #   Python仮想環境
+│   └── .venv/                       #   Python仮想環境 (学習用、独自管理)
 ├── YaneuraOu/                       # [サブモジュール] やねうら王 (変更なし)
 ├── tanuki-learner/                  # [サブモジュール] shuffle_kifu用
-│
-├── split_and_shuffle.py             # データ分割 (ファイル単位、seed=42)
-├── run_shuffle_splits.sh            # 全splitのqsearchシャッフル実行
-├── run_shuffle.sh                   # 単一ディレクトリのqsearchシャッフル
-├── run_train_halfkp.sh              # 学習実行 (中断・再開対応)
-├── shuffle_dataset.py               # 簡易train/val分割 (レコード単位、検証用)
-├── run_yaneuraou.py                 # やねうら王USI動作検証
 │
 ├── bin/                             # ビルド成果物・実行環境 (gitignore)
 │   ├── YaneuraOu-by-gcc             #   やねうら王バイナリ
@@ -79,13 +88,13 @@ train-nnue/
 ### 学習 (大容量データ)
 ```bash
 # 1. データ分割
-python3 split_and_shuffle.py
+uv run python -m train_nnue.split_and_shuffle
 
 # 2. qsearchシャッフル (~10時間)
-bash run_shuffle_splits.sh 2>&1 | tee /tmp/shuffle_splits.log
+bash scripts/run_shuffle_splits.sh 2>&1 | tee /tmp/shuffle_splits.log
 
 # 3. 学習開始 (再開も同じコマンド)
-bash run_train_halfkp.sh
+bash scripts/run_train_halfkp.sh
 
 # 4. 進捗確認
 tail -f /tmp/train_nnue_halfkp.log
@@ -100,7 +109,7 @@ python serialize.py --features "HalfKP" ../logs/halfkp_v1/checkpoints/XXXX.ckpt 
 
 # やねうら王に配置して検証
 cp ../logs/halfkp_v1/nn.nnue ../bin/eval/nn.bin
-cd .. && python3 run_yaneuraou.py
+cd .. && uv run python -m train_nnue.run_yaneuraou
 ```
 
 ### 検証用サブセットでの学習 (動作確認用)

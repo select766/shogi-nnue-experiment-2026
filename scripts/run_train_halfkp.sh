@@ -2,10 +2,10 @@
 # Train HalfKP NNUE model with auto-resume support.
 # Stop with Ctrl-C, then re-run the same script to resume.
 #
-# Usage: bash run_train_halfkp.sh
+# Usage: bash scripts/run_train_halfkp.sh
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 NNUE_PYTORCH_DIR="${SCRIPT_DIR}/nnue-pytorch"
 SPLIT_BASE="/home/select766/exthdd/dev/train-nnue/split_v1"
 LOGDIR="${SCRIPT_DIR}/logs/halfkp_v1"

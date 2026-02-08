@@ -98,12 +98,12 @@ L3 = 32
 
 ### シャッフルと train/val 分割
 
-以下のPythonスクリプト (`shuffle_dataset.py`) でシャッフルと分割を行う:
+以下のPythonスクリプト (`src/train_nnue/shuffle_dataset.py`) でシャッフルと分割を行う:
 
 ```bash
-python shuffle_dataset.py <入力ディレクトリ> <出力ディレクトリ>
+uv run python -m train_nnue.shuffle_dataset <入力ディレクトリ> <出力ディレクトリ>
 # 例:
-python shuffle_dataset.py subset_tanuki-.nnue-pytorch-2024-07-30.1 dataset_shuffled
+uv run python -m train_nnue.shuffle_dataset subset_tanuki-.nnue-pytorch-2024-07-30.1 dataset_shuffled
 ```
 
 出力:
@@ -216,7 +216,8 @@ go byoyomi 1000
 train-nnue/
 ├── setup.md                          # セットアップ指示書
 ├── how-to-setup-nnue-pytorch.md      # 本ドキュメント
-├── shuffle_dataset.py                # データセットシャッフルスクリプト
+├── src/train_nnue/
+│   └── shuffle_dataset.py            # データセットシャッフルスクリプト
 ├── subset_tanuki-.nnue-pytorch-2024-07-30.1/  # 元データセット
 ├── dataset_shuffled/                 # シャッフル済みデータセット
 │   ├── train.bin

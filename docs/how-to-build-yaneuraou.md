@@ -95,7 +95,7 @@ quit
 応答待ちを自動で行う検証スクリプト (リポジトリルートから実行可能):
 
 ```bash
-python3 run_yaneuraou.py
+uv run python -m train_nnue.run_yaneuraou
 ```
 
 引数なしでデフォルトの `bin/YaneuraOu-by-gcc` を使用する。

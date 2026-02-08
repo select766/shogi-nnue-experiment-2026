@@ -7,8 +7,7 @@ import sys
 
 
 def main():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    default_engine = os.path.join(script_dir, "bin", "YaneuraOu-by-gcc")
+    default_engine = os.path.join("bin", "YaneuraOu-by-gcc")
     engine_path = sys.argv[1] if len(sys.argv) > 1 else default_engine
     # Run engine with its directory as cwd so it finds eval/nn.bin
     engine_cwd = os.path.dirname(os.path.abspath(engine_path))

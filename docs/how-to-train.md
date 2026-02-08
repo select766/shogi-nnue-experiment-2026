@@ -28,10 +28,10 @@
 
 ```bash
 cd /home/select766/shogi/train-nnue
-python3 split_and_shuffle.py
+uv run python -m train_nnue.split_and_shuffle
 ```
 
-**処理内容** (`split_and_shuffle.py`):
+**処理内容** (`src/train_nnue/split_and_shuffle.py`):
 - ソースディレクトリの `.bin` ファイル1016個をリストアップ・ソート
 - seed=42でリストをシャッフル
 - ファイルをsplitに割り当て: train=916, val1=20, val2=20, val3=20, val4=20, test=20
@@ -84,12 +84,12 @@ total: 1016 files
 
 ```bash
 cd /home/select766/shogi/train-nnue
-bash run_shuffle_splits.sh 2>&1 | tee /tmp/shuffle_splits.log
+bash scripts/run_shuffle_splits.sh 2>&1 | tee /tmp/shuffle_splits.log
 ```
 
-**処理内容** (`run_shuffle_splits.sh`):
+**処理内容** (`scripts/run_shuffle_splits.sh`):
 - 6つのsplit (train, val1-4, test) を順に処理
-- 各splitに対して `run_shuffle.sh` (8スレッド) を実行
+- 各splitに対して `scripts/run_shuffle.sh` (8スレッド) を実行
 - 出力の `shuffled.bin` を `train.bin`, `val1.bin` 等にリネーム
 - 既に出力ファイルが存在するsplitはスキップ (中断後の再実行に対応)
 
@@ -120,10 +120,10 @@ ls -lh /home/select766/exthdd/dev/train-nnue/split_v1/*.bin
 
 ```bash
 cd /home/select766/shogi/train-nnue
-bash run_train_halfkp.sh
+bash scripts/run_train_halfkp.sh
 ```
 
-**処理内容** (`run_train_halfkp.sh`):
+**処理内容** (`scripts/run_train_halfkp.sh`):
 - `logs/halfkp_v1/checkpoints/` から最新の `.ckpt` を探す
 - 見つかれば `--resume-from-checkpoint` で再開、なければ新規開始
 - 出力は `/tmp/train_nnue_halfkp.log` にリダイレクト
@@ -164,7 +164,7 @@ self.current_epoch=1000, latest_loss=0.281 < self.best_loss=0.283, accepted, sel
 **再開**: 同じスクリプトを再実行する。
 
 ```bash
-bash run_train_halfkp.sh
+bash scripts/run_train_halfkp.sh
 ```
 
 スクリプトが `logs/halfkp_v1/checkpoints/` 内の最新 `.ckpt` を自動検出し、
@@ -228,7 +228,7 @@ cp /home/select766/shogi/train-nnue/logs/halfkp_v1/nn.nnue \
 
 ```bash
 cd /home/select766/shogi/train-nnue
-python3 run_yaneuraou.py
+uv run python -m train_nnue.run_yaneuraou
 ```
 
 詳細は `how-to-qsearch-shuffle.md` のセクション7を参照。
@@ -266,10 +266,12 @@ python3 run_yaneuraou.py
 
 ```
 train-nnue/
-├── split_and_shuffle.py          # データ分割スクリプト (ファイル単位)
-├── run_shuffle_splits.sh         # 全split qsearchシャッフル実行
-├── run_train_halfkp.sh           # 学習実行 (中断・再開対応)
-├── run_shuffle.sh                # 単一ディレクトリの qsearchシャッフル
+├── src/train_nnue/
+│   └── split_and_shuffle.py      # データ分割スクリプト (ファイル単位)
+├── scripts/
+│   ├── run_shuffle_splits.sh     # 全split qsearchシャッフル実行
+│   ├── run_train_halfkp.sh       # 学習実行 (中断・再開対応)
+│   └── run_shuffle.sh            # 単一ディレクトリの qsearchシャッフル
 ├── logs/
 │   └── halfkp_v1/               # 学習ログ・チェックポイント
 │       ├── checkpoints/         # .ckpt ファイル (安定したパス)

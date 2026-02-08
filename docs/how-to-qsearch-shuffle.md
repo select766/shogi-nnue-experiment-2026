@@ -137,7 +137,7 @@ ls subset_tanuki-.nnue-pytorch-2024-07-30.1/*.bin | tail -1  | xargs -I{} ln -s 
 
 ```bash
 cd /home/select766/shogi/train-nnue
-python3 shuffle_dataset.py dataset_qsearch_shuffled dataset_qsearch_split
+uv run python -m train_nnue.shuffle_dataset dataset_qsearch_shuffled dataset_qsearch_split
 ```
 
 これにより `dataset_qsearch_split/train.bin` (98%) と `dataset_qsearch_split/val.bin` (2%) が生成される。
@@ -214,16 +214,16 @@ cp logs/qsearch_run/lightning_logs/version_0/nn.nnue \
 **エンジンが正しく動作しない** (`depth 1 nodes 0 score cp 0` のような異常な結果を返す)。
 
 `echo -e` でパイプに一括送信する方法ではこの問題が発生するため、
-応答を逐次待つスクリプト (`run_yaneuraou.py`) を使用する。
+応答を逐次待つスクリプト (`src/train_nnue/run_yaneuraou.py`) を使用する。
 
 ### 検証スクリプトの実行
 
 ```bash
 cd /home/select766/shogi/train-nnue
-python3 run_yaneuraou.py
+uv run python -m train_nnue.run_yaneuraou
 ```
 
-`run_yaneuraou.py` はデフォルトで `bin/YaneuraOu-by-gcc` を使用し、以下を自動実行する:
+`src/train_nnue/run_yaneuraou.py` はデフォルトで `bin/YaneuraOu-by-gcc` を使用し、以下を自動実行する:
 1. `usi` → `usiok` 待ち
 2. `isready` → `readyok` 待ち
 3. 初期局面で `go byoyomi 1000` → `bestmove` 待ち
@@ -253,7 +253,7 @@ python3 run_yaneuraou.py
 **原因**: `isready` の応答 (`readyok`) を待たずに `position` や `go` コマンドを送信すると、
 エンジンの初期化が完了しておらず、探索が正しく行われない。
 
-**対策**: `run_yaneuraou.py` を使用し、`readyok` を受信してから次のコマンドを送る。
+**対策**: `src/train_nnue/run_yaneuraou.py` を使用し、`readyok` を受信してから次のコマンドを送る。
 手動でインタラクティブに実行する場合は、`readyok` が表示されてから次のコマンドを入力する。
 
 ### 学習中にPCがクラッシュする (メモリ不足)
@@ -269,9 +269,11 @@ python3 run_yaneuraou.py
 
 ```
 train-nnue/
-├── run_yaneuraou.py                 # USI動作検証スクリプト (応答待ち対応)
-├── run_shuffle.sh                   # qsearchシャッフル実行スクリプト
-├── shuffle_dataset.py               # train/val分割スクリプト
+├── src/train_nnue/
+│   ├── run_yaneuraou.py             # USI動作検証スクリプト (応答待ち対応)
+│   └── shuffle_dataset.py           # train/val分割スクリプト
+├── scripts/
+│   └── run_shuffle.sh               # qsearchシャッフル実行スクリプト
 ├── bin/                             # ビルド成果物・実行環境 (gitignore)
 │   ├── YaneuraOu-by-gcc             # やねうら王バイナリ (検証用)
 │   ├── eval/
