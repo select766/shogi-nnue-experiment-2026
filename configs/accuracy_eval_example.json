@@ -1,0 +1,11 @@
+{
+  "engine_path": "bin/YaneuraOu-by-gcc",
+  "engine_options": {
+    "Threads": 1,
+    "EvalDir": "bin/suisho5"
+  },
+  "go_params": {
+    "nodes": 1000000
+  },
+  "num_workers": 4
+}
