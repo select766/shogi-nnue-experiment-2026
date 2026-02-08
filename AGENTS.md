@@ -61,12 +61,17 @@ train-nnue/
 ├── logs/                            # 学習ログ・チェックポイント (gitignore)
 ├── dataset_qsearch_split/           # 検証用サブセット (gitignore)
 │
-├── how-to-train.md                  # 大容量データ学習パイプラインの手順
-├── how-to-qsearch-shuffle.md       # qsearchシャッフルの手順 (サブセットでの検証含む)
-├── how-to-setup-nnue-pytorch.md     # nnue-pytorch環境構築手順
-├── how-to-build-yaneuraou.md        # やねうら王ビルド手順
-├── train-plan.md                    # 学習計画・ハイパーパラメータ決定
-└── verify-nnue-training.md          # 学習検証メモ
+├── docs/                            # ドキュメント
+│   ├── how-to-train.md              #   大容量データ学習パイプラインの手順
+│   ├── how-to-qsearch-shuffle.md    #   qsearchシャッフルの手順 (サブセットでの検証含む)
+│   ├── how-to-setup-nnue-pytorch.md #   nnue-pytorch環境構築手順
+│   ├── how-to-build-yaneuraou.md    #   やねうら王ビルド手順
+│   ├── train-plan.md                #   学習計画・ハイパーパラメータ決定
+│   ├── shuffle-model.md             #   シャッフルモデルの手順
+│   ├── setup.md                     #   セットアップ手順
+│   └── verify-nnue-training.md      #   学習検証メモ
+│
+└── AGENTS.md                        # リポジトリガイド (本ファイル)
 ```
 
 ## 主要なコマンド
