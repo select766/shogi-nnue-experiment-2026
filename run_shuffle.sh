@@ -37,7 +37,7 @@ echo "isready" >&3
 sleep 3
 echo "shuffle_kifu" >&3
 
-for i in $(seq 1 3600); do
+for i in $(seq 1 100000); do
     if ! kill -0 $ENGINE_PID 2>/dev/null; then
         wait $ENGINE_PID 2>/dev/null
         EXIT_CODE=$?
