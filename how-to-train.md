@@ -195,6 +195,12 @@ logs/halfkp_v1/
 チェックポイントは `checkpoints/` に保存されるため、
 TensorBoardのバージョン番号 (`version_N`) に依存せず安定した場所に保存される。
 
+TensorBoard可視化:
+
+```bash
+(cd nnue-pytorch; uv run tensorboard --logdir ../logs)
+```
+
 ## 4. モデル変換と動作検証
 
 ### 4.1 .nnue ファイルへの変換
