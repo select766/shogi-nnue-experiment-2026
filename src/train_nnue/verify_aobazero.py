@@ -72,8 +72,8 @@ def move_to_policy_index(move: int, turn: int) -> int:
     if is_drop:
         # Drop piece type: pawn=1, lance=2, ..., rook=7 in cshogi hand piece
         drop_piece = cshogi.move_drop_hand_piece(move)
-        # Map to 0-6: pawn=0, lance=1, knight=2, silver=3, gold=4, bishop=5, rook=6
-        dir_idx = drop_piece - 1
+        # move_drop_hand_piece returns 0-based: HPAWN=0, HLANCE=1, ..., HROOK=6
+        dir_idx = drop_piece
         ch = 20 + dir_idx
     else:
         from_sq = cshogi.move_from(move)

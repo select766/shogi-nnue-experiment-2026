@@ -6,18 +6,18 @@ input format. Uses cshogi for board representation.
 
 Channel layout (362 total):
   0-13:   Piece positions (two-hot: own=+1, opponent=-1) [14 ch]
-  14-27:  Hand pieces (normalized counts, 7 types * 2 sides) [14 ch]
-  28-30:  Repetition count (0/1/2+) [3 ch]
-  31-255: Padding for past 7 time steps (all zeros) [225 ch]
-  256-283: Per-piece-type attack presence (14 types * 2 sides) [28 ch]
-  284:    In check [1 ch]
-  285-291: Handicap one-hot (always channel 0 for even games) [7 ch]
-  292-300: Padding [9 ch]
-  301-310: Aggregate attack degree (5 sente + 5 gote levels) [10 ch]
-  311-345: Padding [35 ch]
-  346:    Side to move (1.0 if gote) [1 ch]
-  347:    Ply / 512 [1 ch]
-  348-361: Padding [14 ch - to reach 362]
+  14-27:  [Unused, zeros] (reserved for non-TWO_HOT mode) [14 ch]
+  28-41:  Hand pieces (normalized counts, 7 types * 2 sides) [14 ch]
+  42-44:  Repetition count (0/1/2+) [3 ch]
+  45-269: Padding for past 5 time steps (all zeros) [225 ch]
+  270-297: Per-piece-type attack presence (14 types * 2 sides) [28 ch]
+  298:    In check [1 ch]
+  299-305: Handicap one-hot (always channel 0 for even games) [7 ch]
+  306-314: Padding [9 ch]
+  315-324: Aggregate attack degree (5 own + 5 opponent levels) [10 ch]
+  325-359: Padding [35 ch]
+  360:    Side to move (1.0 if sente/BLACK) [1 ch]
+  361:    Ply / 512 [1 ch]
 
 Coordinate system:
   AobaZero tensor: data[ch][rank][file]  (rank=row, file=column)
@@ -198,7 +198,7 @@ def encode_features(board: cshogi.Board, ply: int = 0) -> np.ndarray:
         else:
             data[base + ch, row, col] = -1.0
 
-    base += 14  # base=14
+    base += 28  # base=28 (C++ reserves 28 channels even with TWO_HOT using only 14)
 
     # === 2. Hand pieces (14 channels) ===
     pih = board.pieces_in_hand
@@ -213,13 +213,13 @@ def encode_features(board: cshogi.Board, ply: int = 0) -> np.ndarray:
         data[base + i, :, :] = f_own
         data[base + 7 + i, :, :] = f_opp
 
-    base += 14  # base=28
+    base += 14  # base=42
 
     # === 3. Repetition (3 channels) ===
-    base += 3  # base=31
+    base += 3  # base=45
 
     # === 4. Padding for past time steps (225 channels) ===
-    base += 225  # base=256
+    base += 225  # base=270
 
     # === 5. Per-piece-type attack presence (28 channels) ===
     piece_type_attacks, sente_total, gote_total = _compute_attacks(board)
@@ -241,19 +241,19 @@ def encode_features(board: cshogi.Board, ply: int = 0) -> np.ndarray:
                             rr, ff = (8 - r, 8 - f) if flip else (r, f)
                             data[base + ch_off, rr, ff] = 1.0
         base += 2
-    # base=284
+    # base=298
 
     # === 6. In check (1 channel) ===
     if board.is_check():
         data[base, :, :] = 1.0
-    base += 1  # base=285
+    base += 1  # base=299
 
     # === 7. Handicap (7 channels) ===
     data[base + 0, :, :] = 1.0
-    base += 7  # base=292
+    base += 7  # base=306
 
     # === 8. Padding (9 channels) ===
-    base += 9  # base=301
+    base += 9  # base=315
 
     # === 9. Aggregate attack degree (10 channels) ===
     M = 4
@@ -277,16 +277,16 @@ def encode_features(board: cshogi.Board, ply: int = 0) -> np.ndarray:
             for i in range(n1):
                 data[base + i + 1 + M + 1, rr, ff] = 1.0
 
-    base += 10  # base=311
+    base += 10  # base=325
 
     # === 10. Padding (35 channels) ===
-    base += 35  # base=346
+    base += 35  # base=360
 
     # === 11. Side to move + ply (2 channels) ===
-    if turn == cshogi.WHITE:
+    if turn == cshogi.BLACK:
         data[base, :, :] = 1.0
     data[base + 1, :, :] = float(ply) / 512.0
-    base += 2  # base=348
+    base += 2  # base=362
 
-    assert base <= 362, f"Channel count exceeded: {base}"
+    assert base == 362, f"Channel count mismatch: {base} != 362"
     return data
