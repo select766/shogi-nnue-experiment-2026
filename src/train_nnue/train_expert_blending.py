@@ -235,7 +235,7 @@ def main():
     # Data
     parser.add_argument("--train", required=True, help="Training data (.bin)")
     parser.add_argument("--val", required=True, help="Validation data (.bin)")
-    parser.add_argument("--feature-set", default="HalfKP^", help="NNUE feature set name")
+    parser.add_argument("--feature-set", default="HalfKP", help="NNUE feature set name")
     parser.add_argument("--batch-size", type=int, default=256, help="Batch size")
     parser.add_argument("--epoch-size", type=int, default=1000000, help="Positions per epoch")
     # Model

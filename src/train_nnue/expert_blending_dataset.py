@@ -7,7 +7,7 @@ NNUE sparse features and dlshogi dense features for the same positions.
 Usage:
     cd nnue-pytorch && source .venv/bin/activate
     PYTHONPATH=../src:$PYTHONPATH python -m train_nnue.expert_blending_dataset \
-        --bin data/val.bin --feature-set "HalfKP^" --batch-size 256
+        --bin data/val.bin --feature-set "HalfKP" --batch-size 256
 """
 
 import mmap
@@ -196,7 +196,7 @@ def create_data_loaders(train_bin, val_bin, feature_set_name, batch_size, device
     Args:
         train_bin: 学習用 packed SFEN .bin パス
         val_bin: 検証用 packed SFEN .bin パス
-        feature_set_name: NNUE特徴セット名 (例: "HalfKP^")
+        feature_set_name: NNUE特徴セット名 (例: "HalfKP")
         batch_size: バッチサイズ
         device: デバイス文字列 (例: "cuda:0")
         epoch_size: 1エポックあたりの局面数
@@ -233,7 +233,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="ExpertBlendingDataset verification")
     parser.add_argument("--bin", required=True, help="Path to packed SFEN .bin file")
-    parser.add_argument("--feature-set", default="HalfKP^", help="NNUE feature set name")
+    parser.add_argument("--feature-set", default="HalfKP", help="NNUE feature set name")
     parser.add_argument("--batch-size", type=int, default=256)
     parser.add_argument("--num-batches", type=int, default=3, help="Number of batches to test")
     parser.add_argument("--device", default="cpu")

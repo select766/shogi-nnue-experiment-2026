@@ -53,7 +53,7 @@ PYTHONPATH="${SCRIPT_DIR}/src:${PYTHONPATH}" python -m train_nnue.train_expert_b
   --val "$VAL_BIN" \
   --backbone-weights "$BACKBONE_WEIGHTS" \
   --nnue-checkpoint "$NNUE_CKPT" \
-  --feature-set "HalfKP^" \
+  --feature-set "HalfKP" \
   --n-experts 4 \
   --adapter-hidden 128 \
   --batch-size 256 \
