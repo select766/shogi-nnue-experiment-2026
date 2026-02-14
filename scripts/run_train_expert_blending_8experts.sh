@@ -70,7 +70,7 @@ PYTHONPATH="${SCRIPT_DIR}/src:${PYTHONPATH}" python -m train_nnue.train_expert_b
   --num-epochs-to-adjust-lr 500 \
   --min-newbob-scale 1e-5 \
   --momentum 0.9 \
-  --network-save-period 500 \
+  --network-save-period 10 \
   --max-epochs 1000000 \
   --gpus 1 \
   --default-root-dir "$LOGDIR" \
