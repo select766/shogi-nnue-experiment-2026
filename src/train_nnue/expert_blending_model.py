@@ -159,6 +159,12 @@ class NNUEExperts(nn.Module):
         Returns:
             output: (batch, 1) NNUE評価値
         """
+        # sparse tensor → dense 変換 (bmm は sparse mat2 を受け付けない)
+        if w_in.is_sparse:
+            w_in = w_in.to_dense()
+        if b_in.is_sparse:
+            b_in = b_in.to_dense()
+
         # --- input layer ---
         # 加重平均: (batch, N) x (N, L1, F) -> (batch, L1, F)
         avg_input_w = torch.einsum('bn,nof->bof', gate_weights, self.input_weight)
@@ -277,6 +283,13 @@ def load_nnue_experts(ckpt_path, n_experts, feature_set):
         for nnue_key, expert_key in param_map.items():
             src = state_dict[nnue_key]  # (out_features, in_features) or (out_features,)
             dst = getattr(experts, expert_key)  # (n_experts, ...)
+            # input層の重みサイズが異なる場合 (HalfKP → HalfKP^ のパディング)
+            if src.shape != dst.shape[1:]:
+                padded = torch.zeros(dst.shape[1:])
+                # src の範囲だけコピーし、残り (virtual features) はゼロ
+                slices = tuple(slice(0, s) for s in src.shape)
+                padded[slices] = src
+                src = padded
             # 1つのNNUE重みをN_EXPERTS個に複製
             dst.copy_(src.unsqueeze(0).expand_as(dst))
 
