@@ -60,8 +60,8 @@ PYTHONPATH="${SCRIPT_DIR}/src:${PYTHONPATH}" python -m train_nnue.train_expert_b
   --adapter-hidden 128 \
   --batch-size 256 \
   --epoch-size 1000000 \
-  --lr-nnue 0.5 \
-  --lr-adapter 0.5 \
+  --lr-nnue 0.001 \
+  --lr-adapter 0.01 \
   --lambda 1.0 \
   --label-smoothing-eps 0.001 \
   --score-scaling 361 \
