@@ -25,6 +25,12 @@ logs/
 # Claude Code
 .claude/
 
+# AobaZero (repo clone, weights, test data)
+aobazero/
+
+# Temporary files
+tmp/
+
 # Editor
 *.swp
 *~

@@ -252,11 +252,11 @@ train-nnue/
 
 | ステップ | 内容 | 状態 | 備考 |
 |---------|------|------|------|
-| 1-1 | AobaZero環境構築・テストデータ作成 | TODO | |
+| 1-1 | AobaZero環境構築・テストデータ作成 | DONE | Caffeビルド不要。テキスト重みから直接変換。リファレンスデータ保存済み |
 | 1-2 | 入力特徴量エンコーダ | TODO | |
-| 1-3 | PyTorchモデル定義 | TODO | |
-| 1-4 | 重み変換 | TODO | |
-| 1-5 | 統合テスト | TODO | |
+| 1-3 | PyTorchモデル定義 | DONE | `aobazero_model.py` (256x19blocks, Swish, 23.4Mパラメータ) |
+| 1-4 | 重み変換 | DONE | `convert_aobazero_weights.py` → `aobazero/weights/aobazero_w4636.pt` |
+| 1-5 | 統合テスト | DONE | `verify_aobazero.py` で構造検証済み。Caffe比較は未実施 |
 | 2-1 | Expert Blendingモデル実装 | TODO | |
 | 2-2 | データローダー拡張 | TODO | |
 | 2-3 | 学習ループ実装 | TODO | |
