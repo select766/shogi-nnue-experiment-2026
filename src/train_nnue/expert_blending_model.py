@@ -148,8 +148,41 @@ class NNUEExperts(nn.Module):
         self.output_weight = nn.Parameter(torch.zeros(n_experts, 1, self.L3))
         self.output_bias = nn.Parameter(torch.zeros(n_experts, 1))
 
+    def _expert_forward(self, k, us, them, w_in, b_in):
+        """単一 expert k の NNUE forward 計算。
+
+        Args:
+            k: expert インデックス
+            us, them, w_in, b_in: バッチ入力
+        Returns:
+            output: (batch, 1)
+        """
+        # input layer: (L1, F) @ (batch, F).T -> (L1, batch) -> transpose
+        w = F.linear(w_in, self.input_weight[k], self.input_bias[k])  # (batch, L1)
+        b = F.linear(b_in, self.input_weight[k], self.input_bias[k])  # (batch, L1)
+
+        # 視点の結合
+        l0_ = (us * torch.cat([w, b], dim=1)) + (them * torch.cat([b, w], dim=1))
+        l0_ = torch.clamp(l0_, 0.0, 1.0)
+
+        # l1
+        l1_ = F.linear(l0_, self.l1_weight[k], self.l1_bias[k])
+        l1_ = torch.clamp(l1_, 0.0, 1.0)
+
+        # l2
+        l2_ = F.linear(l1_, self.l2_weight[k], self.l2_bias[k])
+        l2_ = torch.clamp(l2_, 0.0, 1.0)
+
+        # output
+        out = F.linear(l2_, self.output_weight[k], self.output_bias[k])
+        return out
+
     def forward(self, gate_weights, us, them, w_in, b_in):
         """
+        各 expert の NNUE forward を個別に計算し、gate_weights で加重平均する。
+        input 層の重みブレンドによる OOM を回避するため、
+        出力レベルでブレンドする方式を採用。
+
         Args:
             gate_weights: (batch, N_EXPERTS) expert混合重み
             us: (batch, 2*L1) 手番側の視点マスク
@@ -159,41 +192,22 @@ class NNUEExperts(nn.Module):
         Returns:
             output: (batch, 1) NNUE評価値
         """
-        # sparse tensor → dense 変換 (bmm は sparse mat2 を受け付けない)
+        # sparse tensor → dense 変換
         if w_in.is_sparse:
             w_in = w_in.to_dense()
         if b_in.is_sparse:
             b_in = b_in.to_dense()
 
-        # --- input layer ---
-        # 加重平均: (batch, N) x (N, L1, F) -> (batch, L1, F)
-        avg_input_w = torch.einsum('bn,nof->bof', gate_weights, self.input_weight)
-        avg_input_b = torch.einsum('bn,no->bo', gate_weights, self.input_bias)
+        # 各 expert の出力を計算し、gate_weights で加重平均
+        expert_outputs = []
+        for k in range(self.n_experts):
+            out_k = self._expert_forward(k, us, them, w_in, b_in)  # (batch, 1)
+            expert_outputs.append(out_k)
 
-        # 両視点の入力変換: bmm((batch, L1, F), (batch, F, 1)) -> (batch, L1)
-        w = torch.bmm(avg_input_w, w_in.unsqueeze(-1)).squeeze(-1) + avg_input_b
-        b = torch.bmm(avg_input_w, b_in.unsqueeze(-1)).squeeze(-1) + avg_input_b
-
-        # 視点の結合 (NNUEと同じロジック)
-        l0_ = (us * torch.cat([w, b], dim=1)) + (them * torch.cat([b, w], dim=1))
-        l0_ = torch.clamp(l0_, 0.0, 1.0)
-
-        # --- l1 layer ---
-        avg_l1_w = torch.einsum('bn,nof->bof', gate_weights, self.l1_weight)
-        avg_l1_b = torch.einsum('bn,no->bo', gate_weights, self.l1_bias)
-        l1_ = torch.bmm(avg_l1_w, l0_.unsqueeze(-1)).squeeze(-1) + avg_l1_b
-        l1_ = torch.clamp(l1_, 0.0, 1.0)
-
-        # --- l2 layer ---
-        avg_l2_w = torch.einsum('bn,nof->bof', gate_weights, self.l2_weight)
-        avg_l2_b = torch.einsum('bn,no->bo', gate_weights, self.l2_bias)
-        l2_ = torch.bmm(avg_l2_w, l1_.unsqueeze(-1)).squeeze(-1) + avg_l2_b
-        l2_ = torch.clamp(l2_, 0.0, 1.0)
-
-        # --- output layer ---
-        avg_out_w = torch.einsum('bn,nof->bof', gate_weights, self.output_weight)
-        avg_out_b = torch.einsum('bn,no->bo', gate_weights, self.output_bias)
-        output = torch.bmm(avg_out_w, l2_.unsqueeze(-1)).squeeze(-1) + avg_out_b
+        # (batch, n_experts)
+        expert_stack = torch.cat(expert_outputs, dim=1)
+        # 加重平均: (batch, n_experts) * (batch, n_experts) -> sum -> (batch,)
+        output = (expert_stack * gate_weights).sum(dim=1, keepdim=True)
 
         return output
 
