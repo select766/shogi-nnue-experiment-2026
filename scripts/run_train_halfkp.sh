@@ -7,7 +7,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 NNUE_PYTORCH_DIR="${SCRIPT_DIR}/nnue-pytorch"
-SPLIT_BASE="./dataset/split_v1"
+SPLIT_BASE="${SCRIPT_DIR}/dataset/split_v1"
 LOGDIR="${SCRIPT_DIR}/logs/halfkp_v1"
 CKPT_DIR="${LOGDIR}/checkpoints"
 LOG_FILE="/tmp/train_nnue_halfkp.log"
