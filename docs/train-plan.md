@@ -4,15 +4,15 @@
 
 # データセット
 オリジナルのデータを https://huggingface.co/datasets/nodchip/tanuki-.nnue-pytorch-2024-07-30.1 より取得して以下に配置した。
-/home/select766/exthdd/dataset/kifu/tanuki-.nnue-pytorch-2024-07-30.1/
+./dataset/tanuki-.nnue-pytorch-2024-07-30.1/
 このディレクトリは読み取り専用とする。
 
 これを分割・シャッフルしてから学習する必要がある。
 今後様々なキャリブレーションを想定しているので、
 train 90%, 残り2%ずつをval1, val2, val3, val4, testに分割。
 
-データは約300GBあり、exthdd以下で操作する必要がある。
-加工した大容量データは、 /home/select766/exthdd/dev/train-nnue/ 以下にサブディレクトリを作成して整理して配置すること。
+データは約300GBあり、 ./dataset 以下で操作する必要がある。
+加工した大容量データは、 ./dataset 以下にサブディレクトリを作成して整理して配置すること。
 
 # ハイパーパラメータ
 

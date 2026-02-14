@@ -8,7 +8,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 NNUE_PYTORCH_DIR="${SCRIPT_DIR}/nnue-pytorch"
-SPLIT_BASE="/home/select766/exthdd/dev/train-nnue/split_v1"
+SPLIT_BASE="./dataset/split_v1"
 BENCHMARK_DIR="${SCRIPT_DIR}/logs/benchmark_num_workers"
 
 TRAIN_BIN="${SPLIT_BASE}/train.bin"

@@ -8,7 +8,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-SPLIT_BASE="/home/select766/exthdd/dev/train-nnue/split_v1"
+SPLIT_BASE="./dataset/split_v1"
 THREADS=8
 
 SPLITS="train val1 val2 val3 val4 test"

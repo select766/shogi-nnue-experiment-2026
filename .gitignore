@@ -20,7 +20,7 @@ __pycache__/
 build/
 
 # Training logs and checkpoints
-logs/
+/logs
 
 # Claude Code
 .claude/
@@ -37,3 +37,6 @@ tmp/
 # Editor
 *.swp
 *~
+
+# project specific
+/dataset

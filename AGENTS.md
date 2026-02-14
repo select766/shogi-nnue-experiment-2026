@@ -28,8 +28,8 @@
 2つの環境は依存ライブラリが異なるため分離している。
 
 ### 大容量データのパス
-- 元データ (読み取り専用): `/home/select766/exthdd/dataset/kifu/tanuki-.nnue-pytorch-2024-07-30.1/` (~300GB, 1016個の .bin)
-- 加工データ出力先: `/home/select766/exthdd/dev/train-nnue/split_v1/`
+- 元データ (読み取り専用): `./dataset/kifu/tanuki-.nnue-pytorch-2024-07-30.1/` (~300GB, 1016個の .bin)
+- 加工データ出力先: `./dataset/split_v1/`
 - 検証用サブセット: `dataset_qsearch_split/` (リポジトリ直下、train.bin 9.5GB + val.bin 199MB)
 
 ## ディレクトリ構成

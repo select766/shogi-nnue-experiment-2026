@@ -16,7 +16,7 @@
 - `how-to-qsearch-shuffle.md` の手順1 (tanuki-learnerビルド) が完了済み
 - `how-to-setup-nnue-pytorch.md` に従って nnue-pytorch 環境が構築済み
 - 元データセットが以下に配置済み (読み取り専用):
-  `/home/select766/exthdd/dataset/kifu/tanuki-.nnue-pytorch-2024-07-30.1/` (1016個の `.bin` ファイル)
+  `./dataset/tanuki-.nnue-pytorch-2024-07-30.1/` (1016個の `.bin` ファイル)
 
 ## 1. データ分割
 
@@ -38,7 +38,7 @@ uv run python -m train_nnue.split_and_shuffle
 - 各split用のシンボリックリンクディレクトリを作成
 - `split_manifest.json` に割り当て情報を保存
 
-**出力先**: `/home/select766/exthdd/dev/train-nnue/split_v1/`
+**出力先**: `./dataset/split_v1/`
 
 ```
 split_v1/
@@ -57,7 +57,7 @@ split_v1/
 # ファイル数の確認
 python3 -c "
 import json
-m = json.load(open('/home/select766/exthdd/dev/train-nnue/split_v1/split_manifest.json'))
+m = json.load(open('./dataset/split_v1/split_manifest.json'))
 for k, v in m.items():
     print(f'{k}: {len(v)} files')
 total = sum(len(v) for v in m.values())
@@ -109,7 +109,7 @@ split_v1/
 ### 2.2 検証
 
 ```bash
-ls -lh /home/select766/exthdd/dev/train-nnue/split_v1/*.bin
+ls -lh ./dataset/split_v1/*.bin
 ```
 
 各 `.bin` ファイルが生成されていることを確認する。
@@ -283,12 +283,12 @@ train-nnue/
     ├── eval/nn.bin              # 検証用モデル
     └── shuffle/                 # tanuki-learner 実行環境
 
-/home/select766/exthdd/dev/train-nnue/
-└── split_v1/                    # 大容量データ (exthdd)
-    ├── split_manifest.json      # 分割情報
-    ├── input_train/             # シンボリックリンク (916個)
-    ├── input_val1/ ~ input_test/
-    ├── train.bin                # qsearch適用+シャッフル済み (~269GB)
-    ├── val1.bin ~ val4.bin      # 各~6GB
-    └── test.bin                 # ~6GB
+└── dataset/ # 大容量データ (シンボリックリンクで外部ディスクへポイント)
+      └── split_v1/
+          ├── split_manifest.json      # 分割情報
+          ├── input_train/             # シンボリックリンク (916個)
+          ├── input_val1/ ~ input_test/
+          ├── train.bin                # qsearch適用+シャッフル済み (~269GB)
+          ├── val1.bin ~ val4.bin      # 各~6GB
+          └── test.bin                 # ~6GB
 ```

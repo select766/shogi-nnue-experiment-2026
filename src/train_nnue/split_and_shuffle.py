@@ -8,7 +8,7 @@ Data leakage is avoided by splitting at the file level, not the record level.
 Usage:
     uv run python -m train_nnue.split_and_shuffle
 
-Output: /home/select766/exthdd/dev/train-nnue/split_v1/
+Output: ./dataset/split_v1/
 """
 
 import os
@@ -16,8 +16,8 @@ import json
 import random
 import glob
 
-SOURCE_DIR = "/home/select766/exthdd/dataset/kifu/tanuki-.nnue-pytorch-2024-07-30.1"
-OUTPUT_BASE = "/home/select766/exthdd/dev/train-nnue/split_v1"
+SOURCE_DIR = "./dataset/tanuki-.nnue-pytorch-2024-07-30.1"
+OUTPUT_BASE = "./dataset/split_v1"
 SEED = 42
 
 # Split sizes
