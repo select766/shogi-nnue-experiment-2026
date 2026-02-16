@@ -242,3 +242,83 @@ train-nnue/
 | 2-2 | データローダー拡張 | DONE | `expert_blending_dataset.py`: PackedSfen→HCP変換、SparseBatchProvider統合 |
 | 2-3 | 学習ループ実装 | DONE | `train_expert_blending.py`: PL Module, 損失関数, NewBob LR, チェックポイント, TBログ |
 | 2-4 | 実験・評価 | DONE | 小規模学習(val_loss 0.043)、ベースライン比較(0.0462→0.0427)、expert重み分析、8experts学習スクリプト |
+
+---
+
+## 追記: 実装現状と動作検証 (2026-02-16)
+
+### 実装現状
+
+Expert Blending の対局時 DNN サーバ起動まわりで、以下の修正を反映済み。
+
+1. `dnn_inference_server.py` の `features` import を起動ディレクトリ非依存化
+- 変更: `src/train_nnue/dnn_inference_server.py`
+- 内容: `NNUE_PYTORCH_DIR` → `<repo>/nnue-pytorch` → `cwd` の順で `features.py` を探索
+- 効果: `ModuleNotFoundError: No module named 'features'` を解消
+
+2. 対局スクリプトの DNN 起動コマンドを安定化
+- 変更: `scripts/run_expert_blending_match.sh`
+- 内容:
+  - DNN サーバ起動を `nnue-pytorch/.venv/bin/python` の絶対パスに固定
+  - checkpoint / backbone / eval dir を絶対パス化
+  - 必須ファイル存在チェックを追加
+- 効果: 実行ディレクトリ差異による失敗を回避
+
+3. やねうら王側で DNNBridge 初期化を実際の `isready()` 経路へ実装
+- 変更: `YaneuraOu/source/engine/yaneuraou-engine/yaneuraou-search.cpp`
+- 内容: `YaneuraOuEngine::isready()` 内で `DNNBridge::init()` を実行
+- 背景: `Engine::isready()` 側のみの実装では標準探索エンジン経路で呼ばれず、外部プロセスが起動しなかった
+
+### 動作検証コマンド
+
+1. `dnn_inference_server` 単体起動確認 (手動)
+```bash
+PYTHONPATH=/home/select766/shogi/train-nnue/src:$PYTHONPATH \
+/home/select766/shogi/train-nnue/nnue-pytorch/.venv/bin/python \
+-m train_nnue.dnn_inference_server \
+  --checkpoint /home/select766/shogi/train-nnue/logs/expert_blending_8experts_v2/checkpoints/160.ckpt \
+  --backbone-weights /home/select766/shogi/train-nnue/tmp/dlshogi-model/model_resnet10_swish-072 \
+  --features HalfKP \
+  --n-experts 8
+```
+- 期待結果: `Model loaded ...` の後に `ready` が出力される
+
+2. やねうら王から外部プロセス起動されることの確認 (USI 直叩き)
+```bash
+ROOT=/home/select766/shogi/train-nnue
+{
+  printf 'usi\n'
+  sleep 0.2
+  printf 'setoption name EvalDir value %s\n' "$ROOT/bin/eval"
+  printf 'setoption name DNNServerCmd value PYTHONPATH=%s/src:$PYTHONPATH %s/nnue-pytorch/.venv/bin/python -m train_nnue.dnn_inference_server --checkpoint %s/logs/expert_blending_8experts_v2/checkpoints/160.ckpt --backbone-weights %s/tmp/dlshogi-model/model_resnet10_swish-072 --features HalfKP --n-experts 8 --log /tmp/dnn_server_from_yane.log\n' "$ROOT" "$ROOT" "$ROOT" "$ROOT"
+  printf 'isready\n'
+  sleep 2
+  printf 'quit\n'
+} | ./bin/YaneuraOu-expert-blending
+```
+- 期待結果:
+  - 標準出力に `info string DNNBridge: starting process: ...` が出る
+  - `/tmp/dnn_server_from_yane.log` に `Loading model...` が出る
+
+3. `ps` で DNN サーバ子プロセス確認
+```bash
+ps -ef | rg "dnn_inference_server|YaneuraOu-expert-blending|run_match" -n
+```
+- 期待結果: `YaneuraOu-expert-blending` の子として `sh -c ... dnn_inference_server` と Python プロセスが見える
+
+4. マッチスクリプト経由の実行確認
+```bash
+./scripts/run_expert_blending_match.sh \
+  ./logs/expert_blending_8experts_v2/checkpoints/160.ckpt \
+  ./tmp/dlshogi-model/model_resnet10_swish-072 \
+  bin/eval \
+  8 1 3000
+```
+- 期待結果:
+  - 起動後に対局が進行し、最終的に `Final Results` が出る
+  - 別端末 `ps` で DNN サーバ子プロセスを確認可能
+
+### 注意事項
+
+- `YaneuraOu/source/` を編集した場合は、`bin/YaneuraOu-expert-blending` を必ず再ビルド・再配置すること。  
+  (ソース更新のみでは実行バイナリに反映されない)

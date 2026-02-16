@@ -18,9 +18,11 @@ Usage:
 """
 
 import argparse
+import os
 import struct
 import sys
 import time
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -38,6 +40,35 @@ from train_nnue.expert_blending_model import (
 )
 from train_nnue.blend_and_export import blend_expert_weights, quantize_and_pack
 from train_nnue.verify_dlshogi import encode_position
+
+
+def load_nnue_feature_set(feature_name):
+    """nnue-pytorch/features.py から feature set を解決する。"""
+    candidates = []
+
+    # Optional explicit override.
+    nnue_dir_env = os.environ.get("NNUE_PYTORCH_DIR")
+    if nnue_dir_env:
+        candidates.append(Path(nnue_dir_env))
+
+    # Repository-local default: <repo>/nnue-pytorch
+    repo_root = Path(__file__).resolve().parents[2]
+    candidates.append(repo_root / "nnue-pytorch")
+
+    # Backward compatibility: current working directory (when cd nnue-pytorch)
+    candidates.append(Path.cwd())
+
+    for d in candidates:
+        features_py = d / "features.py"
+        if features_py.is_file():
+            sys.path.insert(0, str(d))
+            import features as nnue_features
+            return nnue_features.get_feature_set_from_name(feature_name)
+
+    raise ModuleNotFoundError(
+        "Could not find nnue-pytorch/features.py. "
+        "Set NNUE_PYTORCH_DIR or run from a workspace containing nnue-pytorch."
+    )
 
 
 def load_model_from_checkpoint(checkpoint_path, backbone_weights_path,
@@ -143,10 +174,7 @@ def main():
     log(f"  n_experts: {args.n_experts}")
     log(f"  device: {args.device}")
 
-    # Import features from nnue-pytorch
-    sys.path.insert(0, '.')
-    import features as nnue_features
-    feature_set = nnue_features.get_feature_set_from_name(args.features)
+    feature_set = load_nnue_feature_set(args.features)
 
     backbone, adapter, nnue_experts = load_model_from_checkpoint(
         args.checkpoint, args.backbone_weights,

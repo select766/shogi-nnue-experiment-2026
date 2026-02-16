@@ -40,6 +40,22 @@ YaneuraOu サブモジュール内にビルド成果物を残さないため、`
 cp YaneuraOu/source/YaneuraOu-by-gcc bin/YaneuraOu-by-gcc
 ```
 
+### Expert Blending 用バイナリのビルド
+
+`DNNServerCmd` を使う Expert Blending 対局では、修正済み `YaneuraOu` ソースから
+`bin/YaneuraOu-expert-blending` を作り直す。
+
+```bash
+cd /home/select766/shogi/train-nnue/YaneuraOu/source
+make clean
+make -j4
+cp YaneuraOu-by-gcc ../../bin/YaneuraOu-expert-blending
+```
+
+注意:
+- `YaneuraOu/source/` を編集した後は、必ず再ビルドして `bin/YaneuraOu-expert-blending` を更新すること
+- ソースだけ更新しても、`bin/` の実行バイナリは自動更新されない
+
 ### ビルドオプションの変更
 
 Makefile先頭の変数を変更することで設定を変更可能:
@@ -115,6 +131,29 @@ uv run python -m train_nnue.run_yaneuraou
 <<< info depth 16 ... score cp 27 ... pv 7g7f ...
 <<< bestmove 7g7f ponder 3c3d
 ```
+
+### 方法C: DNNServerCmd 起動確認 (Expert Blending向け)
+
+`isready` 時に DNNBridge が外部プロセスを起動できることを確認する。
+
+```bash
+ROOT=/home/select766/shogi/train-nnue
+{
+  printf 'usi\n'
+  sleep 0.2
+  printf 'setoption name EvalDir value %s\n' "$ROOT/bin/eval"
+  printf 'setoption name DNNServerCmd value /bin/echo\n'
+  printf 'isready\n'
+  sleep 0.2
+  printf 'quit\n'
+} | "$ROOT/bin/YaneuraOu-expert-blending"
+```
+
+期待結果:
+- `info string DNNBridge: starting process: /bin/echo`
+- `/bin/echo` は `ready` を返さないため、続いて
+  `info string DNNBridge: did not receive 'ready' ...`
+  が出る (この2行が出れば起動経路は動作している)
 
 ## ディレクトリ構成
 
