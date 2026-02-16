@@ -30,6 +30,10 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 ENGINE_EXPERT="$ROOT_DIR/bin/YaneuraOu-expert-blending"
 ENGINE_BASELINE="$ROOT_DIR/bin/YaneuraOu-by-gcc"
 NNUE_PYTHON="$ROOT_DIR/nnue-pytorch/.venv/bin/python"
+DNN_SERVER_LOG=${DNN_SERVER_LOG:-/tmp/dnn_inference_server.log}
+DNN_BRIDGE_LOG=${DNN_BRIDGE_LOG:-/tmp/dnn_bridge.log}
+DNN_BRIDGE_READ_TIMEOUT_MS=${DNN_BRIDGE_READ_TIMEOUT_MS:-60000}
+DNN_BRIDGE_READY_TIMEOUT_MS=${DNN_BRIDGE_READY_TIMEOUT_MS:-300000}
 
 abspath_from_root() {
     case "$1" in
@@ -68,7 +72,7 @@ if [ ! -f "$BASELINE_EVAL_DIR/nn.bin" ]; then
 fi
 
 # DNN推論サーバーのコマンド
-DNN_CMD="PYTHONPATH=$ROOT_DIR/src:\$PYTHONPATH $NNUE_PYTHON -m train_nnue.dnn_inference_server --checkpoint $CHECKPOINT --backbone-weights $BACKBONE_WEIGHTS --features HalfKP --n-experts $N_EXPERTS"
+DNN_CMD="PYTHONPATH=$ROOT_DIR/src:\$PYTHONPATH $NNUE_PYTHON -m train_nnue.dnn_inference_server --checkpoint $CHECKPOINT --backbone-weights $BACKBONE_WEIGHTS --features HalfKP --n-experts $N_EXPERTS --log $DNN_SERVER_LOG"
 
 echo "=== Expert Blending Match ==="
 echo "Checkpoint: $CHECKPOINT"
@@ -77,10 +81,15 @@ echo "Baseline eval dir: $BASELINE_EVAL_DIR"
 echo "N experts: $N_EXPERTS"
 echo "Games: $GAMES"
 echo "Byoyomi: ${BYOYOMI}ms"
+echo "DNN server log: $DNN_SERVER_LOG"
+echo "DNN bridge log: $DNN_BRIDGE_LOG"
 echo ""
 
 cd "$ROOT_DIR/nnue-pytorch"
 source .venv/bin/activate
+export DNN_BRIDGE_LOG
+export DNN_BRIDGE_READ_TIMEOUT_MS
+export DNN_BRIDGE_READY_TIMEOUT_MS
 
 PYTHONPATH="$ROOT_DIR/src:$PYTHONPATH" python -m train_nnue.run_match \
     --engine1 "$ENGINE_EXPERT" \
