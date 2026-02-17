@@ -28,9 +28,6 @@ build/
 # AobaZero (repo clone, weights, test data)
 aobazero/
 
-# dlshogi source (cloned repo)
-dlshogi-source/
-
 # Temporary files
 tmp/
 

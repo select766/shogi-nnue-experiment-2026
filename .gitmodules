@@ -9,3 +9,6 @@
 	path = nnue-pytorch
 	url = https://github.com/select766/nnue-pytorch
 	branch = shogi-linux-halfkp256
+[submodule "dlshogi-source"]
+	path = dlshogi-source
+	url = https://github.com/TadaoYamaoka/DeepLearningShogi.git
