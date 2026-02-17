@@ -22,13 +22,10 @@ import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
 from pytorch_lightning import loggers as pl_loggers
-from torch.utils.data import DataLoader
 
 import features as nnue_features
 from train_nnue.expert_blending_dataset import (
-    ExpertBlendingDataset,
-    FixedNumBatchesDataset,
-    RECORD_BYTES,
+    create_data_loaders,
 )
 from train_nnue.expert_blending_model import create_expert_blending_model
 
@@ -238,6 +235,16 @@ def main():
     parser.add_argument("--feature-set", default="HalfKP", help="NNUE feature set name")
     parser.add_argument("--batch-size", type=int, default=256, help="Batch size")
     parser.add_argument("--epoch-size", type=int, default=1000000, help="Positions per epoch")
+    parser.add_argument(
+        "--paired",
+        action="store_true",
+        help="Use paired dataset format (80B/record: DNN40B + NNUE40B)",
+    )
+    parser.add_argument(
+        "--paired-nnue-cache-dir",
+        default=None,
+        help="Directory for extracted NNUE-side cache .bin in paired mode",
+    )
     # Model
     parser.add_argument("--backbone-weights", required=True, help="dlshogi .npz weights path")
     parser.add_argument("--nnue-checkpoint", required=True, help="NNUE .ckpt path for expert init")
@@ -318,24 +325,20 @@ def main():
     print(f"Validation: {args.val}")
     print(f"Batch size: {args.batch_size}, Epoch size: {args.epoch_size}")
 
-    train_dataset = ExpertBlendingDataset(
-        args.train, args.feature_set, args.batch_size, device=main_device, shuffle=True,
-    )
-    val_dataset = ExpertBlendingDataset(
-        args.val, args.feature_set, args.batch_size, device=main_device, shuffle=False,
-    )
+    print(f"Paired mode: {args.paired}")
+    if args.paired and args.paired_nnue_cache_dir:
+        print(f"Paired NNUE cache dir: {args.paired_nnue_cache_dir}")
 
-    num_train_batches = (args.epoch_size + args.batch_size - 1) // args.batch_size
-    val_records = os.path.getsize(args.val) // RECORD_BYTES
-    num_val_batches = (min(val_records, args.max_val_positions) + args.batch_size - 1) // args.batch_size
-
-    train_loader = DataLoader(
-        FixedNumBatchesDataset(train_dataset, num_train_batches),
-        batch_size=None, batch_sampler=None,
-    )
-    val_loader = DataLoader(
-        FixedNumBatchesDataset(val_dataset, num_val_batches),
-        batch_size=None, batch_sampler=None,
+    train_loader, val_loader = create_data_loaders(
+        train_bin=args.train,
+        val_bin=args.val,
+        feature_set_name=args.feature_set,
+        batch_size=args.batch_size,
+        device=main_device,
+        epoch_size=args.epoch_size,
+        max_val_positions=args.max_val_positions,
+        paired=args.paired,
+        nnue_cache_dir=args.paired_nnue_cache_dir,
     )
 
     # --- Trainer ---

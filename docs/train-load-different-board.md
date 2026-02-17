@@ -1,60 +1,190 @@
-# DNNとNNUEが異なる局面を読み取る学習機の開発
+# DNNとNNUEが異なる局面を読む学習（実装仕様）
 
-説明はcommit 66354bb時点のコードを前提とし、「従来」と呼ぶ。
+## 目的
 
-学習機とは、 `scripts/run_train_expert_blending_8experts_v2.sh` から呼ばれるnnue-pytorchのコード。
+Expert Blending 学習で、DNNとNNUEが同一局面を読む従来方式から、
 
-# データ構造
-シャッフル前の学習データは、次のように並んでいる(`dataset/tanuki-.nnue-pytorch-2024-07-30.1/*.bin`)。
-`[S(0,0),S(0,1),...,S(0,N(0)-1),S(1,0),S(1,1),...,S(1,N(1)-1),...]`
-ここで、Sは局面(sfen)と付随情報(評価値score、指された手move、手数gamePly、勝敗game_result)をセットにしたPackedSfenValueで40byte/record。
-S(x,y)は、対局番号xのy手目の局面であることを表す。ただし、y=0であっても、実際には平手初期局面からランダムになんてか進めた状態の局面になっている。あくまで対局内で1ずつ増加する番号で、オフセットがある。S(x,y)とS(x,y+1)が同じ対局なのかの判定は、手数フィールドが1インクリメントされているかどうかで判定できる。インクリメントになっていなければ、別の対局が開始したことがわかる。
-また、この局面はqsearchが適用されていないことに注意。
+- DNN: ルート寄り局面
+- NNUE: 探索後局面（qsearch適用）
 
-# 従来のシャッフル
-従来のシャッフルでは、各Sの要素を独立してシャッフルし、局面にqsearchを適用したものをシャッフル結果としている。疑似コードで書くとこのような感じ。
+を読む方式へ切り替える。  
+これにより、DNNが読む文脈とNNUEが実戦で評価する局面の乖離を減らす。
 
-```
-for i in range(*):
-  index = random()
-  sample = original_data[index]
-  output_sample = PackedSfenValue(qshuffle(sample.sfen), sample.move, sample.gamePly, sample.game_result)
-  shuffled_data[i] = output_sample
-```
+## 実装の全体像
 
-今回の学習機における問題点は、DNNとNNUEが組み合わされているが、DNNとNNUEが同一局面を読み込んでいる点である。DNNは、与えられた局面に対して最も正確な評価値を出力するNNUEモデルを出力しようとする。しかし実際の対局では、それはルート局面に過ぎず、本来のNNUEモデルの責務は、ルート局面から探索した際の探索木に含まれる全ノードを正確に評価することにある。そのため、ルート局面だけで正確な評価ができても不完全である。
+### 1. シャッフル後データ形式（paired）
 
-# 新しいシャッフルとデータローダー
-
-前項の問題を解決するには、DNNはS(x,y-p).sfenを局面として読み取り、NNUEはS(x,y)の局面を読みその評価値に回帰するように学習すればよいという仮説に基づき、これを実装する。ここでp>=0の整数である。y-pがルート局面を指し、yがNNUEが実際に評価しなければならない局面を指す。これらが同一対局中の近い局面であることによって、y-pの局面がある程度の戦局を表現しつつ、探索を考慮したより一般的なNNUEの重みを生成できると期待できる。
-
-pとして用いる数値としては、p>=0で、exp(-p * alpha)に比例する確率でサンプリングするアイデアを有力視している。alphaは、遠い局面をどの程度減衰させるかのハイパーパラメータ。32手前でほぼ0(1e-3程度)になるような確率をベースラインとして採用する。
-
-これを実現するには、シャッフル後のデータフォーマットを変える必要がある。イメージとしては以下の通り。y-pの局面とyの局面をタプルにして、1局面あたり80byte/recordにする。
-```
-[[S(x_1,y_1-p_1),S(x_1,y_1)],[S(x_2,y_2-p_2),S(x_2,y_2)],...]
-```
-ただし、qsearchについて注意が必要。NNUEに読ませる局面はqsearchを適用し、DNNの局面は、実際の対局中のルート局面なのでqsearchを適用しない。疑似コードとしてはこんな感じ。
+1レコード80バイトのペア形式。
 
 ```
-for i in range(*):
-  index = random()
-  nnue_sample = original_data[index]
-  # 実際には、同一対局内であるという制約を考慮した数値の範囲が必要
-  offset = random()
-  dnn_sample = original_data[index - offset]
-  nnue_output_sample = PackedSfenValue(qshuffle(nnue_sample.sfen), nnue_sample.move, nnue_sample.gamePly, nnue_sample.game_result)
-  shuffled_data[i] = [dnn_sample, nnue_output_sample]
+[DNN用 PackedSfenValue 40B | NNUE用 PackedSfenValue 40B]
 ```
 
-# 留意事項
+- 前半40B（DNN側）: qsearch未適用
+- 後半40B（NNUE側）: qsearch適用済み
 
-学習機のデータローダーのパラメータとして、従来のシャッフルと、今回の新しいシャッフルのどちらも扱えるようオプションフラグが必要。
+`PackedSfenValue` は従来どおり40B（sfen 32B + score/move/gamePly/game_result等）。
 
-train/valの分割は、既存のシャッフル `dataset/split_v1` と同一にしたい。
+### 2. paired shuffle 側（tanuki-learner）
 
-DNNの処理が重いため、オリジナルデータの全局面を使うことができない。およそ1Mサンプル学習に15分かかっており、学習データの長さとしては5日分程度で十分なので、480Mサンプル。オリジナルデータはおよそ7.5Gサンプル含んでいるので、出力サンプル数を指定して間引きする。このとき、オリジナルデータの先頭から密にサンプルを取り出すのではなく、データ全体からランダムにサンプルを取り出すようにし、同一の対局から取り出すサンプル数をできるだけ少なくする。これにより、より多様な対局を学習データに含めることができる。
+実装ファイル:
 
-損失関数は、NNUE側の評価値と勝敗で従来どおり決める。
+- `tanuki-learner/source/tanuki_kifu_shuffler.cpp`
 
-この手法は学習時に影響するものであり、やねうら王を用いた本番対局の実装は変化しない。
+追加USIオプション:
+
+- `PairedShuffle` (bool)
+- `MaxOutputSamples` (int)
+- `OffsetAlpha` (float)
+
+数理モデル（背景と記号定義）:
+
+- 生データを対局ごとの時系列局面として `S(x,y)` と書く
+  - `x`: 対局ID
+  - `y`: その対局内の局面インデックス（手数方向に増加）
+- 1サンプルは `(S(x,y-p), S(x,y))` のペアで構成する
+  - DNN入力局面: `S(x,y-p)`（ルート側、qsearch未適用）
+  - NNUE教師局面: `S(x,y)`（探索側、qsearch適用）
+- `p >= 0` は「同一対局内で、NNUE側局面から何手戻るか」のオフセット
+  - `p = 0` なら同一局面
+  - `p > 0` なら過去局面
+
+オフセットサンプリングの数学的仕様:
+
+- 理想モデルは
+  - `P(p=k) ∝ exp(-alpha * k)` (`k=0,1,2,...`)
+- 実装ではこれを離散分布として幾何分布に落としている
+  - `r = exp(-alpha)`
+  - `P(p=k) = (1-r) * r^k`
+  - `k` は `std::geometric_distribution` で生成
+- 同一対局制約のため、実際に使う `p` は
+  - `p = min(k, y - y_start(x))`
+  - ここで `y_start(x)` は対局 `x` の先頭局面インデックス
+
+挙動:
+
+- `PairedShuffle=true` で80Bレコード出力
+- NNUE側（後半40B）は従来同様 `ApplyQSearch=true` でqsearch適用
+- DNN側（前半40B）は同一対局内の過去局面を使う
+- オフセット `p` は上記モデル（指数減衰に対応する幾何分布）でサンプル（`alpha=OffsetAlpha`）
+- `MaxOutputSamples>0` なら出力レコード数を上限で打ち切る
+
+### 3. 学習データローダー側（Python）
+
+実装ファイル:
+
+- `src/train_nnue/expert_blending_dataset.py`
+
+追加クラス/機能:
+
+- `PairedExpertBlendingDataset`
+- `extract_paired_nnue_bin()`
+
+挙動:
+
+- DNN特徴量は80Bレコード前半40Bから生成
+- NNUE特徴量は80Bレコード後半40Bから生成
+- NNUE側は既存C++ローダー（`SparseBatchProvider`）を流用するため、
+  起動時に後半40Bだけを抽出した一時キャッシュを作成して使用
+  - 既定: `<paired_bin名>.nnue40.bin`
+  - 学習スクリプトから `--paired-nnue-cache-dir` 指定可
+
+### 4. 学習スクリプト側
+
+実装ファイル:
+
+- `src/train_nnue/train_expert_blending.py`
+
+追加引数:
+
+- `--paired`
+- `--paired-nnue-cache-dir`
+
+起動スクリプト:
+
+- `scripts/run_train_expert_blending_8experts_v3.sh`
+
+このスクリプトは `dataset/split_v1_paired/train.bin` / `val1.bin` を使って
+`--paired` で学習を開始する。
+
+## コマンド（実運用）
+
+### 0. 前提
+
+- `bin/shuffle/tanuki-learner` が最新ビルド済み
+- `bin/shuffle/eval/nn.bin` が存在
+
+必要なら再ビルド:
+
+```bash
+cd tanuki-learner/source
+make evallearn BLAS= > /tmp/tanuki_evallearn_build.log 2>&1
+cd /home/select766/shogi/train-nnue
+cp tanuki-learner/source/YaneuraOu-by-gcc bin/shuffle/tanuki-learner
+```
+
+### 1. paired shuffle（単一split）
+
+```bash
+bash scripts/run_paired_shuffle.sh <input_dir> <output_dir> [threads] [max_output_samples] [offset_alpha]
+```
+
+例:
+
+```bash
+bash scripts/run_paired_shuffle.sh \
+  dataset/split_v1/input_train \
+  dataset/split_v1_paired/output_train \
+  8 \
+  480000000 \
+  0.216
+```
+
+- `max_output_samples=480000000` は約38.4GB（80B/record）
+- `offset_alpha=0.216` は32手程度で重みが十分小さくなる設定
+
+出力は `<output_dir>/shuffled.bin`。
+
+### 2. splitごとの配置
+
+`dataset/split_v1` と同じ分割を使うため、各splitで `shuffled.bin` を作ってリネームする。
+
+例（trainとval1）:
+
+```bash
+mkdir -p dataset/split_v1_paired
+
+bash scripts/run_paired_shuffle.sh dataset/split_v1/input_train dataset/split_v1_paired/output_train 8 480000000 0.216
+mv dataset/split_v1_paired/output_train/shuffled.bin dataset/split_v1_paired/train.bin
+rm -rf dataset/split_v1_paired/output_train
+
+bash scripts/run_paired_shuffle.sh dataset/split_v1/input_val1 dataset/split_v1_paired/output_val1 8 10000000 0.216
+mv dataset/split_v1_paired/output_val1/shuffled.bin dataset/split_v1_paired/val1.bin
+rm -rf dataset/split_v1_paired/output_val1
+```
+
+### 3. paired学習の実行
+
+```bash
+bash scripts/run_train_expert_blending_8experts_v3.sh
+```
+
+ログ:
+
+- 学習ログ: `/tmp/train_expert_blending_8experts_v3_paired.log`
+- 監視: `tail -f /tmp/train_expert_blending_8experts_v3_paired.log`
+
+### 4. スモークテスト（10MB程度）
+
+```bash
+# 131072 records * 80B = 10,485,760 bytes
+bash scripts/run_paired_shuffle.sh tmp/paired_smoke_input tmp/paired_smoke_output 8 131072 0.216
+ls -lh tmp/paired_smoke_output/shuffled.bin
+```
+
+## 注意事項
+
+- `shuffle_kifu` 入力ディレクトリには `.bin` 以外を置かないこと
+- 学習コマンドの標準出力は必ずファイルへリダイレクトすること
+- `dataset/` と `logs/` が外部ディスクへのシンボリックリンク環境では、
+  実行権限に注意すること
