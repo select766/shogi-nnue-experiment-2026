@@ -123,7 +123,7 @@ class NNUEExperts(nn.Module):
         活性化: clipped ReLU (clamp 0.0〜1.0)
 
     各レイヤーの重み・バイアスを (N_EXPERTS, *param_shape) のParameterとして保持し、
-    gate_weightsで加重平均してバッチ内で局面ごとに異なる重みを使う。
+    gate_weights で「重みを先に合成してから推論」する。
     """
 
     L1 = 256
@@ -148,40 +148,28 @@ class NNUEExperts(nn.Module):
         self.output_weight = nn.Parameter(torch.zeros(n_experts, 1, self.L3))
         self.output_bias = nn.Parameter(torch.zeros(n_experts, 1))
 
-    def _expert_forward(self, k, us, them, w_in, b_in):
-        """単一 expert k の NNUE forward 計算。
+    def _blended_linear(self, x, weight, bias, gate_weights):
+        """線形層を expert 重みでブレンドして計算する。
 
         Args:
-            k: expert インデックス
-            us, them, w_in, b_in: バッチ入力
+            x: (batch, in_features)
+            weight: (n_experts, out_features, in_features)
+            bias: (n_experts, out_features)
+            gate_weights: (batch, n_experts)
         Returns:
-            output: (batch, 1)
+            out: (batch, out_features)
         """
-        # input layer: (L1, F) @ (batch, F).T -> (L1, batch) -> transpose
-        w = F.linear(w_in, self.input_weight[k], self.input_bias[k])  # (batch, L1)
-        b = F.linear(b_in, self.input_weight[k], self.input_bias[k])  # (batch, L1)
-
-        # 視点の結合
-        l0_ = (us * torch.cat([w, b], dim=1)) + (them * torch.cat([b, w], dim=1))
-        l0_ = torch.clamp(l0_, 0.0, 1.0)
-
-        # l1
-        l1_ = F.linear(l0_, self.l1_weight[k], self.l1_bias[k])
-        l1_ = torch.clamp(l1_, 0.0, 1.0)
-
-        # l2
-        l2_ = F.linear(l1_, self.l2_weight[k], self.l2_bias[k])
-        l2_ = torch.clamp(l2_, 0.0, 1.0)
-
-        # output
-        out = F.linear(l2_, self.output_weight[k], self.output_bias[k])
+        out = None
+        for k in range(self.n_experts):
+            out_k = F.linear(x, weight[k], bias[k])  # (batch, out_features)
+            g = gate_weights[:, k].unsqueeze(1)      # (batch, 1)
+            out = out_k * g if out is None else out + (out_k * g)
         return out
 
     def forward(self, gate_weights, us, them, w_in, b_in):
         """
-        各 expert の NNUE forward を個別に計算し、gate_weights で加重平均する。
-        input 層の重みブレンドによる OOM を回避するため、
-        出力レベルでブレンドする方式を採用。
+        gate_weights で各層の重みを合成した 1 つの NNUE として forward 計算する。
+        本番対局時 (`blend_expert_weights`) と同じ意味論に合わせる。
 
         Args:
             gate_weights: (batch, N_EXPERTS) expert混合重み
@@ -198,16 +186,27 @@ class NNUEExperts(nn.Module):
         if b_in.is_sparse:
             b_in = b_in.to_dense()
 
-        # 各 expert の出力を計算し、gate_weights で加重平均
-        expert_outputs = []
-        for k in range(self.n_experts):
-            out_k = self._expert_forward(k, us, them, w_in, b_in)  # (batch, 1)
-            expert_outputs.append(out_k)
+        # Input layer:
+        # linear は重みに対して線形なので、重みブレンド後の F.linear と等価に
+        # Σ_k gate_k * F.linear(x, W_k, b_k) で計算できる。
+        # これにより (batch, 256, num_features) の巨大中間テンソル生成を避ける。
+        w = self._blended_linear(w_in, self.input_weight, self.input_bias, gate_weights)
+        b = self._blended_linear(b_in, self.input_weight, self.input_bias, gate_weights)
 
-        # (batch, n_experts)
-        expert_stack = torch.cat(expert_outputs, dim=1)
-        # 加重平均: (batch, n_experts) * (batch, n_experts) -> sum -> (batch,)
-        output = (expert_stack * gate_weights).sum(dim=1, keepdim=True)
+        # 視点の結合
+        l0_ = (us * torch.cat([w, b], dim=1)) + (them * torch.cat([b, w], dim=1))
+        l0_ = torch.clamp(l0_, 0.0, 1.0)
+
+        # Hidden layers and output: blended-weight semantics
+        l1_ = self._blended_linear(l0_, self.l1_weight, self.l1_bias, gate_weights)
+        l1_ = torch.clamp(l1_, 0.0, 1.0)
+
+        l2_ = self._blended_linear(l1_, self.l2_weight, self.l2_bias, gate_weights)
+        l2_ = torch.clamp(l2_, 0.0, 1.0)
+
+        output = self._blended_linear(
+            l2_, self.output_weight, self.output_bias, gate_weights
+        )
 
         return output
 
