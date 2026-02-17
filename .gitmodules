@@ -12,3 +12,4 @@
 [submodule "dlshogi-source"]
 	path = dlshogi-source
 	url = https://github.com/TadaoYamaoka/DeepLearningShogi.git
+	ignore = untracked
