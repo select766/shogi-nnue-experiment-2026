@@ -87,9 +87,10 @@ class DNNAdapter(nn.Module):
     出力: weights (batch, N_EXPERTS), 総和=1
     """
 
-    def __init__(self, in_channels=192, hidden_dim=128, n_experts=4):
+    def __init__(self, in_channels=192, hidden_dim=128, n_experts=4, noise_scale=1.0):
         super().__init__()
         self.n_experts = n_experts
+        self.noise_scale = noise_scale
         self.fc1 = nn.Linear(in_channels, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, n_experts)
 
@@ -105,8 +106,8 @@ class DNNAdapter(nn.Module):
         x = feat.mean(dim=[2, 3])
         x = F.relu(self.fc1(x))
         logits = self.fc2(x)
-        if training:
-            noise = torch.randn_like(logits)
+        if training and self.noise_scale > 0.0:
+            noise = torch.randn_like(logits) * self.noise_scale
             logits = logits + noise
         weights = F.softmax(logits, dim=-1)
         return weights
@@ -309,8 +310,15 @@ def load_nnue_experts(ckpt_path, n_experts, feature_set):
     return experts
 
 
-def create_expert_blending_model(backbone_weights_path, nnue_ckpt_path, feature_set,
-                                 n_experts=4, adapter_hidden=128, device='cpu'):
+def create_expert_blending_model(
+    backbone_weights_path,
+    nnue_ckpt_path,
+    feature_set,
+    n_experts=4,
+    adapter_hidden=128,
+    adapter_noise_scale=1.0,
+    device='cpu',
+):
     """全コンポーネントを組み立ててExpertBlendingModelを返すファクトリ関数。
 
     Args:
@@ -319,12 +327,18 @@ def create_expert_blending_model(backbone_weights_path, nnue_ckpt_path, feature_
         feature_set: HalfKP等のFeatureBlockインスタンス
         n_experts: expert数
         adapter_hidden: adapter中間層の次元数
+        adapter_noise_scale: adapter logits に加える Gaussian noise のスケール
         device: デバイス
     Returns:
         ExpertBlendingModel
     """
     backbone = load_backbone(backbone_weights_path, device)
-    adapter = DNNAdapter(in_channels=192, hidden_dim=adapter_hidden, n_experts=n_experts)
+    adapter = DNNAdapter(
+        in_channels=192,
+        hidden_dim=adapter_hidden,
+        n_experts=n_experts,
+        noise_scale=adapter_noise_scale,
+    )
     nnue_experts = load_nnue_experts(nnue_ckpt_path, n_experts, feature_set)
 
     model = ExpertBlendingModel(backbone, adapter, nnue_experts)

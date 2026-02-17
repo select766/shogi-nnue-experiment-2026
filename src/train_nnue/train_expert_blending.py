@@ -250,6 +250,12 @@ def main():
     parser.add_argument("--nnue-checkpoint", required=True, help="NNUE .ckpt path for expert init")
     parser.add_argument("--n-experts", type=int, default=4, help="Number of NNUE experts")
     parser.add_argument("--adapter-hidden", type=int, default=128, help="Adapter hidden dim")
+    parser.add_argument(
+        "--adapter-noise-scale",
+        type=float,
+        default=1.0,
+        help="Gaussian noise scale added to adapter logits during training",
+    )
     # Training
     parser.add_argument("--lr-nnue", type=float, default=0.5, help="LR for NNUE experts")
     parser.add_argument("--lr-adapter", type=float, default=0.5, help="LR for DNN adapter")
@@ -299,6 +305,7 @@ def main():
         feature_set=feature_set,
         n_experts=args.n_experts,
         adapter_hidden=args.adapter_hidden,
+        adapter_noise_scale=args.adapter_noise_scale,
         device="cpu",  # PL will move to GPU
     )
     trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)

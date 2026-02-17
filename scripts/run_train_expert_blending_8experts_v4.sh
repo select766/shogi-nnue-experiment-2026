@@ -1,86 +1,139 @@
 #!/bin/bash
-# Expert Blending モデル (8 experts) の paired 学習スクリプト。
-# dataset/split_v1_paired/ (80B/record: DNN40B + NNUE40B) を使用する。
-# Stop with Ctrl-C, then re-run to resume from latest checkpoint.
+# Internal runner for Expert Blending v4 training.
+# Resume/venv/log redirection are centralized here.
 #
-# Usage: bash scripts/run_train_expert_blending_8experts_v4.sh
-set -e
+# This script is not intended to be called directly by users.
+# Call from hyperparameter entry scripts and pass training options after `--`.
+#
+# Usage:
+#   bash scripts/run_train_expert_blending_8experts_v4.sh \
+#     --logdir <path> \
+#     --log-file <path> \
+#     [--train <path>] [--val <path>] \
+#     [--paired] [--paired-nnue-cache-dir <path>] \
+#     [--backbone-weights <path>] [--nnue-checkpoint <path>] \
+#     -- <train_expert_blending.py options>
+set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-NNUE_PYTORCH_DIR="${SCRIPT_DIR}/nnue-pytorch"
-LOGDIR="${SCRIPT_DIR}/logs/expert_blending_8experts_v4_paired"
-CKPT_DIR="${LOGDIR}/checkpoints"
-LOG_FILE="/tmp/train_expert_blending_8experts_v4_paired.log"
+SCRIPT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+NNUE_PYTORCH_DIR="${SCRIPT_ROOT}/nnue-pytorch"
 
-# Data (paired)
-SPLIT_BASE="${SCRIPT_DIR}/dataset/split_v1_paired"
-TRAIN_BIN="${SPLIT_BASE}/train.bin"
-VAL_BIN="${SPLIT_BASE}/val1.bin"
+TRAIN_BIN="${SCRIPT_ROOT}/dataset/split_v1_paired/train.bin"
+VAL_BIN="${SCRIPT_ROOT}/dataset/split_v1_paired/val1.bin"
+PAIRED=0
+PAIRED_NNUE_CACHE_DIR="${SCRIPT_ROOT}/tmp/paired_nnue_cache"
+BACKBONE_WEIGHTS="${SCRIPT_ROOT}/tmp/dlshogi-model/model_resnet10_swish-072"
+NNUE_CKPT="${SCRIPT_ROOT}/logs/halfkp_v1/checkpoints/83000.ckpt"
+LOGDIR=""
+LOG_FILE=""
+TRAIN_ARGS=()
 
-# Optional cache location for extracted NNUE-side 40B records
-PAIRED_NNUE_CACHE_DIR="${SCRIPT_DIR}/tmp/paired_nnue_cache"
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --logdir)
+            [[ $# -ge 2 ]] || { echo "ERROR: --logdir requires a value"; exit 1; }
+            LOGDIR="$2"
+            shift 2
+            ;;
+        --log-file)
+            [[ $# -ge 2 ]] || { echo "ERROR: --log-file requires a value"; exit 1; }
+            LOG_FILE="$2"
+            shift 2
+            ;;
+        --train)
+            [[ $# -ge 2 ]] || { echo "ERROR: --train requires a value"; exit 1; }
+            TRAIN_BIN="$2"
+            shift 2
+            ;;
+        --val)
+            [[ $# -ge 2 ]] || { echo "ERROR: --val requires a value"; exit 1; }
+            VAL_BIN="$2"
+            shift 2
+            ;;
+        --paired)
+            PAIRED=1
+            shift
+            ;;
+        --paired-nnue-cache-dir)
+            [[ $# -ge 2 ]] || { echo "ERROR: --paired-nnue-cache-dir requires a value"; exit 1; }
+            PAIRED_NNUE_CACHE_DIR="$2"
+            shift 2
+            ;;
+        --backbone-weights)
+            [[ $# -ge 2 ]] || { echo "ERROR: --backbone-weights requires a value"; exit 1; }
+            BACKBONE_WEIGHTS="$2"
+            shift 2
+            ;;
+        --nnue-checkpoint)
+            [[ $# -ge 2 ]] || { echo "ERROR: --nnue-checkpoint requires a value"; exit 1; }
+            NNUE_CKPT="$2"
+            shift 2
+            ;;
+        --)
+            shift
+            TRAIN_ARGS=("$@")
+            break
+            ;;
+        *)
+            echo "ERROR: Unknown argument: $1"
+            exit 1
+            ;;
+    esac
+done
 
-# Model weights
-BACKBONE_WEIGHTS="${SCRIPT_DIR}/tmp/dlshogi-model/model_resnet10_swish-072"
-NNUE_CKPT="${SCRIPT_DIR}/logs/halfkp_v1/checkpoints/83000.ckpt"
+if [[ -z "$LOGDIR" || -z "$LOG_FILE" ]]; then
+    echo "ERROR: --logdir and --log-file are required."
+    exit 1
+fi
 
-# Check files exist
 for f in "$TRAIN_BIN" "$VAL_BIN" "$BACKBONE_WEIGHTS" "$NNUE_CKPT"; do
-    if [ ! -f "$f" ]; then
+    if [[ ! -f "$f" ]]; then
         echo "ERROR: Not found: ${f}"
         exit 1
     fi
 done
 
-mkdir -p "$PAIRED_NNUE_CACHE_DIR"
+if [[ $PAIRED -eq 1 ]]; then
+    mkdir -p "$PAIRED_NNUE_CACHE_DIR"
+fi
 
-# Find latest checkpoint for resume
-RESUME_ARG=""
-if [ -d "$CKPT_DIR" ]; then
-    LATEST_CKPT=$(ls -t "${CKPT_DIR}"/*.ckpt 2>/dev/null | head -1)
-    if [ -n "$LATEST_CKPT" ]; then
+mkdir -p "$LOGDIR"
+CKPT_DIR="${LOGDIR}/checkpoints"
+
+RESUME_ARGS=()
+if [[ -d "$CKPT_DIR" ]]; then
+    LATEST_CKPT=$(ls -t "${CKPT_DIR}"/*.ckpt 2>/dev/null | head -1 || true)
+    if [[ -n "${LATEST_CKPT}" ]]; then
         echo "Found checkpoint: ${LATEST_CKPT}"
         echo "Resuming training..."
-        RESUME_ARG="--resume-from-checkpoint ${LATEST_CKPT}"
+        RESUME_ARGS=(--resume-from-checkpoint "$LATEST_CKPT")
     fi
 fi
 
-if [ -z "$RESUME_ARG" ]; then
+if [[ ${#RESUME_ARGS[@]} -eq 0 ]]; then
     echo "Starting new training run."
 fi
-
-cd "$NNUE_PYTORCH_DIR"
-source .venv/bin/activate
 
 echo "Log file: ${LOG_FILE}"
 echo "Monitor with: tail -f ${LOG_FILE}"
 
-PYTHONPATH="${SCRIPT_DIR}/src:${PYTHONPATH}" python -m train_nnue.train_expert_blending \
-  --train "$TRAIN_BIN" \
-  --val "$VAL_BIN" \
-  --paired \
-  --paired-nnue-cache-dir "$PAIRED_NNUE_CACHE_DIR" \
-  --backbone-weights "$BACKBONE_WEIGHTS" \
-  --nnue-checkpoint "$NNUE_CKPT" \
-  --feature-set "HalfKP" \
-  --n-experts 8 \
-  --adapter-hidden 128 \
-  --batch-size 256 \
-  --epoch-size 1000000 \
-  --lr-nnue 0.01 \
-  --lr-adapter 0.1 \
-  --lambda 1.0 \
-  --label-smoothing-eps 0.001 \
-  --score-scaling 361 \
-  --num-batches-warmup 10000 \
-  --newbob-decay 0.5 \
-  --num-epochs-to-adjust-lr 20 \
-  --min-newbob-scale 1e-5 \
-  --momentum 0.9 \
-  --network-save-period 10 \
-  --max-epochs 1000000 \
-  --gpus 1 \
-  --default-root-dir "$LOGDIR" \
-  --seed 42 \
-  $RESUME_ARG \
-  > "$LOG_FILE" 2>&1
+cd "$NNUE_PYTORCH_DIR"
+source .venv/bin/activate
+
+CMD=(
+    python -m train_nnue.train_expert_blending
+    --train "$TRAIN_BIN"
+    --val "$VAL_BIN"
+    --backbone-weights "$BACKBONE_WEIGHTS"
+    --nnue-checkpoint "$NNUE_CKPT"
+    --default-root-dir "$LOGDIR"
+)
+
+if [[ $PAIRED -eq 1 ]]; then
+    CMD+=(--paired --paired-nnue-cache-dir "$PAIRED_NNUE_CACHE_DIR")
+fi
+
+CMD+=("${TRAIN_ARGS[@]}")
+CMD+=("${RESUME_ARGS[@]}")
+
+PYTHONPATH="${SCRIPT_ROOT}/src:${PYTHONPATH:-}" "${CMD[@]}" > "$LOG_FILE" 2>&1
