@@ -23,6 +23,7 @@ Usage:
 
 import mmap
 import os
+import random
 import time
 from pathlib import Path
 
@@ -269,19 +270,54 @@ class _ExpertBlendingIterator:
 
 
 class FixedNumBatchesDataset(Dataset):
-    """Wraps an IterableDataset to yield a fixed number of batches per epoch."""
+    """Wraps an IterableDataset to yield a fixed number of batches per epoch.
 
-    def __init__(self, dataset, num_batches):
+    Notes:
+    - reset_on_epoch_start=True makes each epoch start from dataset head.
+      This is needed for deterministic validation.
+    - shuffle_buffer_size>0 enables lightweight batch-order shuffling inside
+      each epoch by buffering several batches and emitting them in random order.
+    """
+
+    def __init__(
+        self,
+        dataset,
+        num_batches,
+        *,
+        reset_on_epoch_start=False,
+        shuffle_buffer_size=0,
+        seed=42,
+    ):
         super().__init__()
         self.dataset = dataset
         self.iter = iter(self.dataset)
         self.num_batches = num_batches
+        self.reset_on_epoch_start = reset_on_epoch_start
+        self.shuffle_buffer_size = max(0, int(shuffle_buffer_size))
+        self._rng = random.Random(seed)
+        self._shuffle_buf = []
 
     def __len__(self):
         return self.num_batches
 
+    def _refill_shuffle_buf(self):
+        if self.shuffle_buffer_size <= 1:
+            return
+        need = self.shuffle_buffer_size - len(self._shuffle_buf)
+        for _ in range(need):
+            self._shuffle_buf.append(next(self.iter))
+
     def __getitem__(self, idx):
-        return next(self.iter)
+        if idx == 0 and self.reset_on_epoch_start:
+            self.iter = iter(self.dataset)
+            self._shuffle_buf = []
+
+        if self.shuffle_buffer_size <= 1:
+            return next(self.iter)
+
+        self._refill_shuffle_buf()
+        pick = self._rng.randrange(len(self._shuffle_buf))
+        return self._shuffle_buf.pop(pick)
 
 
 def create_data_loaders(
@@ -294,6 +330,8 @@ def create_data_loaders(
     max_val_positions=1_000_000,
     paired=False,
     nnue_cache_dir=None,
+    train_shuffle_buffer_size=0,
+    seed=42,
 ):
     """学習/検証用DataLoaderのペアを返す。
 
@@ -334,12 +372,24 @@ def create_data_loaders(
     num_val_batches = (min(val_records, max_val_positions) + batch_size - 1) // batch_size
 
     train_loader = DataLoader(
-        FixedNumBatchesDataset(train_dataset, num_train_batches),
+        FixedNumBatchesDataset(
+            train_dataset,
+            num_train_batches,
+            reset_on_epoch_start=False,
+            shuffle_buffer_size=train_shuffle_buffer_size,
+            seed=seed,
+        ),
         batch_size=None,
         batch_sampler=None,
     )
     val_loader = DataLoader(
-        FixedNumBatchesDataset(val_dataset, num_val_batches),
+        FixedNumBatchesDataset(
+            val_dataset,
+            num_val_batches,
+            reset_on_epoch_start=True,
+            shuffle_buffer_size=0,
+            seed=seed,
+        ),
         batch_size=None,
         batch_sampler=None,
     )

@@ -96,8 +96,14 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         result = lambda_ * teacher_loss + (1.0 - lambda_) * outcome_loss
         entropy = lambda_ * teacher_entropy + (1.0 - lambda_) * outcome_entropy
         loss = result.mean() - entropy.mean()
-
-        self.log(loss_type, loss, prog_bar=True)
+        batch_size = int(x1.shape[0])
+        if loss_type == "train_loss":
+            # Step-wise trace for debugging/volatility checks.
+            self.log("train_loss_step", loss, on_step=True, on_epoch=False, prog_bar=False)
+            # Epoch aggregate to compare against val_loss (same granularity).
+            self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True, batch_size=batch_size)
+        else:
+            self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True, batch_size=batch_size)
         return loss
 
     def training_step(self, batch, batch_idx):
@@ -270,6 +276,12 @@ def main():
     parser.add_argument("--momentum", type=float, default=0.0)
     parser.add_argument("--max-val-positions", type=int, default=100000,
                         help="Max validation positions per epoch")
+    parser.add_argument(
+        "--train-shuffle-buffer-size",
+        type=int,
+        default=0,
+        help="Batch-level shuffle buffer size for train loader (0 disables)",
+    )
     parser.add_argument("--network-save-period", type=int, default=100,
                         help="Epochs between checkpoint saves")
     # PyTorch Lightning
@@ -346,6 +358,8 @@ def main():
         max_val_positions=args.max_val_positions,
         paired=args.paired,
         nnue_cache_dir=args.paired_nnue_cache_dir,
+        train_shuffle_buffer_size=args.train_shuffle_buffer_size,
+        seed=args.seed,
     )
 
     # --- Trainer ---
