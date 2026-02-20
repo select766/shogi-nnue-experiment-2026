@@ -4,7 +4,9 @@ SFEN を受け取ってブレンド済み量子化 NNUE 重みを返す。
 
 プロトコル (stdin/stdout pipe):
     [C++ → Python] SFEN文字列 + "\\n"
-    [Python → C++] 4バイト: データサイズ(uint32 LE) + 重みバイナリ(固定サイズ)
+    [Python → C++] 32バイト: 合成比率(float32 LE x 8)
+                     + 4バイト: データサイズ(uint32 LE)
+                     + 重みバイナリ(固定サイズ)
 
 起動時に "ready\\n" を stdout に出力して準備完了を通知する。
 
@@ -224,8 +226,16 @@ def main():
 
         t2 = time.time()
 
-        # Send response: size (uint32 LE) + data
+        gate_weights_list = gate_weights.detach().cpu().tolist()
+        if len(gate_weights_list) != 8:
+            raise RuntimeError(
+                f"Protocol requires exactly 8 experts, but got {len(gate_weights_list)}"
+            )
+
+        # Send response:
+        # [8 x float32 blending weights] + [uint32 size] + [payload bytes]
         size = len(weight_bytes)
+        sys.stdout.buffer.write(struct.pack("<8f", *gate_weights_list))
         sys.stdout.buffer.write(struct.pack("<I", size))
         sys.stdout.buffer.write(weight_bytes)
         sys.stdout.buffer.flush()
