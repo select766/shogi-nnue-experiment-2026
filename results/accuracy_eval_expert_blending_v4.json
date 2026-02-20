@@ -1,6 +1,6 @@
 {
-  "accuracy": 0.628,
-  "matches": 628,
+  "accuracy": 0.647,
+  "matches": 647,
   "total": 1000,
   "config": {
     "engine_path": "bin/YaneuraOu-expert-blending",
@@ -62,15 +62,15 @@
       "index": 6,
       "sfen": "lnsg2snl/1p2k1gp1/p1bppp2p/2+R6/9/3B2P2/P2PPP2P/2G1K2P1/LNS2GSNL w 2Pr2p 1",
       "expected": "3a4b",
-      "actual": "7a7b",
+      "actual": "7c6d",
       "match": false
     },
     {
       "index": 7,
       "sfen": "ln2k2nl/1r2g1g2/3p1pspp/p2sB4/1p2P2P1/2SP1S3/PP3P2P/2GK3R1/LN3G1NL w 4Pbp 1",
       "expected": "8e8f",
-      "actual": "5a4b",
-      "match": false
+      "actual": "8e8f",
+      "match": true
     },
     {
       "index": 8,
@@ -111,8 +111,8 @@
       "index": 13,
       "sfen": "lr5n+B/2gkg4/2nspp1+Rl/p2p2p2/1pp1PN3/PPP3P2/1KSP1P2P/4GS3/LN1G4L b 3Pbs 1",
       "expected": "8g7h",
-      "actual": "1a2a",
-      "match": false
+      "actual": "8g7h",
+      "match": true
     },
     {
       "index": 14,
@@ -195,7 +195,7 @@
       "index": 25,
       "sfen": "2B1k3l/2sgg2+Np/5pnp1/PrpPp3P/3p2S1L/1pP2B3/2K1PPp2/SPR6/L3g2N1 w GL3Psn 1",
       "expected": "N*5e",
-      "actual": "8d9d",
+      "actual": "8d8e",
       "match": false
     },
     {
@@ -223,8 +223,8 @@
       "index": 29,
       "sfen": "3g4l/3kg4/1pppp1+P1p/ps2s1pR1/lN2bp3/1PP6/N1S2PP1P/L1S6/K2P3NL b RBN2P2gp 1",
       "expected": "2d2a+",
-      "actual": "B*8h",
-      "match": false
+      "actual": "2d2a+",
+      "match": true
     },
     {
       "index": 30,
@@ -279,7 +279,7 @@
       "index": 37,
       "sfen": "ln3g1nl/1r3gkb1/p1p2p1p1/2s2sp1p/1p7/2PP4P/PPBS1PPP1/3G1SGK1/LN2R2NL w P2p 1",
       "expected": "8b6b",
-      "actual": "7d6c",
+      "actual": "4d5e",
       "match": false
     },
     {
@@ -293,8 +293,8 @@
       "index": 39,
       "sfen": "ln1gkg1nl/1r1s1s3/p1ppppbpp/1p4p2/7P1/2PP5/PP2PPP1P/1B1S1S1R1/LN1GKG1NL w - 1",
       "expected": "6c6d",
-      "actual": "4a3b",
-      "match": false
+      "actual": "6c6d",
+      "match": true
     },
     {
       "index": 40,
@@ -328,29 +328,29 @@
       "index": 44,
       "sfen": "l4S1nl/5g3/prnp3k1/1P2g4/P3spp1p/1S1P5/6N2/1K3GP2/LN1G3+rL w 2BS2P7p 1",
       "expected": "8c8a",
-      "actual": "8c8b",
+      "actual": "2i6i",
       "match": false
     },
     {
       "index": 45,
       "sfen": "lr6l/3gk1g2/4ppns1/ppPps2pp/2Sn5/P4PS1P/1P1PP1N2/2G1KG3/LN5RL w B2Pb2p 1",
       "expected": "5d5e",
-      "actual": "5d5e",
-      "match": true
+      "actual": "P*7g",
+      "match": false
     },
     {
       "index": 46,
       "sfen": "lr1n4l/2s2S1p1/p2kp3p/2p3+Ps1/3Pb1p2/PSPp1g1G1/1PG1P3P/3K5/LN3R2L w BGN2Pn2p 1",
       "expected": "N*4e",
-      "actual": "P*4h",
-      "match": false
+      "actual": "N*4e",
+      "match": true
     },
     {
       "index": 47,
       "sfen": "l3k2nl/1rsg2g2/p1np1sbpp/2p1ppp2/1p5P1/P1P1P1P2/1PSP1P2P/2GBGS1R1/LN1K3NL w - 1",
       "expected": "8b8a",
-      "actual": "8b8a",
-      "match": true
+      "actual": "3c4b",
+      "match": false
     },
     {
       "index": 48,
@@ -370,7 +370,7 @@
       "index": 50,
       "sfen": "ln1gk2nl/1r3bg2/p1sp1pspp/4p1p2/1p7/5PP2/PPBPPSN1P/2GS1G1R1/LN2K3L b 2Pp 1",
       "expected": "5i5h",
-      "actual": "P*7f",
+      "actual": "3f3e",
       "match": false
     },
     {
@@ -412,8 +412,8 @@
       "index": 56,
       "sfen": "1r4knl/3g1bg2/2ns1p3/2p2sppp/l2P5/p1PSSBP2/1PNG1PN1P/PKG4R1/L7L w 2P3p 1",
       "expected": "P*8f",
-      "actual": "P*5d",
-      "match": false
+      "actual": "P*8f",
+      "match": true
     },
     {
       "index": 57,
@@ -440,14 +440,14 @@
       "index": 60,
       "sfen": "ln1gkg1nl/1r7/p1spppsp1/2p3p1p/7P1/P1P2P3/1P1PP1P1P/1S1KG1SR1/LN1G3NL w BPb 1",
       "expected": "7c6d",
-      "actual": "5a4b",
+      "actual": "4a3b",
       "match": false
     },
     {
       "index": 61,
       "sfen": "lr4+P1l/3kg1+P2/2n1pp2p/p1pps4/1p7/2PP1+B3/PPG1PP2P/3KG4/LNSS1br1+p w GSNnlp 1",
       "expected": "1i2i",
-      "actual": "N*3f",
+      "actual": "4i5h+",
       "match": false
     },
     {
@@ -489,8 +489,8 @@
       "index": 67,
       "sfen": "ln3gsnl/2r4k1/pp1psgbp1/2p1ppp1p/9/2PP2P1P/PPBSPPNP1/2R1G1S2/LN3GK1L b - 1",
       "expected": "5g5f",
-      "actual": "2g2f",
-      "match": false
+      "actual": "5g5f",
+      "match": true
     },
     {
       "index": 68,
@@ -503,8 +503,8 @@
       "index": 69,
       "sfen": "l8/5kg1P/1L3p1s1/p1nrp1ppp/2NpsP2L/PgP3P2/4P+B3/2K6/LN5R1 b BGSN5Pgs 1",
       "expected": "7h6h",
-      "actual": "B*7c",
-      "match": false
+      "actual": "7h6h",
+      "match": true
     },
     {
       "index": 70,
@@ -517,8 +517,8 @@
       "index": 71,
       "sfen": "lr3k1nl/3g2g2/2n1ppsp1/p1pps1p1p/1p3P3/P1PPS1PPP/1PS1P1N2/2G2G3/LNK4RL w Bb 1",
       "expected": "5d6c",
-      "actual": "4a5b",
-      "match": false
+      "actual": "5d6c",
+      "match": true
     },
     {
       "index": 72,
@@ -615,8 +615,8 @@
       "index": 85,
       "sfen": "2p1pk1nl/2g2sg2/+L1ns1p3/6pp1/1p1pGN2p/2L1R4/1PSP4+b/1KG4P1/1N7 b BLrs7p 1",
       "expected": "7f7c+",
-      "actual": "7f7c",
-      "match": false
+      "actual": "7f7c+",
+      "match": true
     },
     {
       "index": 86,
@@ -671,7 +671,7 @@
       "index": 93,
       "sfen": "ln1g1gsnl/1r1s1k1b1/ppp1pp1pp/3p2p2/9/2PP5/PPS1PPPPP/1B5R1/LN1GKGSNL b - 1",
       "expected": "2g2f",
-      "actual": "4i5h",
+      "actual": "3i4h",
       "match": false
     },
     {
@@ -685,15 +685,15 @@
       "index": 95,
       "sfen": "l1s1g3+P/1p2k3R/p1nppgs1p/8b/9/P2L3R1/2PPP+p2P/2SK5/LG3G1NL w Bs2n6p 1",
       "expected": "P*2b",
-      "actual": "3c4b",
+      "actual": "P*4b",
       "match": false
     },
     {
       "index": 96,
       "sfen": "ln1g1g1nl/2sk3r1/1ppppsbpp/p4pp2/7P1/PPP1P4/3PSPP1P/1BGK3R1/LNS2G1NL w - 1",
       "expected": "4a3b",
-      "actual": "2c2d",
-      "match": false
+      "actual": "4a3b",
+      "match": true
     },
     {
       "index": 97,
@@ -720,15 +720,15 @@
       "index": 100,
       "sfen": "ln5nl/1r1sg1kg1/p1p1ppspp/1p1p2p2/7P1/P1P2SP2/1P1PPP2P/1SGK3R1/LN3G1NL w Bb 1",
       "expected": "9c9d",
-      "actual": "4c4d",
+      "actual": "6b6c",
       "match": false
     },
     {
       "index": 101,
       "sfen": "6r1l/+P8/4kpgpp/2p1P3r/3p2pP1/l1P1NPP1B/1P+nPKS2P/1+p2G4/b6+lL w GSNPg2snp 1",
       "expected": "5c6b",
-      "actual": "1d5d",
-      "match": false
+      "actual": "5c6b",
+      "match": true
     },
     {
       "index": 102,
@@ -755,15 +755,15 @@
       "index": 105,
       "sfen": "5S1nl/r6k1/3G1+S1g1/5pplp/1BP4N1/G2PlPPRP/2+p1PGN2/8L/4K4 w S6Pbsn2p 1",
       "expected": "P*5h",
-      "actual": "B*8g",
-      "match": false
+      "actual": "P*5h",
+      "match": true
     },
     {
       "index": 106,
       "sfen": "l6nl/1r1g1kg2/p1nsppsp1/2pp2p2/Pp5Pp/2P2PP2/1PSPPSN1P/2GK2G2/LN5RL w Bb 1",
       "expected": "8b8a",
-      "actual": "6d6e",
-      "match": false
+      "actual": "8b8a",
+      "match": true
     },
     {
       "index": 107,
@@ -776,7 +776,7 @@
       "index": 108,
       "sfen": "ln3g1nl/1+r2g1k2/p1psb1ps1/8p/3pSPPp1/2P1p3P/PPBP2SP1/2G1P1GK1/LN5NL w R2p 1",
       "expected": "5c3e",
-      "actual": "3b2b",
+      "actual": "P*4c",
       "match": false
     },
     {
@@ -797,8 +797,8 @@
       "index": 111,
       "sfen": "l5k1l/1r2g1g2/p1npp1np1/1ppsbppsp/7N1/2PPSPPPP/PPS1P4/2G2G3/LNK4RL b B 1",
       "expected": "9g9f",
-      "actual": "6f6e",
-      "match": false
+      "actual": "9g9f",
+      "match": true
     },
     {
       "index": 112,
@@ -874,8 +874,8 @@
       "index": 122,
       "sfen": "lr7/3g2sP1/p1nk1b3/2p1p1s2/PpspnP3/4G+BP1p/N1SP1GK2/8P/LR5LL b GN4P2p 1",
       "expected": "4g5g",
-      "actual": "5f5e",
-      "match": false
+      "actual": "4g5g",
+      "match": true
     },
     {
       "index": 123,
@@ -923,7 +923,7 @@
       "index": 129,
       "sfen": "lr2k2nl/3sg1gb1/2n2s1p1/p1ppppp1p/1p7/2PPPPPPP/PPBS1SN2/2G2KG2/LN5RL w - 1",
       "expected": "6b6c",
-      "actual": "2a3c",
+      "actual": "9d9e",
       "match": false
     },
     {
@@ -937,7 +937,7 @@
       "index": 131,
       "sfen": "3g5/2sk2b2/n1pp2gs1/1p2pp1bl/6p2/1R+R6/1PNPSP1+p1/2G2S3/3KG3L b NL6Pnl2p 1",
       "expected": "L*2e",
-      "actual": "8f9f",
+      "actual": "P*2e",
       "match": false
     },
     {
@@ -951,8 +951,8 @@
       "index": 133,
       "sfen": "ln5nl/1r3gkb1/3ssg1p1/p1ppppp1p/1p7/2P1GP1PP/PPBP2P2/4R1SK1/LN3G1NL w SP 1",
       "expected": "8a7c",
-      "actual": "2b3c",
-      "match": false
+      "actual": "8a7c",
+      "match": true
     },
     {
       "index": 134,
@@ -993,8 +993,8 @@
       "index": 139,
       "sfen": "l4k1nl/1r2g1gs1/2nppp1pp/p1ps2P2/6S2/PpP2B1R1/2SPPP2P/1PG1G4/LN1K3NL w Pbp 1",
       "expected": "9d9e",
-      "actual": "P*3h",
-      "match": false
+      "actual": "9d9e",
+      "match": true
     },
     {
       "index": 140,
@@ -1014,7 +1014,7 @@
       "index": 142,
       "sfen": "ln1g1ksnl/1rs3gb1/p1pppp1pp/1p4p2/7P1/2P1P4/PPSP1PP1P/1B4SR1/LN1GKG1NL w - 1",
       "expected": "3a4b",
-      "actual": "6c6d",
+      "actual": "8d8e",
       "match": false
     },
     {
@@ -1028,8 +1028,8 @@
       "index": 144,
       "sfen": "lr6l/3kg4/2ns1sngp/p1pbpp3/1p1p2Pp1/P1P1PPS2/1PS1G3P/2G5R/LNK4NL w B3P 1",
       "expected": "4d4e",
-      "actual": "2c2b",
-      "match": false
+      "actual": "4d4e",
+      "match": true
     },
     {
       "index": 145,
@@ -1049,15 +1049,15 @@
       "index": 147,
       "sfen": "+R3sk1nl/2P1gg1s1/Bppppp1pp/3l2P2/pb7/2Ls3R1/P2NPPN1P/4K1S2/3G1G2L w N4p 1",
       "expected": "6f6g",
-      "actual": "6f6g",
-      "match": true
+      "actual": "P*3f",
+      "match": false
     },
     {
       "index": 148,
       "sfen": "lnsgk2nl/1r3sgb1/p1ppppppp/9/1p5P1/2P6/PPBPPPP1P/2S4R1/LN1GKGSNL w - 1",
       "expected": "7a6b",
-      "actual": "7a6b",
-      "match": true
+      "actual": "3c3d",
+      "match": false
     },
     {
       "index": 149,
@@ -1077,15 +1077,15 @@
       "index": 151,
       "sfen": "ln1g4l/2s2kgs1/p1bpppp1p/4r2p1/6Pn1/2P3R2/PS1PPPN1P/1PGK1GS2/LN6L b BP2p 1",
       "expected": "8i7g",
-      "actual": "8g8f",
-      "match": false
+      "actual": "8i7g",
+      "match": true
     },
     {
       "index": 152,
       "sfen": "ln2kg1nl/1r1sgb3/p1pp1s1pp/4ppP2/1p5P1/2P4S1/PPBPPP2P/2GS3R1/LN2KG1NL w P 1",
       "expected": "4b6d",
-      "actual": "8e8f",
-      "match": false
+      "actual": "4b6d",
+      "match": true
     },
     {
       "index": 153,
@@ -1119,29 +1119,29 @@
       "index": 157,
       "sfen": "ln5n1/4g1k1l/p1p1p2p1/5pp1p/5b3/2+b1L2PP/P5P2/6GK1/5GGNL w RSN2Pr3s5p 1",
       "expected": "1d1e",
-      "actual": "R*8i",
+      "actual": "R*6i",
       "match": false
     },
     {
       "index": 158,
       "sfen": "lr6l/2k6/3sg1bg1/p1p4p1/3nN3p/PpP1PnS2/2SG5/1PKG5/LN4R1L b S2Pb7p 1",
       "expected": "3i4i",
-      "actual": "P*6f",
+      "actual": "7g6f",
       "match": false
     },
     {
       "index": 159,
       "sfen": "lr2s2nl/3g1kg2/4p2p1/p1p2pp1p/3R3P1/PP3PP1P/2S1P1N2/1KG2G3/LN6L b BN4Pb2s 1",
       "expected": "P*6c",
-      "actual": "P*6c",
-      "match": true
+      "actual": "6e6i",
+      "match": false
     },
     {
       "index": 160,
       "sfen": "lr4snl/4g1k2/2ns1pgp1/p1ppp1p1p/1p3P1P1/P1P2BP1P/1PSPPSN2/2GK1G3/LN5RL b b 1",
       "expected": "5g5f",
-      "actual": "6g6f",
-      "match": false
+      "actual": "5g5f",
+      "match": true
     },
     {
       "index": 161,
@@ -1154,7 +1154,7 @@
       "index": 162,
       "sfen": "l6nl/1r2p2k1/p1np1ggp1/3bPps1p/1p3npP1/P1PP5/1PSBG1S1P/1KG6/LN4R1L b SP2p 1",
       "expected": "3g4h",
-      "actual": "3g4f",
+      "actual": "5g5f",
       "match": false
     },
     {
@@ -1168,15 +1168,15 @@
       "index": 164,
       "sfen": "l2g3nl/2s1k1gs1/2npppb2/prp6/8p/P1P6/1P1PPPP1P/1BG1K1GR1/LNS1S2NL w 2P2p 1",
       "expected": "9d9e",
-      "actual": "P*2d",
+      "actual": "P*8f",
       "match": false
     },
     {
       "index": 165,
       "sfen": "lr4snl/3g2k2/2ns1pgp1/p1p1p1p2/1p3P1Pp/P1PR1BP2/1PS1PSN1P/1KG2G3/LN6L b Pbp 1",
       "expected": "P*6d",
-      "actual": "6f6i",
-      "match": false
+      "actual": "P*6d",
+      "match": true
     },
     {
       "index": 166,
@@ -1210,7 +1210,7 @@
       "index": 170,
       "sfen": "8l/6k2/5gb2/2P1pp2p/3G2ps1/1NSBPP2P/1P3K3/+r2P4L/g6R1 b SN2L5Pgs2n3p 1",
       "expected": "S*8h",
-      "actual": "2i2e",
+      "actual": "P*3d",
       "match": false
     },
     {
@@ -1259,21 +1259,21 @@
       "index": 177,
       "sfen": "l4g1nl/4r1k2/p1ng1p1pp/3nPsp2/P1Pp4P/4RSPP1/1PbP1PNS1/2+p3GK1/L7L b BS2Pg 1",
       "expected": "5f9f",
-      "actual": "5f5g",
+      "actual": "5f5h",
       "match": false
     },
     {
       "index": 178,
       "sfen": "ln1g1gsnl/1rs2k1b1/p1ppppppp/1p7/2P6/9/PP1PPPPPP/1BR2K3/LNSG1GSNL w - 1",
       "expected": "6c6d",
-      "actual": "6c6d",
-      "match": true
+      "actual": "1c1d",
+      "match": false
     },
     {
       "index": 179,
       "sfen": "lnsgk2nl/1r3sg2/p2pppbpp/1pp3p2/7P1/2PP5/PP1SPPP1P/1BG4R1/LN2KGSNL w - 1",
       "expected": "7a6b",
-      "actual": "7a7b",
+      "actual": "8a7c",
       "match": false
     },
     {
@@ -1294,14 +1294,14 @@
       "index": 182,
       "sfen": "ln4snl/2s2gkb1/1p3p1p1/p3g1p1p/3pp2P1/5S2P/PPPP1PP2/2G1R1SK1/LN3G1NL b Rb2p 1",
       "expected": "3h2g",
-      "actual": "3h2g",
-      "match": true
+      "actual": "3g3f",
+      "match": false
     },
     {
       "index": 183,
       "sfen": "ln4knl/1r4g2/p2pp1g2/5s1Rp/1ps3p2/P1p1S1P1P/1P1PP1N2/2GSKG3/LN6L b B3Pb2p 1",
       "expected": "2d2g",
-      "actual": "2d2f",
+      "actual": "2d2i",
       "match": false
     },
     {
@@ -1343,15 +1343,15 @@
       "index": 189,
       "sfen": "l6nl/1rsG1skgp/4p4/p1pP2Sp1/3pPN2L/PpPG2p2/B8/3K4R/LN3G3 w BPsn5p 1",
       "expected": "S*2c",
-      "actual": "6e6f",
+      "actual": "S*4c",
       "match": false
     },
     {
       "index": 190,
       "sfen": "lnsg2g1l/1p2ks3/plpppp2p/9/1P3+b1P1/P1P5P/1SNPPGS2/2GK5/L8 w 2RBP2n3p 1",
       "expected": "4e4d",
-      "actual": "4e2g",
-      "match": false
+      "actual": "4e4d",
+      "match": true
     },
     {
       "index": 191,
@@ -1392,8 +1392,8 @@
       "index": 196,
       "sfen": "1n1s5/k4+P3/nsp6/rp7/p1Pp3P1/1LN1P3p/PPKPB1P2/5G1+r1/LG1G1P3 w G2S2L4Pbn 1",
       "expected": "8d8e",
-      "actual": "8d8e",
-      "match": true
+      "actual": "6a7b",
+      "match": false
     },
     {
       "index": 197,
@@ -1406,8 +1406,8 @@
       "index": 198,
       "sfen": "l4k1nl/4r1g2/2n2p3/p1s2sppp/5NP2/P1pp1P3/2N1S3P/2KPGS3/L6RL b 2BG2Pg4p 1",
       "expected": "B*6d",
-      "actual": "7g8e",
-      "match": false
+      "actual": "B*6d",
+      "match": true
     },
     {
       "index": 199,
@@ -1448,8 +1448,8 @@
       "index": 204,
       "sfen": "ln1g3nl/1ks1sbgp1/1pp2p2p/p3pPpr1/3pPN3/LPP3P1P/1SB1S4/1K2G2R1/1N1G4L b P2p 1",
       "expected": "2h2d",
-      "actual": "P*2e",
-      "match": false
+      "actual": "2h2d",
+      "match": true
     },
     {
       "index": 205,
@@ -1462,7 +1462,7 @@
       "index": 206,
       "sfen": "lr5nl/3g1kg2/p1pspp3/3p2p1p/BpP6/P8/1P1PSP2P/2GG3R1/+bNK4NL b SN3Pslp 1",
       "expected": "S*8h",
-      "actual": "7e7d",
+      "actual": "P*2d",
       "match": false
     },
     {
@@ -1490,22 +1490,22 @@
       "index": 210,
       "sfen": "ln5rl/2g1kg3/1p1sp1n1p/2pp1ps2/p8/3PPPP1P/P1NSG2P1/2P2GKS1/LR5NL b BPb2p 1",
       "expected": "2i3g",
-      "actual": "2i3g",
-      "match": true
+      "actual": "5f5e",
+      "match": false
     },
     {
       "index": 211,
       "sfen": "2ng4l/2sk2g2/2ppps3/1P3p1bp/1pN1P4/K1PB1Pp2/1G1P1SP1P/NS7/7+rL b RN2L2Pg2p 1",
       "expected": "R*9b",
-      "actual": "P*9d",
-      "match": false
+      "actual": "R*9b",
+      "match": true
     },
     {
       "index": 212,
       "sfen": "l2g2snl/2s2k1p1/p1nbp1g1p/3+BgppP1/5P3/4S1P2/PP4N1P/1+p1gP2R1/LN3K2L b RSP3p 1",
       "expected": "6d4f",
-      "actual": "6d4f",
-      "match": true
+      "actual": "6d7e",
+      "match": false
     },
     {
       "index": 213,
@@ -1518,7 +1518,7 @@
       "index": 214,
       "sfen": "l2gk2nl/1r4g2/1pnsp1spp/2pp1pp2/p6P1/2P2PP1P/PPSPPSN2/2GK3R1/LN3G2L w Bb 1",
       "expected": "8c8d",
-      "actual": "8b8a",
+      "actual": "1c1d",
       "match": false
     },
     {
@@ -1532,14 +1532,14 @@
       "index": 216,
       "sfen": "l2S1k3/1r1sg4/p2pp1+N1p/2p2p1p1/2P6/1p3PPb1/PP1PS3P/9/LN1GKG2L b G2NLPrbs2p 1",
       "expected": "L*4h",
-      "actual": "L*4h",
-      "match": true
+      "actual": "N*4h",
+      "match": false
     },
     {
       "index": 217,
       "sfen": "ln2k3l/1r4gp1/2gpppn1p/pP3spP1/2Bs5/P1p2SP2/1SPPPP2P/1G2K1GR1/LN5NL w Pb 1",
       "expected": "6e5d",
-      "actual": "6e7d",
+      "actual": "7c7d",
       "match": false
     },
     {
@@ -1574,15 +1574,15 @@
       "index": 222,
       "sfen": "7nl/+P5gk1/2+B4p1/r3Ppps1/4S3p/3P2P2/pPP3N1P/1KG1RG3/PN1s4L b GSNPb2l4p 1",
       "expected": "7c8c",
-      "actual": "7c8c",
-      "match": true
+      "actual": "N*2f",
+      "match": false
     },
     {
       "index": 223,
       "sfen": "l5knl/1r1g2g2/2n1ppsp1/p1pps1p1p/1p7/P1PPSPPPP/1PS1P1N2/2G2G3/LNK4RL w Bb 1",
       "expected": "8b8a",
-      "actual": "8b8a",
-      "match": true
+      "actual": "6b6c",
+      "match": false
     },
     {
       "index": 224,
@@ -1595,15 +1595,15 @@
       "index": 225,
       "sfen": "ln1gk2nl/1rs2sgb1/p1pppp1pp/6p2/1p5P1/2P6/PPBPPPP1P/2GS3R1/LN2KGSNL b - 1",
       "expected": "2e2d",
-      "actual": "7g2b+",
-      "match": false
+      "actual": "2e2d",
+      "match": true
     },
     {
       "index": 226,
       "sfen": "ln1gk2nl/1r1s1bg2/p2pps1pp/2p2pp2/1p5P1/2P1P1P2/PPSP1P2P/2GB1S1R1/LN1K1G1NL w - 1",
       "expected": "8a7c",
-      "actual": "8a7c",
-      "match": true
+      "actual": "9c9d",
+      "match": false
     },
     {
       "index": 227,
@@ -1630,8 +1630,8 @@
       "index": 230,
       "sfen": "1nkSb3l/4g4/l1g1psn2/pRpp3rp/5ppp1/P1S5P/2NPPPPPS/3G1GK2/L6NL b Pb2p 1",
       "expected": "6a5b",
-      "actual": "6a5b",
-      "match": true
+      "actual": "P*7b",
+      "match": false
     },
     {
       "index": 231,
@@ -1644,8 +1644,8 @@
       "index": 232,
       "sfen": "ln5n1/2r2bgkl/3g1s1s1/p1PpppP2/1P5Np/P1RPPSG2/2NSBP3/2G1K4/L7L w 2P4p 1",
       "expected": "6c7d",
-      "actual": "4c3d",
-      "match": false
+      "actual": "6c7d",
+      "match": true
     },
     {
       "index": 233,
@@ -1658,8 +1658,8 @@
       "index": 234,
       "sfen": "l3k3l/2s1p1g2/p+Pnp1pbn1/3r4p/5G1p1/P4sp2/4PNgPP/3S1SG+B1/L1R2K2L b N3P3p 1",
       "expected": "P*6g",
-      "actual": "P*6g",
-      "match": true
+      "actual": "P*6f",
+      "match": false
     },
     {
       "index": 235,
@@ -1672,8 +1672,8 @@
       "index": 236,
       "sfen": "6kn+P/r2g2g2/3sbps+P1/2plp1p2/5P1P1/2P1P1P2/1GB2SN2/3PKG2+p/1N6R w N2L3Psl2p 1",
       "expected": "3b2c",
-      "actual": "3b2c",
-      "match": true
+      "actual": "1h1i",
+      "match": false
     },
     {
       "index": 237,
@@ -1714,14 +1714,14 @@
       "index": 242,
       "sfen": "ln5nl/1r2gkg2/2pspb1pp/pp1p1p1s1/6p1P/1P2R4/P1NPPPPP1/2GS2SK1/L4G1NL b Bp 1",
       "expected": "6g6f",
-      "actual": "5f4f",
-      "match": false
+      "actual": "6g6f",
+      "match": true
     },
     {
       "index": 243,
       "sfen": "lnsgkgsnl/7r1/ppp1ppbpp/3p2p2/9/2PPP4/PP3PPPP/1BS2S1R1/LN1GKG1NL w - 1",
       "expected": "9c9d",
-      "actual": "7c7d",
+      "actual": "2b6b",
       "match": false
     },
     {
@@ -1763,8 +1763,8 @@
       "index": 249,
       "sfen": "l2Brk2l/2+R1s1g2/p2p1pnpp/3s5/3n5/PP2p4/2SG1P1PP/2G1P+p3/LNK5L b B4Pgsnp 1",
       "expected": "B*6b",
-      "actual": "B*6b",
-      "match": true
+      "actual": "6a5b+",
+      "match": false
     },
     {
       "index": 250,
@@ -1777,8 +1777,8 @@
       "index": 251,
       "sfen": "l3p2n1/2g4k1/p1pp3p1/4bSp1+r/6nG1/5P1R1/PnSP5/2G2S3/LNK1G1L2 b SPbl8p 1",
       "expected": "7i6h",
-      "actual": "7i6h",
-      "match": true
+      "actual": "7h8g",
+      "match": false
     },
     {
       "index": 252,
@@ -1791,8 +1791,8 @@
       "index": 253,
       "sfen": "8l/l1p2s3/3g1p3/p1k3p1p/1psp1P3/P2n2P+RP/4gSN2/2r2GK2/L3G3L b BSN2Pbn5p 1",
       "expected": "P*7f",
-      "actual": "N*6h",
-      "match": false
+      "actual": "P*7f",
+      "match": true
     },
     {
       "index": 254,
@@ -1819,8 +1819,8 @@
       "index": 257,
       "sfen": "lr6l/5+P3/2kn1+B3/p1gp4p/1ppns4/P3PPS1P/1P1Gb4/3G2Sp1/LNK5L b GSN6Pr 1",
       "expected": "5f5e",
-      "actual": "6g5g",
-      "match": false
+      "actual": "5f5e",
+      "match": true
     },
     {
       "index": 258,
@@ -1882,8 +1882,8 @@
       "index": 266,
       "sfen": "ln2g1knl/1r1s2g2/p1pppp1sp/9/4BNP2/2P6/P1NPPPpSP/1SG1K4/L4G2L b B3Prp 1",
       "expected": "P*2b",
-      "actual": "P*2b",
-      "match": true
+      "actual": "P*2i",
+      "match": false
     },
     {
       "index": 267,
@@ -1903,22 +1903,22 @@
       "index": 269,
       "sfen": "lr5nl/2g1ksg2/2n1p1b2/p1pps2Rp/6p2/PSPPSP2P/1P2P1N2/1KG3G2/LN6L b B2P3p 1",
       "expected": "2d2i",
-      "actual": "2d2i",
-      "match": true
+      "actual": "2d2h",
+      "match": false
     },
     {
       "index": 270,
       "sfen": "ln5nl/1r2gkgs1/p3pp1pp/1s1p2p2/1pp5P/2PPSP1P1/PPS1P1P2/2GK3R1/LN3G1NL b Bb 1",
       "expected": "5f6g",
-      "actual": "5f6g",
-      "match": true
+      "actual": "9g9f",
+      "match": false
     },
     {
       "index": 271,
       "sfen": "lns1k1+P2/3rg2+P1/p1p1p1p2/4sp1+B1/3P2N1p/1PPpP1Pp1/P1S2rS2/2K2G3/LN1G4L w BGNPlp 1",
       "expected": "4g6g+",
-      "actual": "6f6g+",
-      "match": false
+      "actual": "4g6g+",
+      "match": true
     },
     {
       "index": 272,
@@ -1959,8 +1959,8 @@
       "index": 277,
       "sfen": "1r6l/3gk1g2/2bs1snp1/5p2p/lpP3p2/3B1PPRP/1PpSGSN2/1G7/L1K5L b N5Pn2p 1",
       "expected": "P*9f",
-      "actual": "P*6d",
-      "match": false
+      "actual": "P*9f",
+      "match": true
     },
     {
       "index": 278,
@@ -2001,7 +2001,7 @@
       "index": 283,
       "sfen": "lnk3gnl/1ps6/2pgpps2/9/p3PP2p/P5P2/2NP1S1PP/3SK2G1/L+RG4NL w B2Prb3p 1",
       "expected": "1e1f",
-      "actual": "9e9f",
+      "actual": "B*3i",
       "match": false
     },
     {
@@ -2022,8 +2022,8 @@
       "index": 286,
       "sfen": "+R4g1nl/3+B2sk1/p1+N3gp1/3p+b1pl1/4Lp2P/3Sp4/P2P1PPP1/4SS1K1/3G2NNL w 2Prg4p 1",
       "expected": "5d4c",
-      "actual": "P*1h",
-      "match": false
+      "actual": "5d4c",
+      "match": true
     },
     {
       "index": 287,
@@ -2071,29 +2071,29 @@
       "index": 293,
       "sfen": "ln1g3n1/1r4k2/p1p1bg2s/2s1pp3/6p1R/3p5/PSN1PPN2/1PG1G1S2/LK6L w BL4P4p 1",
       "expected": "P*1d",
-      "actual": "P*1d",
-      "match": true
+      "actual": "P*8f",
+      "match": false
     },
     {
       "index": 294,
       "sfen": "4k2+rl/2g2s1g1/lppSpp3/p2pB1P2/2N1N4/P1P2P2P/1PSP5/2GK1S3/LN4+p1L w N2Prbg2p 1",
       "expected": "5c5d",
-      "actual": "5c5d",
-      "match": true
+      "actual": "B*2e",
+      "match": false
     },
     {
       "index": 295,
       "sfen": "lnsgs3+P/1p7/p1pk1p2p/1+Bnpp1N2/4l4/9/P1N1SP2P/1LGSK4/L3G1+p1+r b RGb6p 1",
       "expected": "7h7i",
-      "actual": "R*2c",
+      "actual": "R*3a",
       "match": false
     },
     {
       "index": 296,
       "sfen": "l4r1nl/2gk2g2/+P1nsp1spp/2pp2p2/4Pp1P1/1SPS5/LP2GP2P/2G3R2/+pNK4NL b B3Pb 1",
       "expected": "P*9b",
-      "actual": "8i7g",
-      "match": false
+      "actual": "P*9b",
+      "match": true
     },
     {
       "index": 297,
@@ -2113,42 +2113,42 @@
       "index": 299,
       "sfen": "l2g4l/2s1k1gs1/2npppn2/7rp/P5R2/p1PB5/1PNPPPPPP/3SK1G2/L1G1S2NL w 3Pbp 1",
       "expected": "B*5d",
-      "actual": "B*8d",
+      "actual": "9f9g+",
       "match": false
     },
     {
       "index": 300,
       "sfen": "ln3k1nl/2r1g1g2/pP1p1p3/2P3Psp/4S2p1/PspSB1p1P/3PPP3/2GKG2R1/LN5NL b Pb2p 1",
       "expected": "4g4f",
-      "actual": "3d3c+",
+      "actual": "1f1e",
       "match": false
     },
     {
       "index": 301,
       "sfen": "knsg3nl/l3gr3/ppp1psbpp/3p1pp2/P6P1/1PP1P4/2BPSPP1P/1SK1G2R1/LN1G3NL w - 1",
       "expected": "5b6c",
-      "actual": "5b6c",
-      "match": true
+      "actual": "4b3b",
+      "match": false
     },
     {
       "index": 302,
       "sfen": "lr5nl/3g1kgs1/p1nspp1p1/2pp2p1p/9/P1PP1SP2/1PS1PPN1P/2GK1G3/LN5RL w BPbp 1",
       "expected": "2b3c",
-      "actual": "2b3c",
-      "match": true
+      "actual": "4c4d",
+      "match": false
     },
     {
       "index": 303,
       "sfen": "lnsg1kbnl/1r4g2/p1pp1pspp/1p2p1p2/7P1/2P1P4/PPSP1PP1P/3KG2R1/LNBG2SNL w - 1",
       "expected": "7c7d",
-      "actual": "7c7d",
-      "match": true
+      "actual": "3a6d",
+      "match": false
     },
     {
       "index": 304,
       "sfen": "lr7/2g1k4/2nsp1+P1g/p1pp1pp2/8p/PPPP1sPL1/2S1P1NpP/2K1SR3/LN6L w BGNPbgp 1",
       "expected": "4d4e",
-      "actual": "B*4g",
+      "actual": "5b6b",
       "match": false
     },
     {
@@ -2183,7 +2183,7 @@
       "index": 309,
       "sfen": "B+L6l/r3gkgp1/2P1psn1p/3pnppP1/9/P1psSP1RP/SP1LP1P2/2GKG4/3N3NL w 3Pb 1",
       "expected": "B*7e",
-      "actual": "6f6g+",
+      "actual": "6f6g",
       "match": false
     },
     {
@@ -2260,8 +2260,8 @@
       "index": 320,
       "sfen": "3g4l/R1n2kP2/1N1s3p1/3s1P1gp/p2+b1Sp1n/1Pp1P2P1/P3GR2P/5s1LK/8L w GNL4Pb2p 1",
       "expected": "4h5g+",
-      "actual": "4h5g+",
-      "match": true
+      "actual": "4h5g",
+      "match": false
     },
     {
       "index": 321,
@@ -2309,7 +2309,7 @@
       "index": 327,
       "sfen": "lnsgkg1nl/1r7/p1ppppspp/1p4p2/9/2P6/PPSPPPPPP/1R7/LN1GKGSNL w Bb 1",
       "expected": "5a4b",
-      "actual": "7a7b",
+      "actual": "7a6b",
       "match": false
     },
     {
@@ -2330,7 +2330,7 @@
       "index": 330,
       "sfen": "ln1g3nl/1ks1grs2/1p4bpp/p1ppppp2/7P1/P1PPPPP1P/1P4N2/1BKGGS1R1/LNS5L b - 1",
       "expected": "8h7g",
-      "actual": "8h9g",
+      "actual": "5h6g",
       "match": false
     },
     {
@@ -2344,15 +2344,15 @@
       "index": 332,
       "sfen": "ln1gk1snl/1r4gb1/p2ppp3/2ps2pRp/9/PP3S3/1GPPPPN1P/1BK6/LNS2G2L w P3p 1",
       "expected": "P*2c",
-      "actual": "3d3e",
-      "match": false
+      "actual": "P*2c",
+      "match": true
     },
     {
       "index": 333,
       "sfen": "l5r2/3k3P1/2glpp3/pp6l/2n1BPp2/3PP4/PPGpKG1S1/1+rSS2S2/8+n b BNL5Pgnp 1",
       "expected": "7h6g",
-      "actual": "7h6g",
-      "match": true
+      "actual": "P*3b",
+      "match": false
     },
     {
       "index": 334,
@@ -2393,7 +2393,7 @@
       "index": 339,
       "sfen": "+Bnkg5/2s6/4pg1pp/p1P3s2/1+rp3pP1/N1bP1SP2/P1+p1PP2P/1P5R1/L4GKNL b GNLPslp 1",
       "expected": "L*6e",
-      "actual": "N*7c",
+      "actual": "G*7c",
       "match": false
     },
     {
@@ -2456,8 +2456,8 @@
       "index": 348,
       "sfen": "lnsg3nl/1r3kg2/p1ppppbsp/9/6R2/2P3P2/P2PPPN1P/1BGK2S2/LNS2G2L w 3P2p 1",
       "expected": "7a6b",
-      "actual": "7a6b",
-      "match": true
+      "actual": "6a5b",
+      "match": false
     },
     {
       "index": 349,
@@ -2477,7 +2477,7 @@
       "index": 351,
       "sfen": "l7l/1ks1gr3/1png2npp/p4bp2/1PPPpp1P1/P2B2P2/2S1P3P/2KGGR3/LN5NL b S2Psp 1",
       "expected": "7g7f",
-      "actual": "8e8d",
+      "actual": "3f3e",
       "match": false
     },
     {
@@ -2533,21 +2533,21 @@
       "index": 359,
       "sfen": "ln1g1g1nl/1rs2ksb1/pppppp1pp/6p2/9/2PP3P1/PP2PPP1P/1BG4R1/LNS1KGSNL b - 1",
       "expected": "2f2e",
-      "actual": "7i6h",
-      "match": false
+      "actual": "2f2e",
+      "match": true
     },
     {
       "index": 360,
       "sfen": "l2g3nl/2s1k1g2/p1npppb1p/1r4sP1/2P5P/6R2/PP1PPPP2/1BG1K1S2/LNS2G1NL w 2P2p 1",
       "expected": "8d5d",
-      "actual": "7c6e",
-      "match": false
+      "actual": "8d5d",
+      "match": true
     },
     {
       "index": 361,
       "sfen": "lr1g3nl/5kg2/2nsppsp1/p1pp2p1p/1p5P1/P1P2PP1P/1PSPPSN2/2GK1G1R1/LN6L b Bb 1",
       "expected": "4g5f",
-      "actual": "4f4e",
+      "actual": "2h2i",
       "match": false
     },
     {
@@ -2568,7 +2568,7 @@
       "index": 364,
       "sfen": "l1snl4/1r2k1g1p/n1pl1sb2/pP2n4/2G1P1N2/P1Pp3P1/1S1P+B4/K1G1S+p3/L8 b Rg7p 1",
       "expected": "3e4c+",
-      "actual": "8d8c+",
+      "actual": "5g5f",
       "match": false
     },
     {
@@ -2610,8 +2610,8 @@
       "index": 370,
       "sfen": "ln1g1g1nl/3r1ks2/p3pp1pp/1bp3p2/1p5P1/P3P4/BPPPsPP1P/2G2S1R1/LN2KGSNL b p 1",
       "expected": "5f5e",
-      "actual": "2e2d",
-      "match": false
+      "actual": "5f5e",
+      "match": true
     },
     {
       "index": 371,
@@ -2624,8 +2624,8 @@
       "index": 372,
       "sfen": "2+R1g2ll/3pksg2/p4ppNp/1pp1ps1G1/5S1LP/3+r1PPN1/PP2P1N2/5SK2/3+n2G1L b BPb3p 1",
       "expected": "B*8c",
-      "actual": "B*8c",
-      "match": true
+      "actual": "B*9b",
+      "match": false
     },
     {
       "index": 373,
@@ -2673,15 +2673,15 @@
       "index": 379,
       "sfen": "ln1gk2nl/1r1s1s1g1/4p2pp/p1pp1pp2/1p7/P1P2P1P1/1PSPP1P1P/2GK2SR1/LN3G1NL b Bb 1",
       "expected": "2f2e",
-      "actual": "2f2e",
-      "match": true
+      "actual": "3h4g",
+      "match": false
     },
     {
       "index": 380,
       "sfen": "lnsg2snl/5kgb1/p1pppp2p/6pR1/9/Pr7/1PPPPPP1P/1BG2S3/LNS1KG1NL w P2p 1",
       "expected": "P*2c",
-      "actual": "8f8e",
-      "match": false
+      "actual": "P*2c",
+      "match": true
     },
     {
       "index": 381,
@@ -2827,8 +2827,8 @@
       "index": 401,
       "sfen": "l7l/3gk1gs1/p1sppp2p/9/9/P3r1P2/1PPPBP1RP/1G2K1S2/LN3G1NL b 2N3Pbs3p 1",
       "expected": "N*6h",
-      "actual": "N*6i",
-      "match": false
+      "actual": "N*6h",
+      "match": true
     },
     {
       "index": 402,
@@ -2855,14 +2855,14 @@
       "index": 405,
       "sfen": "l2g3nl/2s1k1g2/p1np1p2p/1r2ps1P1/2P6/3PG2bP/PPS1PPPp1/2GK2R2/LN4SNL w BP2p 1",
       "expected": "5d5e",
-      "actual": "4d5e",
+      "actual": "2a3c",
       "match": false
     },
     {
       "index": 406,
       "sfen": "ln1gk2nl/1r1s2gb1/p1ppppspp/1p4p2/7P1/2P6/PPBPPPP1P/1S3S1R1/LN1GKG1NL b - 1",
       "expected": "5i6h",
-      "actual": "7g6h",
+      "actual": "3g3f",
       "match": false
     },
     {
@@ -2883,8 +2883,8 @@
       "index": 409,
       "sfen": "l7l/k1gb3+R1/gs1s2+P2/1pppprp1p/p2n2P2/1PPSP3P/1S1G2+p2/1KG4B1/LN6L b NPn3p 1",
       "expected": "2b6b",
-      "actual": "2b6b",
-      "match": true
+      "actual": "2h3g",
+      "match": false
     },
     {
       "index": 410,
@@ -2946,8 +2946,8 @@
       "index": 418,
       "sfen": "l1p1p1gnl/4s2k1/4+P1sp1/p2G2p1p/1p1P5/P4p2P/1P4PP1/2r2SGK1/LN2NsGNL w 2B2Prp 1",
       "expected": "4i3h+",
-      "actual": "4i3h",
-      "match": false
+      "actual": "4i3h+",
+      "match": true
     },
     {
       "index": 419,
@@ -3023,15 +3023,15 @@
       "index": 429,
       "sfen": "ln4r1l/3gkg3/p1Pp3+Pp/2p1p4/Ps3sN1P/3P1PP2/3GP1KS1/1p7/L5sRL b B2N3Pbgp 1",
       "expected": "2i3i",
-      "actual": "B*5i",
-      "match": false
+      "actual": "2i3i",
+      "match": true
     },
     {
       "index": 430,
       "sfen": "ln1g2knl/1r2s1g2/p2pp1sp1/2pb1pp1p/Pp5P1/2PP2P1P/1PS1PPS2/2GK4R/LN3G1NL b B 1",
       "expected": "4i5h",
-      "actual": "4i5h",
-      "match": true
+      "actual": "6h7i",
+      "match": false
     },
     {
       "index": 431,
@@ -3044,8 +3044,8 @@
       "index": 432,
       "sfen": "l+P1g2+P1l/3ksp+L2/pppsp+b2p/2n4+Rb/1N5P1/1n1P2S2/PGL1P3P/1P1SK4/1+rPG1G3 w NP2p 1",
       "expected": "P*6g",
-      "actual": "8c8d",
-      "match": false
+      "actual": "P*6g",
+      "match": true
     },
     {
       "index": 433,
@@ -3072,8 +3072,8 @@
       "index": 436,
       "sfen": "l2g5/2s6/p1np1p1g1/1Bp4p1/5kp1p/P1P1R4/1P1PP1+n2/1SGK1S3/LN2G3L b S2Prbnl4p 1",
       "expected": "4h3g",
-      "actual": "5f5c+",
-      "match": false
+      "actual": "4h3g",
+      "match": true
     },
     {
       "index": 437,
@@ -3086,8 +3086,8 @@
       "index": 438,
       "sfen": "2+S5+R/5gg2/2+BPp2p1/p1s1kpp1p/4N4/PP2b1g1P/N3GPs2/3+n2+n1K/L1P5L b RS2L6p 1",
       "expected": "R*6d",
-      "actual": "R*6d",
-      "match": true
+      "actual": "S*1g",
+      "match": false
     },
     {
       "index": 439,
@@ -3135,8 +3135,8 @@
       "index": 445,
       "sfen": "lnsgk2nl/1r4g2/p1ppppspp/6p2/1p7/2P3PP1/PPSPPP2P/2G3SR1/LN2KG1NL w Bb 1",
       "expected": "7a7b",
-      "actual": "7a7b",
-      "match": true
+      "actual": "7a6b",
+      "match": false
     },
     {
       "index": 446,
@@ -3170,7 +3170,7 @@
       "index": 450,
       "sfen": "l2g4l/2s2kg2/n1ppppnsp/p8/7p1/1rP5P/P1NPPPP2/1SG1KS1R1/L3G2NL w B3Pbp 1",
       "expected": "B*5e",
-      "actual": "4b5b",
+      "actual": "9c8e",
       "match": false
     },
     {
@@ -3205,7 +3205,7 @@
       "index": 455,
       "sfen": "l+L3k3/4r1g2/2pp4s/p4g1p1/2P1Ppn1p/P2P1np2/1PNGBS3/2G6/L2K2R2 b BS6Psnl 1",
       "expected": "4g3f",
-      "actual": "4g4f",
+      "actual": "4g5f",
       "match": false
     },
     {
@@ -3233,7 +3233,7 @@
       "index": 459,
       "sfen": "ln1gkg1nl/1r1s1s3/p1ppppbpp/6p2/1p5P1/2PP5/PPBSPPP1P/7R1/LN1GKGSNL w - 1",
       "expected": "4a3b",
-      "actual": "6c6d",
+      "actual": "9c9d",
       "match": false
     },
     {
@@ -3261,15 +3261,15 @@
       "index": 463,
       "sfen": "lnsgkgsnl/1r5b1/p1ppppppp/1p7/9/2P4P1/PP1PPPP1P/1B5R1/LNSGKGSNL w - 1",
       "expected": "6a5b",
-      "actual": "4a3b",
+      "actual": "8d8e",
       "match": false
     },
     {
       "index": 464,
       "sfen": "lnkg3nl/2s1grs2/1p2p1bpp/p1pp1pp2/7P1/P1PPP4/1PB1SPP1P/2K1G2R1/LNSG3NL b - 1",
       "expected": "7h8h",
-      "actual": "9i9h",
-      "match": false
+      "actual": "7h8h",
+      "match": true
     },
     {
       "index": 465,
@@ -3317,15 +3317,15 @@
       "index": 471,
       "sfen": "lnsgkgsnl/2r4b1/pp1ppp2p/6p2/9/2p6/PP1PPPP1P/1BG4R1/LNS1KGSNL w P2p 1",
       "expected": "4a3b",
-      "actual": "7a8b",
-      "match": false
+      "actual": "4a3b",
+      "match": true
     },
     {
       "index": 472,
       "sfen": "ln+P1k3l/1p2pbg2/3p1p2p/7r1/p1n3s2/2S1P1p2/P1NP1P1PP/2GK2GS1/L7L w BGN3Prsp 1",
       "expected": "S*8g",
-      "actual": "R*4i",
-      "match": false
+      "actual": "S*8g",
+      "match": true
     },
     {
       "index": 473,
@@ -3352,15 +3352,15 @@
       "index": 476,
       "sfen": "ln3k1nl/1r2gg3/p2pbsspp/4ppp2/1p7/2SPP1PS1/PPB2PN1P/2G1KG3/LN5RL b 2Pp 1",
       "expected": "P*7e",
-      "actual": "P*7e",
-      "match": true
+      "actual": "7g6h",
+      "match": false
     },
     {
       "index": 477,
       "sfen": "ln1g3nl/1bk4r1/3p1ss1p/pppspp1p1/6R2/P1PG1P3/1P1PP3P/1BK1G4/LNS5L b G3Pn 1",
       "expected": "3e3f",
-      "actual": "3e3i",
-      "match": false
+      "actual": "3e3f",
+      "match": true
     },
     {
       "index": 478,
@@ -3429,14 +3429,14 @@
       "index": 487,
       "sfen": "+P4l1nl/4g1gk1/p2pp1rps/4s3p/1n3PPP1/P1PP3R1/1g2PGNNP/3+p1K3/+p7L b 2BSLs2p 1",
       "expected": "L*3d",
-      "actual": "L*3d",
-      "match": true
+      "actual": "S*3d",
+      "match": false
     },
     {
       "index": 488,
       "sfen": "lr5nl/2g1skg2/2n2p3/p1pp+N1ppp/1p7/P1PPS1P1P/1PS1PG3/1KG2R3/LN6L b SP2b2p 1",
       "expected": "3f3e",
-      "actual": "P*4d",
+      "actual": "4h2h",
       "match": false
     },
     {
@@ -3492,7 +3492,7 @@
       "index": 496,
       "sfen": "lr6l/3g1kg2/2ns1pns1/p1ppp1ppp/1p3P3/P1PPS1P1P/1PS1P1N2/1KG2G3/LN5RL w BPb 1",
       "expected": "4b5b",
-      "actual": "6b5c",
+      "actual": "6c5b",
       "match": false
     },
     {
@@ -3541,8 +3541,8 @@
       "index": 503,
       "sfen": "l6nl/5kgp1/p1n+Pp1s1p/1rp2p3/2PpS3P/9/PPS1P1P2/2GKG2R1/LN5NL w G2bs4p 1",
       "expected": "7c8e",
-      "actual": "7c8e",
-      "match": true
+      "actual": "2b2c",
+      "match": false
     },
     {
       "index": 504,
@@ -3562,8 +3562,8 @@
       "index": 506,
       "sfen": "l6nl/1rg2kg2/2n1ppsp1/p1pps1p1p/1p5P1/P1PPSPP1P/1PS1P1N2/2G2G3/LN2K2RL w Bb 1",
       "expected": "8b8a",
-      "actual": "7b6b",
-      "match": false
+      "actual": "8b8a",
+      "match": true
     },
     {
       "index": 507,
@@ -3625,8 +3625,8 @@
       "index": 515,
       "sfen": "l2g3nl/2s1ksg2/1Pbppp3/p1p5p/9/PR1SN1p1P/3PPPPP1/2G1K1G2/L3S2NL w B2Prnp 1",
       "expected": "P*8a",
-      "actual": "P*8d",
-      "match": false
+      "actual": "P*8a",
+      "match": true
     },
     {
       "index": 516,
@@ -3667,7 +3667,7 @@
       "index": 521,
       "sfen": "lnkg2r1l/1ps2s3/2pppp2p/pb7/7r1/P3+BP3/2NGP1G1P/2S1K2P1/L5SNL w GN6p 1",
       "expected": "8d7e",
-      "actual": "8b8c",
+      "actual": "2e2d",
       "match": false
     },
     {
@@ -3695,8 +3695,8 @@
       "index": 525,
       "sfen": "l3k3l/1B2g1g2/5pspp/p1p+rp1p2/3p1P1PP/P1P3P2/2NS1SN2/1PG1KG3/L6RL w Nbsn3p 1",
       "expected": "6d6b",
-      "actual": "6d6b",
-      "match": true
+      "actual": "6d6c",
+      "match": false
     },
     {
       "index": 526,
@@ -3716,7 +3716,7 @@
       "index": 528,
       "sfen": "l2+R3nl/5psk1/p1n2g2p/4g1s2/2Pp2gPP/1Pp3S2/P3PS3/5G1K1/L3+rP1NL b BN5Pbp 1",
       "expected": "N*4f",
-      "actual": "3f3e",
+      "actual": "N*2d",
       "match": false
     },
     {
@@ -3758,8 +3758,8 @@
       "index": 534,
       "sfen": "ln1gk1snl/1rs3g2/p1pppp2p/6pP1/9/2P4p1/PP1P+bPP1P/1SG4R1/LN2KGSNL b BPp 1",
       "expected": "2h2f",
-      "actual": "P*5d",
-      "match": false
+      "actual": "2h2f",
+      "match": true
     },
     {
       "index": 535,
@@ -3772,8 +3772,8 @@
       "index": 536,
       "sfen": "lnsgk1snl/1r4gb1/pp1pppppp/2p6/7P1/9/PPPPPPP1P/1B5R1/LNSGKGSNL b - 1",
       "expected": "2e2d",
-      "actual": "7g7f",
-      "match": false
+      "actual": "2e2d",
+      "match": true
     },
     {
       "index": 537,
@@ -3814,8 +3814,8 @@
       "index": 542,
       "sfen": "l3k2nl/1r2g1+R+P1/p2psg2b/8p/3N5/1Pp3P2/P2PGS+b1P/2G2s3/L2K4L b S2N6P2p 1",
       "expected": "3b2a",
-      "actual": "3b2a",
-      "match": true
+      "actual": "N*3e",
+      "match": false
     },
     {
       "index": 543,
@@ -3870,7 +3870,7 @@
       "index": 550,
       "sfen": "l6nl/r3gbgk1/1+B3s3/2S1ppppp/PpN2n3/L1P1PSP1P/1P1P5/2GKG2R1/7NL b 2Ps3p 1",
       "expected": "9e9d",
-      "actual": "P*2e",
+      "actual": "7d7c",
       "match": false
     },
     {
@@ -3884,43 +3884,43 @@
       "index": 552,
       "sfen": "lr1l4+P/2g1k1g2/3ppps1n/2pPS2pp/PL7/1P2BS3/+np1GPP2P/2G4R1/2K4NL w B2Psn2p 1",
       "expected": "8g8h+",
-      "actual": "5c5d",
-      "match": false
+      "actual": "8g8h+",
+      "match": true
     },
     {
       "index": 553,
       "sfen": "ln3gknl/4g1s2/p2p1p1pp/3sp1p2/1p7/2SP5/PP1SbPP1P/2G4R1/LN2KG1NL w R3Pbp 1",
       "expected": "5g3e+",
-      "actual": "P*7e",
-      "match": false
+      "actual": "5g3e+",
+      "match": true
     },
     {
       "index": 554,
       "sfen": "l3k3l/4g1g2/5r1pp/1Pp1p1p2/P2Gns1P1/1b1B5/L2SP3P/2G3R2/1NK5L b SN3Psn5p 1",
       "expected": "N*6d",
-      "actual": "P*4d",
-      "match": false
+      "actual": "N*6d",
+      "match": true
     },
     {
       "index": 555,
       "sfen": "lnks1R2+P/1r2G1g2/pbppppn1p/7s1/P8/2P2P3/1P1PP1P1P/1G1K2S+p1/LNS2G2L b LPbnp 1",
       "expected": "5b5c",
-      "actual": "5b5a",
-      "match": false
+      "actual": "5b5c",
+      "match": true
     },
     {
       "index": 556,
       "sfen": "lnsgkg1nl/5sr2/1ppp2bpp/p3ppp2/7P1/P1P6/1PBPPPP1P/1K5R1/LNSG1GSNL b - 1",
       "expected": "3i4h",
-      "actual": "7g6h",
+      "actual": "5g5f",
       "match": false
     },
     {
       "index": 557,
       "sfen": "l2g3nl/1r3kg2/p1nsppppp/2pp5/9/1pPP4P/P1G1PP3/1PSKG2R1/LN5NL w BS2Pbs 1",
       "expected": "6a7b",
-      "actual": "4b3a",
-      "match": false
+      "actual": "6a7b",
+      "match": true
     },
     {
       "index": 558,
@@ -3947,8 +3947,8 @@
       "index": 561,
       "sfen": "8l/3g2g2/2pk3sp/1s3p3/1nP3PP1/+RP3G3/1B1g+pP2P/K8/1N5RL w B2N2L7P2sp 1",
       "expected": "S*7h",
-      "actual": "S*7h",
-      "match": true
+      "actual": "S*9e",
+      "match": false
     },
     {
       "index": 562,
@@ -4003,7 +4003,7 @@
       "index": 569,
       "sfen": "+P4k1nl/3gr1g2/+B1n4p1/2p2ps1p/L2p2pN1/SPP1pPP1P/2NP1S3/2G2G3/3K3RL w LPbs3p 1",
       "expected": "B*5g",
-      "actual": "2c2d",
+      "actual": "3d2e",
       "match": false
     },
     {
@@ -4024,14 +4024,14 @@
       "index": 572,
       "sfen": "ln1g2p2/2s1ks1p+R/3ppp1Pp/9/3r3b1/P1p3LNP/SP1PPPP2/1GGK1S3/+bN2G3L b 2Pnlp 1",
       "expected": "2c2b+",
-      "actual": "1b2b",
-      "match": false
+      "actual": "2c2b+",
+      "match": true
     },
     {
       "index": 573,
       "sfen": "l2g4l/1ks4r1/2ngs1np1/ppppppp1p/7P1/PPPPPPP1P/2SS2N2/1KG2G1R1/LN6L b Bb 1",
       "expected": "2h2i",
-      "actual": "9i9h",
+      "actual": "B*4c",
       "match": false
     },
     {
@@ -4094,8 +4094,8 @@
       "index": 582,
       "sfen": "l5+B1l/2skg4/p1n+Npp+SPp/1rpp5/2P6/9/PPNPPPP+pP/2G1KS3/L1S3G+pL w BGPrn 1",
       "expected": "7b6c",
-      "actual": "5b6c",
-      "match": false
+      "actual": "7b6c",
+      "match": true
     },
     {
       "index": 583,
@@ -4150,15 +4150,15 @@
       "index": 590,
       "sfen": "ln1g3nl/2s1k1gs1/2ppppb1p/p1r6/9/6P2/PP1PPPS1P/1BGK3R1/LNS2G1NL b 2P3p 1",
       "expected": "8h7g",
-      "actual": "5g5f",
+      "actual": "9g9f",
       "match": false
     },
     {
       "index": 591,
       "sfen": "l7l/1r1s5/2n2gbk1/p1ppppsN1/1p4n2/P1PP1spRp/1P1SP4/1KG1G4/LN2B1L2 w G3P2p 1",
       "expected": "8e8f",
-      "actual": "8e8f",
-      "match": true
+      "actual": "6d6e",
+      "match": false
     },
     {
       "index": 592,
@@ -4262,8 +4262,8 @@
       "index": 606,
       "sfen": "lnkg4l/2s3g2/p1ppppnsp/5b1p1/5N3/2P3r2/PPBPPP2P/2GK1GS2/LNS4RL b 2P2p 1",
       "expected": "7g4d",
-      "actual": "P*3g",
-      "match": false
+      "actual": "7g4d",
+      "match": true
     },
     {
       "index": 607,
@@ -4297,8 +4297,8 @@
       "index": 611,
       "sfen": "+R7l/2g1k1g2/1sn1s1bp1/p3p3p/2Pp2p2/P1SPSp3/1P2PGP1P/1K5R1/LN5NL b NL2Pbg2p 1",
       "expected": "8h9h",
-      "actual": "8h9h",
-      "match": true
+      "actual": "L*3d",
+      "match": false
     },
     {
       "index": 612,
@@ -4332,7 +4332,7 @@
       "index": 616,
       "sfen": "l6nl/1r2gkg2/2n1pssp1/pbpp1pp1p/1p4PP1/P1P2S1R1/1PSPPPN1P/1KG1G4/LN6L w B 1",
       "expected": "3d3e",
-      "actual": "1d1e",
+      "actual": "4b3a",
       "match": false
     },
     {
@@ -4381,7 +4381,7 @@
       "index": 623,
       "sfen": "l+R2g1knl/3s2g2/p1p1p1ps1/3p3pp/5P3/S1P3P2/P1NPP+b2P/2G6/L1K5L w BGSN4Prn 1",
       "expected": "4g3f",
-      "actual": "R*4i",
+      "actual": "R*6i",
       "match": false
     },
     {
@@ -4402,7 +4402,7 @@
       "index": 626,
       "sfen": "ln7/2sgsb1g1/p2pp2pp/4sk3/2P1lnpP1/P2BP3R/1P1P2P1P/2GS1G3/L4K1NL w N3Prp 1",
       "expected": "P*4g",
-      "actual": "4d4c",
+      "actual": "4b3c",
       "match": false
     },
     {
@@ -4444,8 +4444,8 @@
       "index": 632,
       "sfen": "lr6l/3gk1g2/1snp1snpp/p2bppp2/1p7/P1PPPPP2/1PS2SN1P/2G1G4/LN1KB2RL b Pp 1",
       "expected": "6i7i",
-      "actual": "6i7i",
-      "match": true
+      "actual": "6f6e",
+      "match": false
     },
     {
       "index": 633,
@@ -4465,8 +4465,8 @@
       "index": 635,
       "sfen": "ln1g2snl/1rs1k1gb1/p2ppppp1/2p5p/1p7/P1P6/1P1PPPP1P/1BGK2SR1/LNS2G1NL w P 1",
       "expected": "8e8f",
-      "actual": "7b7c",
-      "match": false
+      "actual": "8e8f",
+      "match": true
     },
     {
       "index": 636,
@@ -4500,8 +4500,8 @@
       "index": 640,
       "sfen": "l1kg3nl/2s1gr3/1p1ppsbpp/2p3p2/p4p1P1/2P1P1P2/PP1PGP2P/LS1B3R1/KN1G3NL b Ns 1",
       "expected": "5g6f",
-      "actual": "5g6f",
-      "match": true
+      "actual": "2e2d",
+      "match": false
     },
     {
       "index": 641,
@@ -4514,8 +4514,8 @@
       "index": 642,
       "sfen": "ln7/2g2kp2/p2pppb1p/4rP3/2s1b4/2p3Pp+R/PP1PPGN1P/1SG2KS2/LN6L b SL3Pgn 1",
       "expected": "L*5f",
-      "actual": "1f2f",
-      "match": false
+      "actual": "L*5f",
+      "match": true
     },
     {
       "index": 643,
@@ -4535,7 +4535,7 @@
       "index": 645,
       "sfen": "lr6l/3g2g2/2nkp4/p1pp1sppp/1p3s3/P1PPP1P1P/1PSS5/1KGB1G3/LN5RL b NPbn2p 1",
       "expected": "P*4f",
-      "actual": "2i2d",
+      "actual": "P*4c",
       "match": false
     },
     {
@@ -4549,7 +4549,7 @@
       "index": 647,
       "sfen": "ln1g3nl/2s2kgs1/p2ppp1pp/1Ppb2p2/8P/P8/2SPPPP2/2G1K1S2/LN3G1NL w RBPr2p 1",
       "expected": "3b3a",
-      "actual": "3d3e",
+      "actual": "2a3c",
       "match": false
     },
     {
@@ -4584,7 +4584,7 @@
       "index": 652,
       "sfen": "lnsgk2nl/1r4gb1/p1pp1pspp/1p2p1p2/7P1/2P6/PPSPPPP1P/1BG4R1/LN2KGSNL b - 1",
       "expected": "3g3f",
-      "actual": "5g5f",
+      "actual": "8h7i",
       "match": false
     },
     {
@@ -4626,8 +4626,8 @@
       "index": 658,
       "sfen": "ln5nl/1r2g1ks1/4p1g2/3pspppp/P4P3/2S1S1P1P/LP1PP1N2/2G2G3/1NK4RL w B3Pb2p 1",
       "expected": "P*9f",
-      "actual": "B*6c",
-      "match": false
+      "actual": "P*9f",
+      "match": true
     },
     {
       "index": 659,
@@ -4647,21 +4647,21 @@
       "index": 661,
       "sfen": "l2g1k1nl/1r1s1sgb1/p1nppp1pp/1pp3p2/9/2P1P2P1/PPSP1PP1P/1BG2S1R1/LN1K1G1NL b - 1",
       "expected": "8h7i",
-      "actual": "2f2e",
-      "match": false
+      "actual": "8h7i",
+      "match": true
     },
     {
       "index": 662,
       "sfen": "ln1r3n+B/1ks6/1pp+Ppg1pl/4s1g1p/p4P1P1/2P2pS1P/PP2P4/LSGR2p2/KNG5+b w 2Pnl 1",
       "expected": "7b6c",
-      "actual": "7b6c",
-      "match": true
+      "actual": "5d6c",
+      "match": false
     },
     {
       "index": 663,
       "sfen": "lr4knl/3bg1g2/3s1s1p1/2ppppp1p/P2nPP1P1/p1PS2PBP/1P1S1GN2/1KG4R1/LN6L b 2P 1",
       "expected": "1f1e",
-      "actual": "4g5f",
+      "actual": "5e5d",
       "match": false
     },
     {
@@ -4675,29 +4675,29 @@
       "index": 665,
       "sfen": "ln5nl/1rg2kg2/p2ppbspp/1p3pp2/3Bs2S1/2PP5/PPS1PPP1P/2G1G2R1/LN2K2NL w 2P 1",
       "expected": "4c6e",
-      "actual": "4c6e",
-      "match": true
+      "actual": "5c5d",
+      "match": false
     },
     {
       "index": 666,
       "sfen": "l2g1k1nl/1r4gb1/p2p1p2p/3sPsRp1/1p1n5/2PSpSp2/PP1P1P2P/2GBG4/LNK4NL w P2p 1",
       "expected": "5f5g+",
-      "actual": "5f5g+",
-      "match": true
+      "actual": "8b5b",
+      "match": false
     },
     {
       "index": 667,
       "sfen": "lns5l/2gr5/pP1k2+r1p/2p1pp3/3p5/2P2P3/PSBPP3P/1KG2S3/LN2G1P1L w BN2Pgsn2p 1",
       "expected": "N*9d",
-      "actual": "6e6f",
-      "match": false
+      "actual": "N*9d",
+      "match": true
     },
     {
       "index": 668,
       "sfen": "ln3gs1l/1r2gk3/p2pppnpp/6p2/2Ps5/1P2P2P1/P2SSPP1P/2G1G2R1/LN2K2NL w B2Pbp 1",
       "expected": "8b8f",
-      "actual": "3a2b",
-      "match": false
+      "actual": "8b8f",
+      "match": true
     },
     {
       "index": 669,
@@ -4717,15 +4717,15 @@
       "index": 671,
       "sfen": "l2+B1k2l/4r1g2/p1ns2g2/3bpp1sp/2Pp5/1Pp1PPp1P/P2P3R1/1G1SGS3/LN1K4L w N3Pnp 1",
       "expected": "P*2e",
-      "actual": "P*2e",
-      "match": true
+      "actual": "4a4b",
+      "match": false
     },
     {
       "index": 672,
       "sfen": "ln6+L/1+B7/p1psgg3/3p2p2/4pk1+R1/PPPP1+s1P1/1GB+s5/9/LNK6 w RNL3Pgsn5p 1",
       "expected": "N*3e",
-      "actual": "N*3e",
-      "match": true
+      "actual": "G*3e",
+      "match": false
     },
     {
       "index": 673,
@@ -4745,15 +4745,15 @@
       "index": 675,
       "sfen": "l5r1l/9/2ng2ksp/pp3p1p1/3p5/2r2P1PP/PPNP2S2/1SGG5/LK6L b BS2Pbg2n4p 1",
       "expected": "S*3e",
-      "actual": "S*3e",
-      "match": true
+      "actual": "4f4e",
+      "match": false
     },
     {
       "index": 676,
       "sfen": "ln3gsnl/1r2gk3/p1spppbpp/2p3p2/1p5P1/P1PPP4/1PBG1PP1P/5S1R1/LNSGK2NL w - 1",
       "expected": "7d7e",
-      "actual": "4b3b",
-      "match": false
+      "actual": "7d7e",
+      "match": true
     },
     {
       "index": 677,
@@ -4794,8 +4794,8 @@
       "index": 682,
       "sfen": "l2k3+S1/1r1g5/p1n1p2+PL/2S2gpp1/1pppP4/3N1p2R/PP1P2P1N/4GPSKp/L2+bS2L1 b Nbg2p 1",
       "expected": "N*9e",
-      "actual": "7d6e",
-      "match": false
+      "actual": "N*9e",
+      "match": true
     },
     {
       "index": 683,
@@ -4808,15 +4808,15 @@
       "index": 684,
       "sfen": "6knl/3g1gg2/6spp/1p2Sp3/+R6P1/P1nN5/3PPPB1P/2+p2K1R1/+ps3G1NL b L4Pbsl2p 1",
       "expected": "P*3d",
-      "actual": "2e2d",
-      "match": false
+      "actual": "P*3d",
+      "match": true
     },
     {
       "index": 685,
       "sfen": "ln1g3nl/2s2kb2/p3pp3/2pp5/7+Rp/PnP6/3PPPP1P/2G1KSG2/L+rSG3NL w S4Pbp 1",
       "expected": "8i9i",
-      "actual": "8i9i",
-      "match": true
+      "actual": "B*4d",
+      "match": false
     },
     {
       "index": 686,
@@ -4836,8 +4836,8 @@
       "index": 688,
       "sfen": "lr6l/2sgn1gb1/p2kp2pp/2pp1N3/1n2Bp3/1P4P1P/P2PP1S2/2G1G2R1/LN1K4L b 2S5p 1",
       "expected": "S*3e",
-      "actual": "S*3e",
-      "match": true
+      "actual": "8f8e",
+      "match": false
     },
     {
       "index": 689,
@@ -4857,15 +4857,15 @@
       "index": 691,
       "sfen": "l+R5nl/2Bpg1gk1/p4p3/2p3ppp/3N2s2/P1PPP3P/+b4PN2/2SNK4/5GP1+r b GL2sl4p 1",
       "expected": "5h6g",
-      "actual": "7b6a+",
+      "actual": "7b4e+",
       "match": false
     },
     {
       "index": 692,
       "sfen": "ln2k3l/1ps1gbp2/2pn1s3/pP4+r2/3R2+B1p/P1PNP4/1G1P1P3/2K2G3/L1S2G2L w S6Pnp 1",
       "expected": "3d1d",
-      "actual": "3d8d",
-      "match": false
+      "actual": "3d1d",
+      "match": true
     },
     {
       "index": 693,
@@ -4885,8 +4885,8 @@
       "index": 695,
       "sfen": "ln2r2nl/1p1s1g1k1/p3bp2p/b1+R1p2P1/5N3/2P3P2/P2PPP2P/2G1K4/L1S2GS1L b GPsn4p 1",
       "expected": "4e5c",
-      "actual": "4e5c",
-      "match": true
+      "actual": "4e5c+",
+      "match": false
     },
     {
       "index": 696,
@@ -4906,8 +4906,8 @@
       "index": 698,
       "sfen": "2+R4nl/4gngSk/p2pp1pP1/5p1sp/4P1L2/4S2N1/PP3PS1P/3r1+BKp1/L2g4L w B2Pgn3p 1",
       "expected": "G*5a",
-      "actual": "6h4h+",
-      "match": false
+      "actual": "G*5a",
+      "match": true
     },
     {
       "index": 699,
@@ -4948,7 +4948,7 @@
       "index": 704,
       "sfen": "lr6l/2n4pg/1k1+bp+P2p/p1pN5/1p1p5/4N4/PPSPG3P/1KG1P1+r2/LN6L w GSb2s5p 1",
       "expected": "7b6d",
-      "actual": "8e8f",
+      "actual": "S*6i",
       "match": false
     },
     {
@@ -4990,7 +4990,7 @@
       "index": 710,
       "sfen": "3gnn2l/5kg2/2+Bbppns1/2pp1sLpp/6P2/2P1PPp2/1P1S1S3/4G2R1/+p3K2NL b R2Pgl3p 1",
       "expected": "P*6b",
-      "actual": "R*2a",
+      "actual": "3d3c",
       "match": false
     },
     {
@@ -5018,7 +5018,7 @@
       "index": 714,
       "sfen": "ln3g1nl/1r2g2k1/p1psppsp1/1p1p2p1p/9/1PPS4P/P2PPPPP1/1R4SK1/LN1G1G1NL b Bb 1",
       "expected": "7f7e",
-      "actual": "8i7g",
+      "actual": "2g2f",
       "match": false
     },
     {
@@ -5060,8 +5060,8 @@
       "index": 720,
       "sfen": "l4rkn1/3g2g2/2n1pP1p1/p1pp2p2/1p2P+b1Pl/P1PP2P2/1P1S5/1KG1G1s2/LN1R5 w B2Snl3p 1",
       "expected": "8e8f",
-      "actual": "8e8f",
-      "match": true
+      "actual": "P*4f",
+      "match": false
     },
     {
       "index": 721,
@@ -5074,21 +5074,21 @@
       "index": 722,
       "sfen": "l6k1/br4g2/p+bn1s2pP/4g1p2/1p2pP2p/2p2S3/PPNPGLPP1/5GSK1/L3r1SNL b N3Pp 1",
       "expected": "P*7d",
-      "actual": "P*7d",
-      "match": true
+      "actual": "4e4d",
+      "match": false
     },
     {
       "index": 723,
       "sfen": "l2g5/3k4+B/2nsp1+N2/p1p2r2p/6S2/1PP2P2P/PGNPPp3/2KS3+r1/L1S1G3L w N5Pbglp 1",
       "expected": "4d6d",
-      "actual": "4d6d",
-      "match": true
+      "actual": "4d5d",
+      "match": false
     },
     {
       "index": 724,
       "sfen": "ln1g3nl/1r3kg2/p1sppp1sp/2p2b3/1p4R2/2P3Pp1/PPSPPPS1P/2GK3P1/LN3G1NL b BP 1",
       "expected": "B*4e",
-      "actual": "6g6f",
+      "actual": "3e4e",
       "match": false
     },
     {
@@ -5109,8 +5109,8 @@
       "index": 727,
       "sfen": "ln2kb1nl/3g1s1r1/2s2p3/1p2pgp1p/P4N1p1/1SGpPPP1P/1PN3S2/1KG6/L6RL b B2P3p 1",
       "expected": "7g6e",
-      "actual": "7f6f",
-      "match": false
+      "actual": "7g6e",
+      "match": true
     },
     {
       "index": 728,
@@ -5144,14 +5144,14 @@
       "index": 732,
       "sfen": "kng4n1/ls5rl/ppg1ps2p/6pp1/PPPp1p1P1/2S1P1R2/1S1P1PP1P/LG7/KN1G3NL w Bbp 1",
       "expected": "2d2e",
-      "actual": "B*3h",
-      "match": false
+      "actual": "2d2e",
+      "match": true
     },
     {
       "index": 733,
       "sfen": "ln5nl/1kgsr4/1ppp1sgp1/p3pp2p/2PS2pP1/P1BP1P2P/1PS1P1P2/LG1G3R1/KN5NL b b 1",
       "expected": "7f5h",
-      "actual": "7f6g",
+      "actual": "7g8f",
       "match": false
     },
     {
@@ -5263,15 +5263,15 @@
       "index": 749,
       "sfen": "l6nl/1r1k2g2/2gpp2p1/p4pPsp/2p5P/P4S1R1/1+b1PPPN2/2s1K1G2/LNG5L b BSNP4p 1",
       "expected": "B*5e",
-      "actual": "N*6f",
-      "match": false
+      "actual": "B*5e",
+      "match": true
     },
     {
       "index": 750,
       "sfen": "lr5nl/3gk1g1b/3pp4/p1ps1S2p/3n5/P1P4RP/1P1PPPN2/1SGK1G3/LN6L b S4Pb2p 1",
       "expected": "8i7g",
-      "actual": "P*3c",
-      "match": false
+      "actual": "8i7g",
+      "match": true
     },
     {
       "index": 751,
@@ -5298,7 +5298,7 @@
       "index": 754,
       "sfen": "ln5nl/2gsksg2/2ppppp2/p6rp/6P2/P4+B3/1P1PPP2P/1SG3SP1/LNK2G1NL w BPr2p 1",
       "expected": "9d9e",
-      "actual": "6c6d",
+      "actual": "2d2f",
       "match": false
     },
     {
@@ -5319,8 +5319,8 @@
       "index": 757,
       "sfen": "ln1g3nl/1rs2kg2/p3ppsp1/1ppp2p2/P7p/2P3PP1/1PSPPPN1P/2G2GS2/LN2K2RL w Bb 1",
       "expected": "7b6c",
-      "actual": "7b6c",
-      "match": true
+      "actual": "8a7c",
+      "match": false
     },
     {
       "index": 758,
@@ -5333,7 +5333,7 @@
       "index": 759,
       "sfen": "l5r1l/4k1g2/1+Bngs4/p5PpP/4NP3/P2Gp4/1PN3+b2/1SK1Pr3/L2G4L w SN7Ps2p 1",
       "expected": "3g5e",
-      "actual": "P*6b",
+      "actual": "S*6g",
       "match": false
     },
     {
@@ -5354,15 +5354,15 @@
       "index": 762,
       "sfen": "ln1gk1snl/1rs3g2/p1pppp1pp/9/9/2P3P2/PP1PPP2P/1SGK2S2/LN3G1NL w 2B2Prp 1",
       "expected": "5a5b",
-      "actual": "3a2b",
+      "actual": "5a4b",
       "match": false
     },
     {
       "index": 763,
       "sfen": "ln2g2nl/2ksr2s1/1ppp3bp/p3ppg2/6ppP/PPP1PP3/2BP1S3/1SK1G2R1/LN1G3NL b Pp 1",
       "expected": "8h8g",
-      "actual": "8h8g",
-      "match": true
+      "actual": "P*3f",
+      "match": false
     },
     {
       "index": 764,
@@ -5431,7 +5431,7 @@
       "index": 773,
       "sfen": "1n1g2p1l/2s1k1g2/3p2np1/2P1pp2p/3r5/pP1B4P/1K1P2PS1/P3R4/LN5NL b B2SL3P2g2p 1",
       "expected": "S*7h",
-      "actual": "L*5f",
+      "actual": "L*5g",
       "match": false
     },
     {
@@ -5459,8 +5459,8 @@
       "index": 777,
       "sfen": "ln3kgS+B/5s3/pr1g2Ppp/2p3s2/1N1S+B4/PPPp4P/1G1PPP3/3KG4/5+r2L w NL4Pnlp 1",
       "expected": "4b4c",
-      "actual": "3a2a",
-      "match": false
+      "actual": "4b4c",
+      "match": true
     },
     {
       "index": 778,
@@ -5480,21 +5480,21 @@
       "index": 780,
       "sfen": "ln1g3nl/2s1k1gs1/3pppb1p/pr7/2P6/P8/1P1PPPP1P/1BGK2SR1/LNS2G1NL w 3P2p 1",
       "expected": "8a7c",
-      "actual": "8a7c",
-      "match": true
+      "actual": "9d9e",
+      "match": false
     },
     {
       "index": 781,
       "sfen": "lr5nl/3g1sgk1/p1n1p2p1/2PpnsP1p/1pp3sP1/3PB4/PPS1PP+p1P/1KGG5/LN5RL w Bp 1",
       "expected": "4b4c",
-      "actual": "4b4c",
-      "match": true
+      "actual": "3g3f",
+      "match": false
     },
     {
       "index": 782,
       "sfen": "ln5nl/1r2gkgs1/p2s1p2p/3pp4/9/2P2PP2/PPSPPB2P/2GK2S2/LN3G1NL w B3Pr2p 1",
       "expected": "2b3c",
-      "actual": "5b6b",
+      "actual": "8a7c",
       "match": false
     },
     {
@@ -5564,8 +5564,8 @@
       "index": 792,
       "sfen": "lng5l/1kg2+R3/1ppgp2p1/2s5p/1ns1PS3/P2p4P/LPS6/4+B4/1KPR4L b BGN6Pnp 1",
       "expected": "5h8e",
-      "actual": "8i7h",
-      "match": false
+      "actual": "5h8e",
+      "match": true
     },
     {
       "index": 793,
@@ -5578,8 +5578,8 @@
       "index": 794,
       "sfen": "l3k3l/2+P1g4/p2p2npp/4prp2/3Ps2P1/1PR3B2/P3P1S1P/1G2G4/LNKS1+b2L w GPs2n4p 1",
       "expected": "5a4b",
-      "actual": "5a4b",
-      "match": true
+      "actual": "3d3e",
+      "match": false
     },
     {
       "index": 795,
@@ -5599,7 +5599,7 @@
       "index": 797,
       "sfen": "l3r1knl/6g2/p1ng1ppp1/2p1P3p/3p2P2/PPP6/2NP1SN1P/1SG1KG3/L6RL b S3P2bsp 1",
       "expected": "5d5c+",
-      "actual": "8h8g",
+      "actual": "P*4b",
       "match": false
     },
     {
@@ -5704,7 +5704,7 @@
       "index": 812,
       "sfen": "ln1g1k1nl/1r1s1sgb1/p1pppp2p/6pR1/1p7/2PP5/PPB1PPP1P/6S2/LNSGKG1NL b Pp 1",
       "expected": "2d2e",
-      "actual": "2d2h",
+      "actual": "4g4f",
       "match": false
     },
     {
@@ -5732,8 +5732,8 @@
       "index": 816,
       "sfen": "lr5nl/3g1kg2/p1n1ppsp1/2pps1p1p/Pp5P1/2P2PP1P/1PSPPSN2/2GK1G3/LN5RL w Bb 1",
       "expected": "4c4d",
-      "actual": "6d6e",
-      "match": false
+      "actual": "4c4d",
+      "match": true
     },
     {
       "index": 817,
@@ -5746,8 +5746,8 @@
       "index": 818,
       "sfen": "l1g3g1+B/4ks3/1Pspp4/2pr2p1p/P4N3/6P1P/4PP3/LS+n2KS2/1+bP2G2L b RL4Pg2n2p 1",
       "expected": "L*5f",
-      "actual": "7i7h",
-      "match": false
+      "actual": "L*5f",
+      "match": true
     },
     {
       "index": 819,
@@ -5767,22 +5767,22 @@
       "index": 821,
       "sfen": "ln1g3nl/1rs2kg2/p3ppspp/1ppp2p2/9/P1P2PPPP/1PSPP4/3K2SR1/LN1G1G1NL w Bb 1",
       "expected": "1c1d",
-      "actual": "8a7c",
+      "actual": "8d8e",
       "match": false
     },
     {
       "index": 822,
       "sfen": "l1g1p4/2ksl4/1pn2p1pp/pnpp1n3/2n2S3/1G2P+BP2/PPPP1PS1P/3SK4/L1G2GL1+b w R2Pr 1",
       "expected": "7c6e",
-      "actual": "R*5c",
+      "actual": "1i3g",
       "match": false
     },
     {
       "index": 823,
       "sfen": "l7l/2g1k4/2npsg1+R1/4p1p1p/P4P3/2PPP1P2/2NSG+b2P/1P2S4/+r1K5L b BS2N4Pgl2p 1",
       "expected": "N*8i",
-      "actual": "N*8i",
-      "match": true
+      "actual": "S*8i",
+      "match": false
     },
     {
       "index": 824,
@@ -5795,8 +5795,8 @@
       "index": 825,
       "sfen": "ln1g3nl/1r1s1kg2/2ppppsp1/p5p1p/1p7/P1P2PPPP/1PSPPS3/2G4R1/LN2KG1NL w Bb 1",
       "expected": "6c6d",
-      "actual": "7c7d",
-      "match": false
+      "actual": "6c6d",
+      "match": true
     },
     {
       "index": 826,
@@ -5830,8 +5830,8 @@
       "index": 830,
       "sfen": "ln1g3nl/1k2g2r1/1s2ppspp/pppp2p2/7P1/P1P2P3/1PSPPSP1P/LK1G3R1/1N1G3NL b Bb 1",
       "expected": "8h9i",
-      "actual": "8h9i",
-      "match": true
+      "actual": "3g3f",
+      "match": false
     },
     {
       "index": 831,
@@ -5844,8 +5844,8 @@
       "index": 832,
       "sfen": "lr5nl/3g1sk2/p1nsppbp1/3g5/3P2p1p/1pp1PP3/P2S1S1PP/1PG3GK1/LN1R3NL w BP2p 1",
       "expected": "7c6e",
-      "actual": "6d6e",
-      "match": false
+      "actual": "7c6e",
+      "match": true
     },
     {
       "index": 833,
@@ -5900,8 +5900,8 @@
       "index": 840,
       "sfen": "ln3R2l/2+S1g4/2ppk+bn2/6P2/P6pp/pSPs5/1K2N1+r1P/1G2P2+p1/LN+B5L w S3P2g4p 1",
       "expected": "P*8e",
-      "actual": "P*8e",
-      "match": true
+      "actual": "3g3d",
+      "match": false
     },
     {
       "index": 841,
@@ -5914,15 +5914,15 @@
       "index": 842,
       "sfen": "ln1g1k1nl/1r1s2g2/p1ppppspp/3b2p2/1p5P1/2P3P2/PPSPPP2P/2G1K2SR/LN3G1NL b B 1",
       "expected": "2h3g",
-      "actual": "5h6h",
-      "match": false
+      "actual": "2h3g",
+      "match": true
     },
     {
       "index": 843,
       "sfen": "l4rknl/3g2g2/p1n1b1sp1/2s1p1p2/Pp1pPP1Pp/6P1P/1PSPBSN2/4GGK2/LN5RL w P2p 1",
       "expected": "1e1f",
-      "actual": "5d5e",
-      "match": false
+      "actual": "1e1f",
+      "match": true
     },
     {
       "index": 844,
@@ -5970,7 +5970,7 @@
       "index": 850,
       "sfen": "l3k2nl/1r1s2g2/p1n1pg1pp/2pps1p2/1p3p3/P1P1P1P2/1PSP1P2P/2G1GS1R1/LN1K3NL b BPb 1",
       "expected": "7f7e",
-      "actual": "6i7i",
+      "actual": "2i3g",
       "match": false
     },
     {
@@ -5991,8 +5991,8 @@
       "index": 853,
       "sfen": "l3S4/2p2g3/2n1sknP1/1P1s1ppp1/p1P2l2R/2S1p1P2/PGNpPPN2/4KG3/L8 w RGL2b4p 1",
       "expected": "P*1d",
-      "actual": "B*3i",
-      "match": false
+      "actual": "P*1d",
+      "match": true
     },
     {
       "index": 854,
@@ -6005,7 +6005,7 @@
       "index": 855,
       "sfen": "lr5nl/3g1kg2/p1nbpp1p1/n2p4p/2p1PP3/PPPP4P/2S3R2/2G2G3/LNK5L b B2S3Psp 1",
       "expected": "7f7e",
-      "actual": "4e4d",
+      "actual": "P*3c",
       "match": false
     },
     {
@@ -6033,7 +6033,7 @@
       "index": 859,
       "sfen": "lnsg4l/1k3sgr1/1ppp1pnpp/p3p1p2/7P1/P1P2SP2/1PBPPP2P/2K4R1/LNSG1G1NL b b 1",
       "expected": "5g5f",
-      "actual": "6i6h",
+      "actual": "4i5h",
       "match": false
     },
     {
@@ -6061,8 +6061,8 @@
       "index": 863,
       "sfen": "3B3nl/5ggk1/2npp2p1/Lrps1pps1/1P6p/2SP1PP2/1GS1PGN1P/p1K2R3/1N6L w L3Pbp 1",
       "expected": "7c8e",
-      "actual": "7c8e",
-      "match": true
+      "actual": "8d8b",
+      "match": false
     },
     {
       "index": 864,
@@ -6096,8 +6096,8 @@
       "index": 868,
       "sfen": "lr5nl/2kg1p1+R1/3s5/p2g1Bs1p/1NPnpPp2/PP1sPB2P/5SN2/1p3G3/L2K4L w 4Pg2p 1",
       "expected": "6b5b",
-      "actual": "G*5b",
-      "match": false
+      "actual": "6b5b",
+      "match": true
     },
     {
       "index": 869,
@@ -6145,8 +6145,8 @@
       "index": 875,
       "sfen": "5g2l/1+R2s1k2/p1np+r4/2p2pgpp/3Pp3P/2P2P1PB/P1N3PK1/1P+b2GN2/L5SNL b G2sl3p 1",
       "expected": "4f4e",
-      "actual": "4f4e",
-      "match": true
+      "actual": "G*4e",
+      "match": false
     },
     {
       "index": 876,
@@ -6173,8 +6173,8 @@
       "index": 879,
       "sfen": "ln2r4/1k1s4l/ps1g1gn1p/1pPbp1sp1/P2N5/4PPpP1/1P1PG3P/1SR6/LKG4NL b B4P 1",
       "expected": "B*9f",
-      "actual": "B*9f",
-      "match": true
+      "actual": "P*3e",
+      "match": false
     },
     {
       "index": 880,
@@ -6187,7 +6187,7 @@
       "index": 881,
       "sfen": "3+R1sgnl/4pgk2/p2l+bp1p1/6p1p/3P1P3/1P4PPP/P4N+BS1/4+rSG1L/3+p1g1NK w N2Psl2p 1",
       "expected": "L*4f",
-      "actual": "1d1e",
+      "actual": "2a3c",
       "match": false
     },
     {
@@ -6201,7 +6201,7 @@
       "index": 883,
       "sfen": "ln5nl/1r2gkgp1/3p1p1Pp/p4b1R1/2p2B3/1PPPp4/P1S1PP2P/2G1G4/LNK4NL w S2P2sp 1",
       "expected": "P*8g",
-      "actual": "7e7f",
+      "actual": "P*8h",
       "match": false
     },
     {
@@ -6215,22 +6215,22 @@
       "index": 885,
       "sfen": "l2g4l/2s1k1gs1/p2pppn1p/2p6/9/P1P6/3P1SPRP/1+b3K3/LN3G1NL b RBN4Pgs3p 1",
       "expected": "P*5d",
-      "actual": "N*3d",
-      "match": false
+      "actual": "P*5d",
+      "match": true
     },
     {
       "index": 886,
       "sfen": "l+b1r3nl/4gkg2/p1+B1ppsp1/1pSp4p/2P1P1PP1/1P1G5/N2P1PN1P/4GS1R1/L3K3L w N2Psp 1",
       "expected": "4b3a",
-      "actual": "S*2g",
-      "match": false
+      "actual": "4b3a",
+      "match": true
     },
     {
       "index": 887,
       "sfen": "ln2k2nl/4g1g2/1r1ppp1p1/p1ps4p/9/PpP5P/2SPPP3/2G4R1/LN1K1G1NL b BS2Pbs2p 1",
       "expected": "P*8d",
-      "actual": "B*6f",
-      "match": false
+      "actual": "P*8d",
+      "match": true
     },
     {
       "index": 888,
@@ -6257,8 +6257,8 @@
       "index": 891,
       "sfen": "ln1g3nl/2s1k1gs1/3pppb1p/prp6/9/2P4RP/PP1PPPP2/1BGK1SG2/LNS4NL w 2P2p 1",
       "expected": "9d9e",
-      "actual": "9d9e",
-      "match": true
+      "actual": "8a7c",
+      "match": false
     },
     {
       "index": 892,
@@ -6306,8 +6306,8 @@
       "index": 898,
       "sfen": "ln3R1nl/1kgg5/1pp1ps1+P1/p3sp2p/2P3B2/P2S4P/1P3+bN2/LSG3P2/KNG5L w 2Pr4p 1",
       "expected": "R*3f",
-      "actual": "R*3f",
-      "match": true
+      "actual": "R*2i",
+      "match": false
     },
     {
       "index": 899,
@@ -6348,22 +6348,22 @@
       "index": 904,
       "sfen": "ln1g1g1nl/1ks4r1/1pppppspp/p5p2/7P1/P1P2PP2/1P1PP3P/1SK1GS1R1/LN1G3NL w Bb 1",
       "expected": "4a5b",
-      "actual": "4a5b",
-      "match": true
+      "actual": "3c4d",
+      "match": false
     },
     {
       "index": 905,
       "sfen": "ln1gk2nl/1r1s2g2/p1ppppspp/6p2/1p5P1/2P5P/PPSPPPP2/2G2S1R1/LN2KG1NL w Bb 1",
       "expected": "9c9d",
-      "actual": "1c1d",
-      "match": false
+      "actual": "9c9d",
+      "match": true
     },
     {
       "index": 906,
       "sfen": "l2gkg1nl/1rs6/p1npppspp/2p3p2/1p7/2P3PP1/PPSPPP2P/2GK2SR1/LN3G1NL b Bb 1",
       "expected": "2i3g",
-      "actual": "4g4f",
-      "match": false
+      "actual": "2i3g",
+      "match": true
     },
     {
       "index": 907,
@@ -6376,15 +6376,15 @@
       "index": 908,
       "sfen": "lkg5+P/1p1n5/2sp5/2g1p2p1/PP1s1pB2/1SP1P4/N3SP3/2G3P2/LKN+l5 b RBN5Prglp 1",
       "expected": "N*8d",
-      "actual": "R*5a",
-      "match": false
+      "actual": "N*8d",
+      "match": true
     },
     {
       "index": 909,
       "sfen": "lr2b3l/4g1ks1/2nsng3/p1p1ppp1p/1p1p3S1/P1PPPB2P/1PSGN4/2KG5/LN5RL w P3p 1",
       "expected": "2b3c",
-      "actual": "2b3c",
-      "match": true
+      "actual": "P*2c",
+      "match": false
     },
     {
       "index": 910,
@@ -6439,8 +6439,8 @@
       "index": 917,
       "sfen": "ln4knl/1r3gs2/4pgbp1/p1s2p3/1p1p1Pp1p/P1S1S4/1P2P3P/1BG1G2R1/LNK4NL b 2P3p 1",
       "expected": "2i3g",
-      "actual": "2i3g",
-      "match": true
+      "actual": "4e4d",
+      "match": false
     },
     {
       "index": 918,
@@ -6453,8 +6453,8 @@
       "index": 919,
       "sfen": "lr4k1l/2g2sg2/3sppbp1/p2p1P2p/2pnN4/P1PSP2PP/1P7/1KG2G3/LN1R4L w BS2Pn2p 1",
       "expected": "P*8f",
-      "actual": "P*8f",
-      "match": true
+      "actual": "7e7f",
+      "match": false
     },
     {
       "index": 920,
@@ -6488,15 +6488,15 @@
       "index": 924,
       "sfen": "3g5/2s1k1g2/n1ppppnP1/r8/l6ps/pPPSBPL2/2NPP1P2/P1G1K1GR1/L3S2N1 w 2Pbl2p 1",
       "expected": "2e2f",
-      "actual": "1e2d",
+      "actual": "L*5d",
       "match": false
     },
     {
       "index": 925,
       "sfen": "1nk5l/4g4/pPsp4p/1p2P2+r1/3+B5/2PP5/PG4N1P/3K2S2/LNS1GG2L w B2Prsnl6p 1",
       "expected": "7a7b",
-      "actual": "7a7b",
-      "match": true
+      "actual": "L*4a",
+      "match": false
     },
     {
       "index": 926,
@@ -6516,8 +6516,8 @@
       "index": 928,
       "sfen": "ln1g4l/1ksr5/1ppppgnP1/p4Pppp/5s3/P1PP4R/1P4P1P/1KS1G4/LN1G3NL w BSb2p 1",
       "expected": "4c4b",
-      "actual": "4c4d",
-      "match": false
+      "actual": "4c4b",
+      "match": true
     },
     {
       "index": 929,
@@ -6551,8 +6551,8 @@
       "index": 933,
       "sfen": "G5snl/+Pp1s2k2/2bp1pg2/p1b1r3p/1Pp6/3P5/3SPPPPP/2G1K2G1/L+R5NL w 2NL2Ps2p 1",
       "expected": "3c4d",
-      "actual": "3c4d",
-      "match": true
+      "actual": "7d4g+",
+      "match": false
     },
     {
       "index": 934,
@@ -6565,7 +6565,7 @@
       "index": 935,
       "sfen": "l4r1nl/2g1k1g2/2nsp1sp1/p1pp2p1p/1p5P1/P1PP2P1P/1PSSPPN2/1KG2G3/LN5RL b Bbp 1",
       "expected": "7g6h",
-      "actual": "2i2f",
+      "actual": "6g5f",
       "match": false
     },
     {
@@ -6593,8 +6593,8 @@
       "index": 939,
       "sfen": "l2g3nl/2rs2gk1/pp2pps1p/4g2p1/2Rn5/6P2/PPPPPPB1P/3K1S1P1/L5GNL b BS3Pn 1",
       "expected": "S*7d",
-      "actual": "7e7b+",
-      "match": false
+      "actual": "S*7d",
+      "match": true
     },
     {
       "index": 940,
@@ -6635,8 +6635,8 @@
       "index": 945,
       "sfen": "lSS3l2/4gkpR1/p2s1p3/3n1r3/1nP4+Pp/5PP1+b/PP2P1K2/5G2+p/LNG4P1 w BG2Psnl3p 1",
       "expected": "1h2i",
-      "actual": "1h2i",
-      "match": true
+      "actual": "1h1g",
+      "match": false
     },
     {
       "index": 946,
@@ -6656,8 +6656,8 @@
       "index": 948,
       "sfen": "lr5n1/1P2kg3/p1+PsgpP2/2p5p/Pp1p3Nb/1LP1lbp2/2S+s5/2GP5/LNK2G2R w SN5P 1",
       "expected": "6g7h",
-      "actual": "8a6a",
-      "match": false
+      "actual": "6g7h",
+      "match": true
     },
     {
       "index": 949,
@@ -6684,8 +6684,8 @@
       "index": 952,
       "sfen": "ln3g1nk/6s1l/p6+r1/3p+B1p1p/1pP6/3PP3P/PPNSp1P2/3G1KS2/L6NL w RG5Pbgs 1",
       "expected": "G*2h",
-      "actual": "S*2h",
-      "match": false
+      "actual": "G*2h",
+      "match": true
     },
     {
       "index": 953,
@@ -6705,7 +6705,7 @@
       "index": 955,
       "sfen": "l3k3l/3gspp2/1+r2p2pp/2p2P+P2/p4N1P1/3S2K2/1+b2G1N1P/3PS1G2/1N3R2L w NL4Pbgs2p 1",
       "expected": "S*6e",
-      "actual": "8c8f",
+      "actual": "B*1e",
       "match": false
     },
     {
@@ -6719,8 +6719,8 @@
       "index": 957,
       "sfen": "ln2r3l/2kg2g2/1psp1s3/2p3ppp/p6PP/2PP2P2/PP2pS3/1KS2G3/LN1G3NL w 2BN3Pr 1",
       "expected": "2d2e",
-      "actual": "1d1e",
-      "match": false
+      "actual": "2d2e",
+      "match": true
     },
     {
       "index": 958,
@@ -6789,8 +6789,8 @@
       "index": 967,
       "sfen": "lr5nl/3k3g1/2g1pp1p1/p2p2sPp/1pp3p2/P2P1s2P/1P1S1N3/1KG2G3/LN5RL b BNPbs3p 1",
       "expected": "B*5f",
-      "actual": "P*7d",
-      "match": false
+      "actual": "B*5f",
+      "match": true
     },
     {
       "index": 968,
@@ -6810,8 +6810,8 @@
       "index": 970,
       "sfen": "3g1n2l/2s2kgs1/2n1pp1pp/3p1nP2/b4+B3/3P1SN2/Pp1+pPP1RP/2s3K2/L4g2L b RL3Pg2p 1",
       "expected": "R*9b",
-      "actual": "L*3c",
-      "match": false
+      "actual": "R*9b",
+      "match": true
     },
     {
       "index": 971,
@@ -6824,8 +6824,8 @@
       "index": 972,
       "sfen": "l6rl/2g1kg3/1pns1sn2/p1pppp2p/9/4SPP1P/P1N1PS1P1/3G1KG2/LR5NL w B3Pb2p 1",
       "expected": "4b5c",
-      "actual": "4b5c",
-      "match": true
+      "actual": "9d9e",
+      "match": false
     },
     {
       "index": 973,
@@ -6845,8 +6845,8 @@
       "index": 975,
       "sfen": "ln1g2snl/2s2kgb1/3ppp1pp/p1p3p2/2r6/P5P1P/1P1PPP3/1BGK2SR1/LNS2G1NL b P2p 1",
       "expected": "3h3g",
-      "actual": "3h3g",
-      "match": true
+      "actual": "P*2d",
+      "match": false
     },
     {
       "index": 976,
@@ -6894,7 +6894,7 @@
       "index": 982,
       "sfen": "lr5nl/4gkg2/2nspp1p1/p1pp1sp1p/1p3N3/P1PPSPP1P/1PS1P4/2GK1G3/LN5RL b BPb 1",
       "expected": "6h7i",
-      "actual": "B*2e",
+      "actual": "P*2d",
       "match": false
     },
     {
@@ -6915,15 +6915,15 @@
       "index": 985,
       "sfen": "4b1krl/4g1g2/4ppn2/+L1pB2psp/1P1n1P1p1/2PNP1P1P/1p1P1S3/2G1KG3/7RL w SNL3Psp 1",
       "expected": "2e2f",
-      "actual": "S*5g",
+      "actual": "3c4e",
       "match": false
     },
     {
       "index": 986,
       "sfen": "Kp6l/1+Bsg2g2/2gpkpns1/4p3p/lP1P2P2/p4P3/2+p5P/P1S6/LSr4NL b RBPg2n4p 1",
       "expected": "B*8f",
-      "actual": "R*5a",
-      "match": false
+      "actual": "B*8f",
+      "match": true
     },
     {
       "index": 987,
@@ -6971,15 +6971,15 @@
       "index": 993,
       "sfen": "ln4knl/pr1sg2s1/3p3p1/P1P1p1p1P/L1S2gb1p/1PR2p3/2NPP1P2/2GKG1B2/2S4NL w 2P2p 1",
       "expected": "5d5e",
-      "actual": "5d5e",
-      "match": true
+      "actual": "1a1d",
+      "match": false
     },
     {
       "index": 994,
       "sfen": "l4k1nl/1r1sg1gb1/p1npppspp/1pp3p2/7P1/2P3P2/PPSPPP2P/2K1GS1R1/LNBG3NL w - 1",
       "expected": "3c4d",
-      "actual": "3c4d",
-      "match": true
+      "actual": "6c6d",
+      "match": false
     },
     {
       "index": 995,
