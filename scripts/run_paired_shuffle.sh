@@ -2,18 +2,18 @@
 # Run shuffle_kifu in paired mode:
 # output record format = [DNN 40B (no qsearch) | NNUE 40B (qsearch)]
 #
-# Usage: bash scripts/run_paired_shuffle.sh <input_dir> <output_dir> [threads] [max_output_samples] [offset_alpha]
-# Example: bash scripts/run_paired_shuffle.sh dataset/split_v1/input_train dataset/split_v1_paired/output_train 8 480000000 0.216
+# Usage: bash scripts/run_paired_shuffle.sh <input_dir> <output_dir> [threads] [max_output_samples] [offset_uniform_max]
+# Example: bash scripts/run_paired_shuffle.sh dataset/split_v1/input_train dataset/split_v1_paired/output_train 8 480000000 50
 #
 # IMPORTANT: input_dir must contain only .bin files.
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-INPUT_DIR="${1:?Usage: $0 <input_dir> <output_dir> [threads] [max_output_samples] [offset_alpha]}"
-OUTPUT_DIR="${2:?Usage: $0 <input_dir> <output_dir> [threads] [max_output_samples] [offset_alpha]}"
+INPUT_DIR="${1:?Usage: $0 <input_dir> <output_dir> [threads] [max_output_samples] [offset_uniform_max]}"
+OUTPUT_DIR="${2:?Usage: $0 <input_dir> <output_dir> [threads] [max_output_samples] [offset_uniform_max]}"
 THREADS="${3:-8}"
 MAX_OUTPUT_SAMPLES="${4:-0}"
-OFFSET_ALPHA="${5:-0.216}"
+OFFSET_UNIFORM_MAX="${5:-50}"
 ENGINE="${SCRIPT_DIR}/bin/shuffle/tanuki-learner"
 ENGINE_CWD="${SCRIPT_DIR}/bin/shuffle"
 
@@ -40,7 +40,8 @@ echo "setoption name PairedShuffle value true" >&3
 if [ "$MAX_OUTPUT_SAMPLES" -gt 0 ]; then
     echo "setoption name MaxOutputSamples value $MAX_OUTPUT_SAMPLES" >&3
 fi
-echo "setoption name OffsetAlpha value $OFFSET_ALPHA" >&3
+echo "setoption name OffsetDistribution value uniform" >&3
+echo "setoption name OffsetUniformMax value $OFFSET_UNIFORM_MAX" >&3
 echo "isready" >&3
 sleep 3
 echo "shuffle_kifu" >&3

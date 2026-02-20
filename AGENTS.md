@@ -85,6 +85,18 @@ train-nnue/
 
 ## 主要なコマンド
 
+### tanuki-learner (shuffle_kifu) のビルドと反映
+```bash
+# 1. tanuki-learner を学習用ターゲットでビルド (本リポジトリ環境は BLAS なし前提)
+make -C tanuki-learner/source evallearn BLAS=NONE
+
+# 2. 実行バイナリを shuffle 実行環境へ反映
+cp tanuki-learner/source/YaneuraOu-by-gcc bin/shuffle/tanuki-learner
+```
+
+- ビルド成果物: `tanuki-learner/source/YaneuraOu-by-gcc`
+- `scripts/run_shuffle.sh` / `scripts/run_paired_shuffle.sh` が実際に起動するバイナリ: `bin/shuffle/tanuki-learner`
+
 ### 学習 (大容量データ)
 ```bash
 # 1. データ分割
