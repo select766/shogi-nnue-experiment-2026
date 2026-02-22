@@ -121,6 +121,10 @@ def quantize_and_pack(blended, feature_set):
     Returns:
         bytes: 量子化済みバイナリデータ
     """
+    # numpy 変換はCPUテンソルのみ対応のため、デバイス非依存で量子化できるよう
+    # ここで一度CPUへ集約する。
+    blended = {k: v.detach().to("cpu") for k, v in blended.items()}
+
     buf = bytearray()
 
     # --- Feature Transformer ---
