@@ -20,7 +20,7 @@ bash "${SCRIPT_ROOT}/scripts/run_train_expert_blending_8experts_v4.sh" \
   --n-experts 8 \
   --adapter-hidden 128 \
   --adapter-noise-scale 0.0 \
-  --batch-size 256 \
+  --batch-size 1024 \
   --train-shuffle-buffer-size 64 \
   --epoch-size 1000000 \
   --lr-nnue 0.01 \
