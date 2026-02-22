@@ -72,17 +72,25 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         self.latest_loss_count = 0
 
         self.save_hyperparameters(ignore=["model"])
+        self.backbone_type = getattr(model, "backbone_type", "dnn")
 
-    def forward(self, x1, x2, us, them, w_in, b_in, training=True):
-        return self.model(x1, x2, us, them, w_in, b_in, training=training)
+    def forward(self, *inputs, training=True):
+        return self.model(*inputs, training=training)
 
     def _compute_loss(self, batch, loss_type):
-        x1, x2, us, them, white, black, outcome, score, ply = batch
+        if self.backbone_type == "nnue":
+            us_bb, them_bb, white_bb, black_bb, us, them, white, black, outcome, score, ply = batch
+            model_inputs = (us_bb, them_bb, white_bb, black_bb, us, them, white, black)
+            batch_size = int(us_bb.shape[0])
+        else:
+            x1, x2, us, them, white, black, outcome, score, ply = batch
+            model_inputs = (x1, x2, us, them, white, black)
+            batch_size = int(x1.shape[0])
 
         nnue2score = 600
         scaling = self.score_scaling
 
-        q = self(x1, x2, us, them, white, black, training=self.training) * nnue2score / scaling
+        q = self(*model_inputs, training=self.training) * nnue2score / scaling
         t = outcome * (1.0 - self.label_smoothing_eps * 2.0) + self.label_smoothing_eps
         p = (score / scaling).sigmoid()
 
@@ -96,7 +104,6 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         result = lambda_ * teacher_loss + (1.0 - lambda_) * outcome_loss
         entropy = lambda_ * teacher_entropy + (1.0 - lambda_) * outcome_entropy
         loss = result.mean() - entropy.mean()
-        batch_size = int(x1.shape[0])
         if loss_type == "train_loss":
             # Step-wise trace for debugging/volatility checks.
             self.log("train_loss_step", loss, on_step=True, on_epoch=False, prog_bar=False)
@@ -151,10 +158,16 @@ class ExpertBlendingLightningModule(pl.LightningModule):
 
     def _log_expert_weights(self, batch):
         """バッチ内の expert 重み分布をログに記録する。"""
-        x1, x2 = batch[0], batch[1]
         with torch.no_grad():
-            feat = self.model.backbone(x1, x2)
-            gate_weights = self.model.adapter(feat, training=False)
+            if self.backbone_type == "nnue":
+                us_bb, them_bb, white_bb, black_bb = batch[0], batch[1], batch[2], batch[3]
+                gate_weights = self.model.backbone(
+                    us_bb, them_bb, white_bb, black_bb, training=False
+                )
+            else:
+                x1, x2 = batch[0], batch[1]
+                feat = self.model.backbone(x1, x2)
+                gate_weights = self.model.adapter(feat, training=False)
             # 各 expert の平均重み
             mean_weights = gate_weights.mean(dim=0)
             for i in range(mean_weights.shape[0]):
@@ -186,18 +199,30 @@ class ExpertBlendingLightningModule(pl.LightningModule):
 
     def configure_optimizers(self):
         # Separate param groups: adapter と NNUE experts で異なる学習率
-        param_groups = [
-            {
-                "params": list(self.model.adapter.parameters()),
-                "lr": self.lr_adapter,
-                "initial_lr": self.lr_adapter,
-            },
+        param_groups = []
+        if self.backbone_type == "nnue":
+            param_groups.append(
+                {
+                    "params": list(self.model.backbone.parameters()),
+                    "lr": self.lr_adapter,
+                    "initial_lr": self.lr_adapter,
+                }
+            )
+        else:
+            param_groups.append(
+                {
+                    "params": list(self.model.adapter.parameters()),
+                    "lr": self.lr_adapter,
+                    "initial_lr": self.lr_adapter,
+                }
+            )
+        param_groups.append(
             {
                 "params": list(self.model.nnue_experts.parameters()),
                 "lr": self.lr_nnue,
                 "initial_lr": self.lr_nnue,
-            },
-        ]
+            }
+        )
         return torch.optim.SGD(param_groups, lr=self.lr_nnue, momentum=self.momentum)
 
     def on_save_checkpoint(self, checkpoint):
@@ -250,7 +275,13 @@ def main():
     parser.add_argument("--batch-size", type=int, default=256, help="Batch size")
     parser.add_argument("--epoch-size", type=int, default=1000000, help="Positions per epoch")
     # Model
-    parser.add_argument("--backbone-weights", required=True, help="dlshogi .npz weights path")
+    parser.add_argument(
+        "--backbone-type",
+        default="dnn",
+        choices=["dnn", "nnue"],
+        help="Backbone type: dnn or nnue",
+    )
+    parser.add_argument("--backbone-weights", required=False, help="dlshogi .npz weights path")
     parser.add_argument("--nnue-checkpoint", required=True, help="NNUE .ckpt path for expert init")
     parser.add_argument("--n-experts", type=int, default=4, help="Number of NNUE experts")
     parser.add_argument("--adapter-hidden", type=int, default=128, help="Adapter hidden dim")
@@ -293,7 +324,12 @@ def main():
 
     args = parser.parse_args()
 
-    for path in [args.train, args.val, args.backbone_weights, args.nnue_checkpoint]:
+    required_paths = [args.train, args.val, args.nnue_checkpoint]
+    if args.backbone_type == "dnn":
+        if not args.backbone_weights:
+            raise ValueError("--backbone-weights is required when --backbone-type dnn")
+        required_paths.append(args.backbone_weights)
+    for path in required_paths:
         if not os.path.exists(path):
             raise FileNotFoundError(f"{path} does not exist")
 
@@ -316,6 +352,7 @@ def main():
         n_experts=args.n_experts,
         adapter_hidden=args.adapter_hidden,
         adapter_noise_scale=args.adapter_noise_scale,
+        backbone_type=args.backbone_type,
         device="cpu",  # PL will move to GPU
     )
     trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -352,6 +389,7 @@ def main():
         max_val_positions=args.max_val_positions,
         train_shuffle_buffer_size=args.train_shuffle_buffer_size,
         seed=args.seed,
+        backbone_type=args.backbone_type,
     )
 
     # --- Trainer ---

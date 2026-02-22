@@ -55,10 +55,19 @@ class ExpertBlendingDataset(IterableDataset):
     NNUE sparse features: C++ SparseBatchProvider 経由（ベースライン NNUE 学習と同じコードパス）
     dlshogi dense features: PackedSfen → HCP 変換後 dcppshogi.hcpe_decode_with_value 経由
 
-    両者は同じファイルを同じ順序で逐次読みするため、同じ局面を参照する。
+    dnn.bin と nnue.bin は paired データとして同じ順序で読み出すが、局面自体は異なる。
+    backbone 入力は dnn.bin 側、NNUE experts 入力は nnue.bin 側を使う。
     """
 
-    def __init__(self, bin_dir, feature_set_name, batch_size, device='cpu', shuffle=True):
+    def __init__(
+        self,
+        bin_dir,
+        feature_set_name,
+        batch_size,
+        device='cpu',
+        shuffle=True,
+        backbone_type="dnn",
+    ):
         super().__init__()
         self.bin_dir = bin_dir
         self.feature_set_name = feature_set_name
@@ -66,6 +75,9 @@ class ExpertBlendingDataset(IterableDataset):
         self.device = device
         # shuffle パラメータは互換性のため残すが、ランダム化は cyclic 読み込みで実現
         self.shuffle = shuffle
+        self.backbone_type = backbone_type.lower()
+        if self.backbone_type not in {"dnn", "nnue"}:
+            raise ValueError(f"backbone_type must be 'dnn' or 'nnue', got {backbone_type}")
 
         self.dnn_bin_path = os.path.join(bin_dir, "dnn.bin")
         self.nnue_bin_path = os.path.join(bin_dir, "nnue.bin")
@@ -98,14 +110,16 @@ class ExpertBlendingDataset(IterableDataset):
 class _ExpertBlendingIterator:
     """Stateful iterator for ExpertBlendingDataset.
 
-    2つの並行リーダーで別ファイルを同一順序で逐次読みする:
-    1. SparseBatchProvider (C++): nnue.bin から NNUE sparse features
-    2. Python mmap reader: dnn.bin の PackedSfen を HCP 変換して dlshogi dense features
+    並行リーダーで別ファイルを同一順序で逐次読みする:
+    1. SparseBatchProvider (C++): nnue.bin から NNUE experts 用 sparse features
+    2. backbone_type='dnn': Python mmap reader で dnn.bin を HCP 変換して dense features
+       backbone_type='nnue': SparseBatchProvider で dnn.bin から backbone 用 sparse features
     """
 
     def __init__(self, dataset):
         self.batch_size = dataset.batch_size
         self.device = dataset.device
+        self.backbone_type = dataset.backbone_type
         self.num_records = dataset.num_records
         self.record_bytes = dataset.record_bytes
         self.dnn_psfen_offset = dataset.dnn_psfen_offset
@@ -124,11 +138,29 @@ class _ExpertBlendingIterator:
             device=dataset.device,
         )
 
-        # dlshogi features: dnn.bin を逐次読み → HCP変換
-        self.file = open(dataset.dnn_bin_path, 'rb')
-        self.mm = mmap.mmap(self.file.fileno(), 0, access=mmap.ACCESS_READ)
+        # backbone input source:
+        # - dnn: dnn.bin を逐次読みして dlshogi dense features を生成
+        # - nnue: dnn.bin を SparseBatchProvider で読み、NNUE sparse features を生成
+        self.file = None
+        self.mm = None
         self.record_pos = 0
-        self.board = cshogi.Board()  # PackedSfen → HCP 変換用
+        self.board = None
+        self.backbone_nnue_provider = None
+        if self.backbone_type == "dnn":
+            self.file = open(dataset.dnn_bin_path, 'rb')
+            self.mm = mmap.mmap(self.file.fileno(), 0, access=mmap.ACCESS_READ)
+            self.board = cshogi.Board()  # PackedSfen → HCP 変換用
+        else:
+            self.backbone_nnue_provider = nnue_dataset.SparseBatchProvider(
+                dataset.feature_set_name,
+                dataset.dnn_bin_path,
+                dataset.batch_size,
+                cyclic=True,
+                num_workers=1,
+                filtered=False,
+                random_fen_skipping=0,
+                device=dataset.device,
+            )
 
     def __iter__(self):
         return self
@@ -138,6 +170,13 @@ class _ExpertBlendingIterator:
         nnue_tensors = next(self.nnue_provider)
         us, them, white, black, outcome, score, ply = nnue_tensors
         actual_batch_size = us.shape[0]
+
+        if self.backbone_type == "nnue":
+            us_bb, them_bb, white_bb, black_bb, *_ = next(self.backbone_nnue_provider)
+            return (
+                us_bb, them_bb, white_bb, black_bb,
+                us, them, white, black, outcome, score, ply,
+            )
 
         # 2. Read PackedSfen bytes and convert to HCP (Apery format) for dlshogi
         # .bin files use YaneuraOu PackedSfen encoding; dlshogi expects Apery HCP encoding.
@@ -250,6 +289,7 @@ def create_data_loaders(
     max_val_positions=1_000_000,
     train_shuffle_buffer_size=0,
     seed=42,
+    backbone_type="dnn",
 ):
     """学習/検証用DataLoaderのペアを返す。
 
@@ -270,6 +310,7 @@ def create_data_loaders(
         batch_size,
         shuffle=True,
         device=device,
+        backbone_type=backbone_type,
     )
     val_dataset = ExpertBlendingDataset(
         val_bin_dir,
@@ -277,6 +318,7 @@ def create_data_loaders(
         batch_size,
         shuffle=False,
         device=device,
+        backbone_type=backbone_type,
     )
 
     num_train_batches = (epoch_size + batch_size - 1) // batch_size

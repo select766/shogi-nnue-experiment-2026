@@ -113,6 +113,50 @@ class DNNAdapter(nn.Module):
         return weights
 
 
+class NNUEBackbone(nn.Module):
+    """NNUE構造で gate weights を直接出力するバックボーン。"""
+
+    L1 = 256
+    L2 = 32
+    L3 = 32
+
+    def __init__(self, num_features, n_experts=4, noise_scale=1.0):
+        super().__init__()
+        self.num_features = num_features
+        self.n_experts = n_experts
+        self.noise_scale = noise_scale
+
+        self.input = nn.Linear(num_features, self.L1)
+        self.l1 = nn.Linear(2 * self.L1, self.L2)
+        self.l2 = nn.Linear(self.L2, self.L3)
+        self.output = nn.Linear(self.L3, n_experts)
+
+    @staticmethod
+    def _act(x):
+        return torch.clamp(x, 0.0, 1.0)
+
+    def forward(self, us, them, w_in, b_in, training=True):
+        if w_in.is_sparse:
+            w_in = w_in.to_dense()
+        if b_in.is_sparse:
+            b_in = b_in.to_dense()
+
+        w = self.input(w_in)
+        b = self.input(b_in)
+
+        l0_ = (us * torch.cat([w, b], dim=1)) + (them * torch.cat([b, w], dim=1))
+        l0_ = self._act(l0_)
+
+        l1_ = self._act(self.l1(l0_))
+        l2_ = self._act(self.l2(l1_))
+        logits = self.output(l2_)
+
+        if training and self.noise_scale > 0.0:
+            logits = logits + (torch.randn_like(logits) * self.noise_scale)
+
+        return F.softmax(logits, dim=-1)
+
+
 class NNUEExperts(nn.Module):
     """N_EXPERTS個のNNUE重みセットを保持し、加重平均して1つのNNUEとしてforward計算する。
 
@@ -221,13 +265,14 @@ class ExpertBlendingModel(nn.Module):
         3. nnue_experts で加重平均したNNUE重みによる評価値を計算
     """
 
-    def __init__(self, backbone, adapter, nnue_experts):
+    def __init__(self, backbone, adapter, nnue_experts, backbone_type="dnn"):
         super().__init__()
         self.backbone = backbone
         self.adapter = adapter
         self.nnue_experts = nnue_experts
+        self.backbone_type = backbone_type
 
-    def forward(self, x1, x2, us, them, w_in, b_in, training=True):
+    def forward(self, *inputs, training=True):
         """
         Args:
             x1: (batch, 62, 9, 9) dlshogi features1
@@ -240,9 +285,14 @@ class ExpertBlendingModel(nn.Module):
         Returns:
             value: (batch, 1) NNUE評価値
         """
-        with torch.no_grad():
-            feat = self.backbone(x1, x2)
-        gate_weights = self.adapter(feat, training=training)
+        if self.backbone_type == "nnue":
+            us_bb, them_bb, w_in_bb, b_in_bb, us, them, w_in, b_in = inputs
+            gate_weights = self.backbone(us_bb, them_bb, w_in_bb, b_in_bb, training=training)
+        else:
+            x1, x2, us, them, w_in, b_in = inputs
+            with torch.no_grad():
+                feat = self.backbone(x1, x2)
+            gate_weights = self.adapter(feat, training=training)
         value = self.nnue_experts(gate_weights, us, them, w_in, b_in)
         return value
 
@@ -263,6 +313,19 @@ def load_backbone(weights_path, device='cpu'):
     return backbone
 
 
+def _extract_nnue_state_dict(ckpt):
+    state_dict = ckpt.get("state_dict", ckpt)
+    if "input.weight" in state_dict:
+        return state_dict
+    stripped = {}
+    for k, v in state_dict.items():
+        if k.startswith("model."):
+            stripped[k[len("model."):]] = v
+    if "input.weight" in stripped:
+        return stripped
+    raise KeyError("Could not find NNUE keys like 'input.weight' in checkpoint state_dict")
+
+
 def load_nnue_experts(ckpt_path, n_experts, feature_set):
     """NNUEチェックポイントからN_EXPERTS個のexpert重みを初期化する。
 
@@ -276,7 +339,7 @@ def load_nnue_experts(ckpt_path, n_experts, feature_set):
         NNUEExperts
     """
     ckpt = torch.load(ckpt_path, map_location='cpu', weights_only=False)
-    state_dict = ckpt['state_dict']
+    state_dict = _extract_nnue_state_dict(ckpt)
 
     num_features = feature_set.num_features
     experts = NNUEExperts(n_experts, num_features)
@@ -310,13 +373,44 @@ def load_nnue_experts(ckpt_path, n_experts, feature_set):
     return experts
 
 
+def load_nnue_backbone(ckpt_path, feature_set, n_experts=4, noise_scale=1.0):
+    """NNUEチェックポイントから NNUEBackbone を初期化する。"""
+    ckpt = torch.load(ckpt_path, map_location='cpu', weights_only=False)
+    state_dict = _extract_nnue_state_dict(ckpt)
+
+    backbone = NNUEBackbone(
+        num_features=feature_set.num_features,
+        n_experts=n_experts,
+        noise_scale=noise_scale,
+    )
+
+    with torch.no_grad():
+        input_weight = state_dict["input.weight"]
+        if input_weight.shape != backbone.input.weight.shape:
+            padded = torch.zeros_like(backbone.input.weight)
+            rows = min(input_weight.shape[0], padded.shape[0])
+            cols = min(input_weight.shape[1], padded.shape[1])
+            padded[:rows, :cols] = input_weight[:rows, :cols]
+            input_weight = padded
+        backbone.input.weight.copy_(input_weight)
+        backbone.input.bias.copy_(state_dict["input.bias"])
+        backbone.l1.weight.copy_(state_dict["l1.weight"])
+        backbone.l1.bias.copy_(state_dict["l1.bias"])
+        backbone.l2.weight.copy_(state_dict["l2.weight"])
+        backbone.l2.bias.copy_(state_dict["l2.bias"])
+        # backbone.output は (32->n_experts) なのでランダム初期化のまま使う
+
+    return backbone
+
+
 def create_expert_blending_model(
-    backbone_weights_path,
-    nnue_ckpt_path,
-    feature_set,
+    backbone_weights_path=None,
+    nnue_ckpt_path=None,
+    feature_set=None,
     n_experts=4,
     adapter_hidden=128,
     adapter_noise_scale=1.0,
+    backbone_type="dnn",
     device='cpu',
 ):
     """全コンポーネントを組み立ててExpertBlendingModelを返すファクトリ関数。
@@ -332,15 +426,40 @@ def create_expert_blending_model(
     Returns:
         ExpertBlendingModel
     """
-    backbone = load_backbone(backbone_weights_path, device)
-    adapter = DNNAdapter(
-        in_channels=192,
-        hidden_dim=adapter_hidden,
-        n_experts=n_experts,
-        noise_scale=adapter_noise_scale,
-    )
+    if feature_set is None:
+        raise ValueError("feature_set is required")
+    if not nnue_ckpt_path:
+        raise ValueError("nnue_ckpt_path is required")
+    backbone_type = backbone_type.lower()
+    if backbone_type == "dnn":
+        if not backbone_weights_path:
+            raise ValueError("backbone_weights_path is required when backbone_type='dnn'")
+        backbone = load_backbone(backbone_weights_path, device)
+        adapter = DNNAdapter(
+            in_channels=192,
+            hidden_dim=adapter_hidden,
+            n_experts=n_experts,
+            noise_scale=adapter_noise_scale,
+        )
+    elif backbone_type == "nnue":
+        backbone = load_nnue_backbone(
+            nnue_ckpt_path,
+            feature_set,
+            n_experts=n_experts,
+            noise_scale=adapter_noise_scale,
+        )
+        backbone.to(device)
+        adapter = None
+    else:
+        raise ValueError(f"Unsupported backbone_type: {backbone_type}")
+
     nnue_experts = load_nnue_experts(nnue_ckpt_path, n_experts, feature_set)
 
-    model = ExpertBlendingModel(backbone, adapter, nnue_experts)
+    model = ExpertBlendingModel(
+        backbone=backbone,
+        adapter=adapter,
+        nnue_experts=nnue_experts,
+        backbone_type=backbone_type,
+    )
     model.to(device)
     return model
