@@ -12,10 +12,8 @@ LOG_FILE="/tmp/train_expert_blending_8experts_v4_paired_uniform50_noise0.log"
 bash "${SCRIPT_ROOT}/scripts/run_train_expert_blending_8experts_v4.sh" \
   --logdir "$LOGDIR" \
   --log-file "$LOG_FILE" \
-  --train "${SCRIPT_ROOT}/dataset/split_v1_paired_uniform_50/train.bin" \
-  --val "${SCRIPT_ROOT}/dataset/split_v1_paired_uniform_50/val1.bin" \
-  --paired \
-  --paired-nnue-cache-dir "${SCRIPT_ROOT}/tmp/paired_nnue_cache_uniform50" \
+  --train "${SCRIPT_ROOT}/dataset/split_v1_paired_uniform_50/train" \
+  --val "${SCRIPT_ROOT}/dataset/split_v1_paired_uniform_50/val1" \
   -- \
   --feature-set "HalfKP" \
   --n-experts 8 \

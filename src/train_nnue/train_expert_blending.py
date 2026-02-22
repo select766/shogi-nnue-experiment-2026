@@ -8,8 +8,8 @@ PyTorch Lightning ベースで、既存 NNUE と同じ損失関数
 Usage:
     cd nnue-pytorch && source .venv/bin/activate
     PYTHONPATH=../src:$PYTHONPATH python -m train_nnue.train_expert_blending \
-        --train ../dataset_qsearch_split/train.bin \
-        --val ../dataset_qsearch_split/val.bin \
+        --train ../dataset/split_v1_paired_uniform_50/train \
+        --val ../dataset/split_v1_paired_uniform_50/val1 \
         --backbone-weights ../tmp/dlshogi-model/model_resnet10_swish-072 \
         --nnue-checkpoint logs/halfkp_v1/checkpoints/83000.ckpt
 """
@@ -236,21 +236,19 @@ class CheckpointEveryNEpochs(pl.callbacks.Checkpoint):
 def main():
     parser = argparse.ArgumentParser(description="Expert Blending model training")
     # Data
-    parser.add_argument("--train", required=True, help="Training data (.bin)")
-    parser.add_argument("--val", required=True, help="Validation data (.bin)")
+    parser.add_argument(
+        "--train",
+        required=True,
+        help="Training split directory (contains dnn.bin and nnue.bin)",
+    )
+    parser.add_argument(
+        "--val",
+        required=True,
+        help="Validation split directory (contains dnn.bin and nnue.bin)",
+    )
     parser.add_argument("--feature-set", default="HalfKP", help="NNUE feature set name")
     parser.add_argument("--batch-size", type=int, default=256, help="Batch size")
     parser.add_argument("--epoch-size", type=int, default=1000000, help="Positions per epoch")
-    parser.add_argument(
-        "--paired",
-        action="store_true",
-        help="Use paired dataset format (80B/record: DNN40B + NNUE40B)",
-    )
-    parser.add_argument(
-        "--paired-nnue-cache-dir",
-        default=None,
-        help="Directory for extracted NNUE-side cache .bin in paired mode",
-    )
     # Model
     parser.add_argument("--backbone-weights", required=True, help="dlshogi .npz weights path")
     parser.add_argument("--nnue-checkpoint", required=True, help="NNUE .ckpt path for expert init")
@@ -344,20 +342,14 @@ def main():
     print(f"Validation: {args.val}")
     print(f"Batch size: {args.batch_size}, Epoch size: {args.epoch_size}")
 
-    print(f"Paired mode: {args.paired}")
-    if args.paired and args.paired_nnue_cache_dir:
-        print(f"Paired NNUE cache dir: {args.paired_nnue_cache_dir}")
-
     train_loader, val_loader = create_data_loaders(
-        train_bin=args.train,
-        val_bin=args.val,
+        train_bin_dir=args.train,
+        val_bin_dir=args.val,
         feature_set_name=args.feature_set,
         batch_size=args.batch_size,
         device=main_device,
         epoch_size=args.epoch_size,
         max_val_positions=args.max_val_positions,
-        paired=args.paired,
-        nnue_cache_dir=args.paired_nnue_cache_dir,
         train_shuffle_buffer_size=args.train_shuffle_buffer_size,
         seed=args.seed,
     )

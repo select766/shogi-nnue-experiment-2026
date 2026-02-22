@@ -9,7 +9,7 @@ Usage:
     PYTHONPATH=../src:$PYTHONPATH python -m train_nnue.check_loss_per_gameply \
         --expert-blending-checkpoint <path_to_160.ckpt> \
         --nnue-checkpoint logs/halfkp_v1/checkpoints/83000.ckpt \
-        --val ../dataset/split_v1_paired/val1.bin \
+        --val-dir ../dataset/split_v1_paired/val1 \
         --feature-set HalfKP \
         --output loss_per_gameply_delta.png
 """
@@ -28,11 +28,11 @@ import torch
 import torch.nn.functional as F
 
 import features as nnue_features
-from train_nnue.expert_blending_dataset import (
-    PAIRED_RECORD_BYTES,
-    PairedExpertBlendingDataset,
-)
+from train_nnue.expert_blending_dataset import ExpertBlendingDataset
 from train_nnue.expert_blending_model import ExpertBlendingModel
+
+RECORD_BYTES = 40
+GAME_PLY_OFFSET = 36
 
 
 def log(msg):
@@ -41,23 +41,30 @@ def log(msg):
 
 # --- game_ply extraction ---
 
-def extract_game_plys(paired_bin_path, max_records=None):
-    """paired .bin (80B/record) から DNN側・NNUE側の game_ply を抽出する。"""
-    file_size = os.path.getsize(paired_bin_path)
-    num_records = file_size // PAIRED_RECORD_BYTES
+def extract_game_plys(val_dir, max_records=None):
+    """split dir の dnn.bin / nnue.bin から game_ply を抽出する。"""
+    dnn_path = os.path.join(val_dir, "dnn.bin")
+    nnue_path = os.path.join(val_dir, "nnue.bin")
+    dnn_size = os.path.getsize(dnn_path)
+    nnue_size = os.path.getsize(nnue_path)
+    if dnn_size != nnue_size:
+        raise ValueError(f"size mismatch: {dnn_path}={dnn_size}, {nnue_path}={nnue_size}")
+    num_records = dnn_size // RECORD_BYTES
     if max_records is not None:
         num_records = min(num_records, max_records)
 
     dnn_plys = np.empty(num_records, dtype=np.uint16)
     nnue_plys = np.empty(num_records, dtype=np.uint16)
 
-    with open(paired_bin_path, "rb") as f:
-        mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
+    with open(dnn_path, "rb") as fd, open(nnue_path, "rb") as fn:
+        md = mmap.mmap(fd.fileno(), 0, access=mmap.ACCESS_READ)
+        mn = mmap.mmap(fn.fileno(), 0, access=mmap.ACCESS_READ)
         for i in range(num_records):
-            base = i * PAIRED_RECORD_BYTES
-            dnn_plys[i] = struct.unpack_from("<H", mm, base + 36)[0]
-            nnue_plys[i] = struct.unpack_from("<H", mm, base + 76)[0]
-        mm.close()
+            base = i * RECORD_BYTES
+            dnn_plys[i] = struct.unpack_from("<H", md, base + GAME_PLY_OFFSET)[0]
+            nnue_plys[i] = struct.unpack_from("<H", mn, base + GAME_PLY_OFFSET)[0]
+        md.close()
+        mn.close()
 
     return dnn_plys, nnue_plys
 
@@ -189,7 +196,11 @@ def main():
         "--nnue-checkpoint", required=True,
         help="Baseline NNUE .ckpt path",
     )
-    parser.add_argument("--val", required=True, help="Paired validation data (.bin, 80B/record)")
+    parser.add_argument(
+        "--val-dir",
+        required=True,
+        help="Validation split directory containing dnn.bin and nnue.bin",
+    )
     parser.add_argument("--feature-set", default="HalfKP")
     parser.add_argument("--batch-size", type=int, default=256)
     parser.add_argument("--max-positions", type=int, default=100000)
@@ -201,7 +212,7 @@ def main():
 
     args = parser.parse_args()
 
-    for path in [args.expert_blending_checkpoint, args.nnue_checkpoint, args.val]:
+    for path in [args.expert_blending_checkpoint, args.nnue_checkpoint, args.val_dir]:
         if not os.path.exists(path):
             raise FileNotFoundError(f"{path} does not exist")
 
@@ -212,8 +223,8 @@ def main():
     log(f"Device: {device}")
 
     # 1. game_ply抽出
-    log("Extracting game_plys from paired bin...")
-    dnn_plys, nnue_plys = extract_game_plys(args.val, max_records=args.max_positions)
+    log("Extracting game_plys from split directory...")
+    dnn_plys, nnue_plys = extract_game_plys(args.val_dir, max_records=args.max_positions)
     deltas = nnue_plys.astype(np.int32) - dnn_plys.astype(np.int32)
     log(f"  Records: {len(deltas)}, delta range: [{deltas.min()}, {deltas.max()}]")
     log(f"  nnue_ply range: [{nnue_plys.min()}, {nnue_plys.max()}]")
@@ -227,8 +238,8 @@ def main():
     # 3. 単一データセットで両モデルのper-record lossを同時計算
     #    SparseBatchProviderを1つだけ使用（複数Provider同時使用でのデッドロック回避）
     log("Creating dataset...")
-    dataset = PairedExpertBlendingDataset(
-        args.val, args.feature_set, args.batch_size, device=device, shuffle=False
+    dataset = ExpertBlendingDataset(
+        args.val_dir, args.feature_set, args.batch_size, device=device, shuffle=False
     )
 
     nnue2score = 600

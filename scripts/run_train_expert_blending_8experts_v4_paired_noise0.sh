@@ -12,8 +12,6 @@ LOG_FILE="/tmp/train_expert_blending_8experts_v4_paired_noise0.log"
 bash "${SCRIPT_ROOT}/scripts/run_train_expert_blending_8experts_v4.sh" \
   --logdir "$LOGDIR" \
   --log-file "$LOG_FILE" \
-  --paired \
-  --paired-nnue-cache-dir "${SCRIPT_ROOT}/tmp/paired_nnue_cache" \
   -- \
   --feature-set "HalfKP" \
   --n-experts 8 \

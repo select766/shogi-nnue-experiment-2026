@@ -10,7 +10,6 @@
 #     --logdir <path> \
 #     --log-file <path> \
 #     [--train <path>] [--val <path>] \
-#     [--paired] [--paired-nnue-cache-dir <path>] \
 #     [--backbone-weights <path>] [--nnue-checkpoint <path>] \
 #     -- <train_expert_blending.py options>
 set -euo pipefail
@@ -18,10 +17,8 @@ set -euo pipefail
 SCRIPT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 NNUE_PYTORCH_DIR="${SCRIPT_ROOT}/nnue-pytorch"
 
-TRAIN_BIN="${SCRIPT_ROOT}/dataset/split_v1_paired/train.bin"
-VAL_BIN="${SCRIPT_ROOT}/dataset/split_v1_paired/val1.bin"
-PAIRED=0
-PAIRED_NNUE_CACHE_DIR="${SCRIPT_ROOT}/tmp/paired_nnue_cache"
+TRAIN_BIN="${SCRIPT_ROOT}/dataset/split_v1_paired/train"
+VAL_BIN="${SCRIPT_ROOT}/dataset/split_v1_paired/val1"
 BACKBONE_WEIGHTS="${SCRIPT_ROOT}/tmp/dlshogi-model/model_resnet10_swish-072"
 NNUE_CKPT="${SCRIPT_ROOT}/logs/halfkp_v1/checkpoints/83000.ckpt"
 LOGDIR=""
@@ -48,15 +45,6 @@ while [[ $# -gt 0 ]]; do
         --val)
             [[ $# -ge 2 ]] || { echo "ERROR: --val requires a value"; exit 1; }
             VAL_BIN="$2"
-            shift 2
-            ;;
-        --paired)
-            PAIRED=1
-            shift
-            ;;
-        --paired-nnue-cache-dir)
-            [[ $# -ge 2 ]] || { echo "ERROR: --paired-nnue-cache-dir requires a value"; exit 1; }
-            PAIRED_NNUE_CACHE_DIR="$2"
             shift 2
             ;;
         --backbone-weights)
@@ -86,16 +74,24 @@ if [[ -z "$LOGDIR" || -z "$LOG_FILE" ]]; then
     exit 1
 fi
 
-for f in "$TRAIN_BIN" "$VAL_BIN" "$BACKBONE_WEIGHTS" "$NNUE_CKPT"; do
+for d in "$TRAIN_BIN" "$VAL_BIN"; do
+    if [[ ! -d "$d" ]]; then
+        echo "ERROR: Not found directory: ${d}"
+        exit 1
+    fi
+    for f in dnn.bin nnue.bin; do
+        if [[ ! -f "${d}/${f}" ]]; then
+            echo "ERROR: Not found file: ${d}/${f}"
+            exit 1
+        fi
+    done
+done
+for f in "$BACKBONE_WEIGHTS" "$NNUE_CKPT"; do
     if [[ ! -f "$f" ]]; then
         echo "ERROR: Not found: ${f}"
         exit 1
     fi
 done
-
-if [[ $PAIRED -eq 1 ]]; then
-    mkdir -p "$PAIRED_NNUE_CACHE_DIR"
-fi
 
 mkdir -p "$LOGDIR"
 CKPT_DIR="${LOGDIR}/checkpoints"
@@ -128,10 +124,6 @@ CMD=(
     --nnue-checkpoint "$NNUE_CKPT"
     --default-root-dir "$LOGDIR"
 )
-
-if [[ $PAIRED -eq 1 ]]; then
-    CMD+=(--paired --paired-nnue-cache-dir "$PAIRED_NNUE_CACHE_DIR")
-fi
 
 CMD+=("${TRAIN_ARGS[@]}")
 CMD+=("${RESUME_ARGS[@]}")

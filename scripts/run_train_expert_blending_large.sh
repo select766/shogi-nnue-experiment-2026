@@ -12,16 +12,28 @@ LOGDIR="${SCRIPT_DIR}/logs/expert_blending_v2"
 CKPT_DIR="${LOGDIR}/checkpoints"
 LOG_FILE="/tmp/train_expert_blending_large.log"
 
-# Data (大規模データ)
-TRAIN_BIN="${SCRIPT_DIR}/dataset/split_v1/train.bin"
-VAL_BIN="${SCRIPT_DIR}/dataset/split_v1/val1.bin"
+# Data (split directory: dnn.bin + nnue.bin)
+TRAIN_BIN="${SCRIPT_DIR}/dataset/split_v1_paired/train"
+VAL_BIN="${SCRIPT_DIR}/dataset/split_v1_paired/val1"
 
 # Model weights
 BACKBONE_WEIGHTS="${SCRIPT_DIR}/tmp/dlshogi-model/model_resnet10_swish-072"
 NNUE_CKPT="${SCRIPT_DIR}/logs/halfkp_v1/checkpoints/83000.ckpt"
 
 # Check files exist
-for f in "$TRAIN_BIN" "$VAL_BIN" "$BACKBONE_WEIGHTS" "$NNUE_CKPT"; do
+for d in "$TRAIN_BIN" "$VAL_BIN"; do
+    if [ ! -d "$d" ]; then
+        echo "ERROR: Not found directory: ${d}"
+        exit 1
+    fi
+    for f in dnn.bin nnue.bin; do
+        if [ ! -f "${d}/${f}" ]; then
+            echo "ERROR: Not found file: ${d}/${f}"
+            exit 1
+        fi
+    done
+done
+for f in "$BACKBONE_WEIGHTS" "$NNUE_CKPT"; do
     if [ ! -f "$f" ]; then
         echo "ERROR: Not found: ${f}"
         exit 1

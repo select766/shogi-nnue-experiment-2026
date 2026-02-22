@@ -1,6 +1,7 @@
 #!/bin/bash
-# Run shuffle_kifu in paired mode:
-# output record format = [DNN 40B (no qsearch) | NNUE 40B (qsearch)]
+# Run shuffle_kifu in paired mode and then split output:
+# shuffled.bin record format = [DNN 40B (no qsearch) | NNUE 40B (qsearch)]
+# final output files in output_dir: dnn.bin and nnue.bin
 #
 # Usage: bash scripts/run_paired_shuffle.sh <input_dir> <output_dir> [threads] [max_output_samples] [offset_uniform_max]
 # Example: bash scripts/run_paired_shuffle.sh dataset/split_v1/input_train dataset/split_v1_paired/output_train 8 480000000 50
@@ -63,6 +64,20 @@ for i in $(seq 1 100000); do
         wait $ENGINE_PID 2>/dev/null
         EXIT_CODE=$?
         echo "=== Completed. Engine exit code: $EXIT_CODE ==="
+        if [ "$EXIT_CODE" -ne 0 ]; then
+            echo "=== ERROR: shuffle_kifu failed ==="
+            exit "$EXIT_CODE"
+        fi
+        if [ ! -f "$OUTPUT_DIR/shuffled.bin" ]; then
+            echo "=== ERROR: shuffled.bin not found: $OUTPUT_DIR/shuffled.bin ==="
+            exit 1
+        fi
+        echo "=== Splitting shuffled.bin into dnn.bin and nnue.bin ==="
+        python3 "$SCRIPT_DIR/scripts/split_paired_bin.py" \
+            --input "$OUTPUT_DIR/shuffled.bin" \
+            --output-dir "$OUTPUT_DIR"
+        rm -f "$OUTPUT_DIR/shuffled.bin"
+        echo "=== Split completed and shuffled.bin removed ==="
         break
     fi
     sleep 1

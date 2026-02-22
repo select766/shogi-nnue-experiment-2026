@@ -1,6 +1,6 @@
 #!/bin/bash
-# Expert Blending モデル (8 experts) の paired 学習スクリプト。
-# dataset/split_v1_paired/ (80B/record: DNN40B + NNUE40B) を使用する。
+# Expert Blending モデル (8 experts) の学習スクリプト。
+# dataset/split_v1_paired/ (train/{dnn.bin,nnue.bin}, val1/{dnn.bin,nnue.bin}) を使用する。
 # Stop with Ctrl-C, then re-run to resume from latest checkpoint.
 #
 # Usage: bash scripts/run_train_expert_blending_8experts_v3.sh
@@ -8,31 +8,38 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 NNUE_PYTORCH_DIR="${SCRIPT_DIR}/nnue-pytorch"
-LOGDIR="${SCRIPT_DIR}/logs/expert_blending_8experts_v3_paired"
+LOGDIR="${SCRIPT_DIR}/logs/expert_blending_8experts_v3"
 CKPT_DIR="${LOGDIR}/checkpoints"
-LOG_FILE="/tmp/train_expert_blending_8experts_v3_paired.log"
+LOG_FILE="/tmp/train_expert_blending_8experts_v3.log"
 
-# Data (paired)
+# Data
 SPLIT_BASE="${SCRIPT_DIR}/dataset/split_v1_paired"
-TRAIN_BIN="${SPLIT_BASE}/train.bin"
-VAL_BIN="${SPLIT_BASE}/val1.bin"
-
-# Optional cache location for extracted NNUE-side 40B records
-PAIRED_NNUE_CACHE_DIR="${SCRIPT_DIR}/tmp/paired_nnue_cache"
+TRAIN_BIN="${SPLIT_BASE}/train"
+VAL_BIN="${SPLIT_BASE}/val1"
 
 # Model weights
 BACKBONE_WEIGHTS="${SCRIPT_DIR}/tmp/dlshogi-model/model_resnet10_swish-072"
 NNUE_CKPT="${SCRIPT_DIR}/logs/halfkp_v1/checkpoints/83000.ckpt"
 
 # Check files exist
-for f in "$TRAIN_BIN" "$VAL_BIN" "$BACKBONE_WEIGHTS" "$NNUE_CKPT"; do
+for d in "$TRAIN_BIN" "$VAL_BIN"; do
+    if [ ! -d "$d" ]; then
+        echo "ERROR: Not found directory: ${d}"
+        exit 1
+    fi
+    for f in dnn.bin nnue.bin; do
+        if [ ! -f "${d}/${f}" ]; then
+            echo "ERROR: Not found file: ${d}/${f}"
+            exit 1
+        fi
+    done
+done
+for f in "$BACKBONE_WEIGHTS" "$NNUE_CKPT"; do
     if [ ! -f "$f" ]; then
         echo "ERROR: Not found: ${f}"
         exit 1
     fi
 done
-
-mkdir -p "$PAIRED_NNUE_CACHE_DIR"
 
 # Find latest checkpoint for resume
 RESUME_ARG=""
@@ -58,8 +65,6 @@ echo "Monitor with: tail -f ${LOG_FILE}"
 PYTHONPATH="${SCRIPT_DIR}/src:${PYTHONPATH}" python -m train_nnue.train_expert_blending \
   --train "$TRAIN_BIN" \
   --val "$VAL_BIN" \
-  --paired \
-  --paired-nnue-cache-dir "$PAIRED_NNUE_CACHE_DIR" \
   --backbone-weights "$BACKBONE_WEIGHTS" \
   --nnue-checkpoint "$NNUE_CKPT" \
   --feature-set "HalfKP" \

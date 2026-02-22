@@ -9,7 +9,7 @@ Usage:
     PYTHONPATH=../src:$PYTHONPATH python -u -m train_nnue.check_loss_per_expert \
         --expert-blending-checkpoint <path_to_160.ckpt> \
         --nnue-checkpoint <path_to_83000.ckpt> \
-        --val <paired_bin> \
+        --val-dir <split_dir> \
         --feature-set HalfKP \
         --max-positions 1000000 \
         --output loss_per_expert.png
@@ -30,29 +30,28 @@ import torch.nn.functional as F
 
 import features as nnue_features
 import nnue_dataset
-from train_nnue.expert_blending_dataset import (
-    PAIRED_RECORD_BYTES,
-    extract_paired_nnue_bin,
-)
+
+RECORD_BYTES = 40
+GAME_PLY_OFFSET = 36
 
 
 def log(msg):
     print(msg, flush=True)
 
 
-def extract_nnue_plys(paired_bin_path, max_records=None):
-    """paired .bin (80B/record) から NNUE側の game_ply を抽出する。"""
-    file_size = os.path.getsize(paired_bin_path)
-    num_records = file_size // PAIRED_RECORD_BYTES
+def extract_nnue_plys(nnue_bin_path, max_records=None):
+    """nnue.bin (40B/record) から game_ply を抽出する。"""
+    file_size = os.path.getsize(nnue_bin_path)
+    num_records = file_size // RECORD_BYTES
     if max_records is not None:
         num_records = min(num_records, max_records)
 
     nnue_plys = np.empty(num_records, dtype=np.uint16)
-    with open(paired_bin_path, "rb") as f:
+    with open(nnue_bin_path, "rb") as f:
         mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
         for i in range(num_records):
-            base = i * PAIRED_RECORD_BYTES
-            nnue_plys[i] = struct.unpack_from("<H", mm, base + 76)[0]
+            base = i * RECORD_BYTES
+            nnue_plys[i] = struct.unpack_from("<H", mm, base + GAME_PLY_OFFSET)[0]
         mm.close()
     return nnue_plys
 
@@ -137,7 +136,11 @@ def main():
         "--nnue-checkpoint", required=True,
         help="Baseline NNUE .ckpt path",
     )
-    parser.add_argument("--val", required=True, help="Paired validation data (.bin, 80B/record)")
+    parser.add_argument(
+        "--val-dir",
+        required=True,
+        help="Validation split directory containing dnn.bin and nnue.bin",
+    )
     parser.add_argument("--feature-set", default="HalfKP")
     parser.add_argument("--batch-size", type=int, default=256)
     parser.add_argument("--max-positions", type=int, default=1000000)
@@ -149,7 +152,8 @@ def main():
 
     args = parser.parse_args()
 
-    for path in [args.expert_blending_checkpoint, args.nnue_checkpoint, args.val]:
+    nnue_bin_path = os.path.join(args.val_dir, "nnue.bin")
+    for path in [args.expert_blending_checkpoint, args.nnue_checkpoint, nnue_bin_path]:
         if not os.path.exists(path):
             raise FileNotFoundError(f"{path} does not exist")
 
@@ -160,8 +164,8 @@ def main():
     log(f"Device: {device}")
 
     # 1. nnue_ply抽出
-    log("Extracting nnue_plys from paired bin...")
-    nnue_plys = extract_nnue_plys(args.val, max_records=args.max_positions)
+    log("Extracting nnue_plys from nnue.bin...")
+    nnue_plys = extract_nnue_plys(nnue_bin_path, max_records=args.max_positions)
     log(f"  Records: {len(nnue_plys)}, nnue_ply range: [{nnue_plys.min()}, {nnue_plys.max()}]")
 
     # 2. モデルロード
@@ -185,10 +189,6 @@ def main():
     baseline.eval()
 
     # 3. NNUE側binでデータ読み込み & 全モデルのlossを同時計算
-    log("Extracting NNUE-side bin...")
-    nnue_bin_path = extract_paired_nnue_bin(args.val)
-    log(f"  {nnue_bin_path}")
-
     log("Creating dataset...")
     val_dataset = nnue_dataset.SparseBatchDataset(
         args.feature_set, nnue_bin_path, args.batch_size, cyclic=False, device=device
