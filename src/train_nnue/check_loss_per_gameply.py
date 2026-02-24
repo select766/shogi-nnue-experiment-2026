@@ -87,9 +87,18 @@ def compute_per_record_loss(q, score, outcome, scaling, lambda_, label_smoothing
     return (result - entropy).squeeze(-1)
 
 
+def _detect_backbone_type(state_dict):
+    """state_dictからbackbone_typeを自動判定する。"""
+    if "model.adapter.fc1.weight" in state_dict:
+        return "dnn"
+    if "model.backbone.input.weight" in state_dict:
+        return "nnue"
+    raise ValueError("Cannot detect backbone type from checkpoint state_dict")
+
+
 def load_expert_blending_model(checkpoint_path, device):
-    """Expert Blendingチェックポイントからモデルを復元する。"""
-    from train_nnue.expert_blending_model import DNNAdapter, DNNBackbone, NNUEExperts
+    """Expert Blendingチェックポイントからモデルを復元する。DNN/NNUEバックボーン自動判定。"""
+    from train_nnue.expert_blending_model import DNNAdapter, DNNBackbone, NNUEBackbone, NNUEExperts
     from dlshogi.network.policy_value_network_resnet10_swish import (
         PolicyValueNetwork as DlshogiPVNet,
     )
@@ -97,21 +106,28 @@ def load_expert_blending_model(checkpoint_path, device):
     ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     state_dict = ckpt["state_dict"]
 
+    backbone_type = _detect_backbone_type(state_dict)
     n_experts = state_dict["model.nnue_experts.input_weight"].shape[0]
     num_features = state_dict["model.nnue_experts.input_weight"].shape[2]
-    adapter_hidden = state_dict["model.adapter.fc1.weight"].shape[0]
 
-    pv_net = DlshogiPVNet()
-    backbone = DNNBackbone(pv_net)
-    adapter = DNNAdapter(192, hidden_dim=adapter_hidden, n_experts=n_experts)
+    if backbone_type == "dnn":
+        adapter_hidden = state_dict["model.adapter.fc1.weight"].shape[0]
+        pv_net = DlshogiPVNet()
+        backbone = DNNBackbone(pv_net)
+        adapter = DNNAdapter(192, hidden_dim=adapter_hidden, n_experts=n_experts)
+    else:
+        bb_num_features = state_dict["model.backbone.input.weight"].shape[1]
+        backbone = NNUEBackbone(bb_num_features, n_experts=n_experts)
+        adapter = None
+
     nnue_experts = NNUEExperts(n_experts, num_features)
-    model = ExpertBlendingModel(backbone, adapter, nnue_experts)
+    model = ExpertBlendingModel(backbone, adapter, nnue_experts, backbone_type=backbone_type)
 
     model_state = {k[len("model."):]: v for k, v in state_dict.items() if k.startswith("model.")}
     model.load_state_dict(model_state)
     model.to(device)
     model.eval()
-    return model
+    return model, backbone_type
 
 
 def load_baseline_nnue(nnue_ckpt_path, feature_set_name, device):
@@ -231,7 +247,8 @@ def main():
 
     # 2. モデルロード
     log("Loading Expert Blending model...")
-    eb_model = load_expert_blending_model(args.expert_blending_checkpoint, device)
+    eb_model, backbone_type = load_expert_blending_model(args.expert_blending_checkpoint, device)
+    log(f"  backbone_type: {backbone_type}")
     log("Loading baseline NNUE model...")
     baseline_nnue = load_baseline_nnue(args.nnue_checkpoint, args.feature_set, device)
 
@@ -239,7 +256,8 @@ def main():
     #    SparseBatchProviderを1つだけ使用（複数Provider同時使用でのデッドロック回避）
     log("Creating dataset...")
     dataset = ExpertBlendingDataset(
-        args.val_dir, args.feature_set, args.batch_size, device=device, shuffle=False
+        args.val_dir, args.feature_set, args.batch_size, device=device, shuffle=False,
+        backbone_type=backbone_type,
     )
 
     nnue2score = 600
@@ -251,10 +269,14 @@ def main():
     log("Computing per-record losses (both models in single pass)...")
     with torch.no_grad():
         for batch in dataset:
-            x1, x2, us, them, white, black, outcome, score, _ = batch
+            if backbone_type == "nnue":
+                us_bb, them_bb, white_bb, black_bb, us, them, white, black, outcome, score, _ = batch
+                q_eb = eb_model(us_bb, them_bb, white_bb, black_bb, us, them, white, black, training=False) * nnue2score / scaling
+            else:
+                x1, x2, us, them, white, black, outcome, score, _ = batch
+                q_eb = eb_model(x1, x2, us, them, white, black, training=False) * nnue2score / scaling
 
             # Expert Blending
-            q_eb = eb_model(x1, x2, us, them, white, black, training=False) * nnue2score / scaling
             eb_losses = compute_per_record_loss(
                 q_eb, score, outcome, scaling, args.lambda_, args.label_smoothing_eps
             )
@@ -267,7 +289,7 @@ def main():
             )
             bl_all_losses.append(bl_losses.cpu().numpy())
 
-            total_positions += x1.shape[0]
+            total_positions += us.shape[0]
             if total_positions >= args.max_positions:
                 break
 
