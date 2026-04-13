@@ -321,6 +321,9 @@ def main():
     # Resume
     parser.add_argument("--resume-from-checkpoint", default=None,
                         help="Resume full training state from .ckpt")
+    parser.add_argument("--load-weights-only", default=None,
+                        help="Load model weights only from .ckpt (no optimizer/lr/epoch state). "
+                             "Ignored if --resume-from-checkpoint is also given.")
 
     args = parser.parse_args()
 
@@ -373,6 +376,14 @@ def main():
         min_newbob_scale=args.min_newbob_scale,
         momentum=args.momentum,
     )
+
+    # --- Load weights only (for fine-tuning) ---
+    if args.load_weights_only and not args.resume_from_checkpoint:
+        print(f"Loading model weights only from: {args.load_weights_only}")
+        ckpt = torch.load(args.load_weights_only, map_location="cpu")
+        lit_module.load_state_dict(ckpt["state_dict"], strict=True)
+        del ckpt
+        print("Model weights loaded (optimizer/lr/epoch state NOT restored).")
 
     # --- Data ---
     print(f"Training: {args.train}")
