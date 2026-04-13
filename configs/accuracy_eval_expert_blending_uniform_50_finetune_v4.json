@@ -1,0 +1,12 @@
+{
+  "engine_path": "bin/YaneuraOu-expert-blending",
+  "engine_options": {
+    "Threads": 1,
+    "EvalDir": "bin/eval",
+    "DNNServerCmd": "PYTHONPATH=/home/select766/shogi/train-nnue/src:$PYTHONPATH /home/select766/shogi/train-nnue/nnue-pytorch/.venv/bin/python -m train_nnue.dnn_inference_server --backbone-weights /home/select766/shogi/train-nnue/./tmp/dlshogi-model/model_resnet10_swish-072 --features HalfKP --n-experts 8 --log /tmp/dnn_server_gui.log  --checkpoint /home/select766/shogi/train-nnue/logs/expert_blending_8experts_v4_paired_uniform50_noise0_lambda05/checkpoints/180.ckpt"
+  },
+  "go_params": {
+    "nodes": 1000000
+  },
+  "num_workers": 4
+}
