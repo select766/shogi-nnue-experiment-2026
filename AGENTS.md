@@ -12,6 +12,12 @@
 学習コマンドの実行時は**必ず出力をファイルにリダイレクトする** (`> /tmp/xxx.log 2>&1`)。
 進捗確認は `tail -f` で別途行う。
 
+### sandbox / escalation の注意
+- Claude Code の sandbox 内では GPU が見えず、`torch.cuda.is_available()` が `False` になることがある。この状態で学習・評価を回すと、CPU フォールバックやデータローダ経路の差で `nan` や `RuntimeError: Cannot access accelerator device when none is available.` が発生しうる。
+- **学習、`check_loss_per_gameply`、`check_loss_per_expert`、`eval_accuracy`、やねうら王を起動する評価は、原則として escalation して sandbox 外で実行すること。**
+- 特に `nnue-pytorch/.venv` を使う PyTorch Lightning 学習と、`bin/YaneuraOu-by-gcc` / `bin/YaneuraOu-expert-blending` を起動する検証は、sandbox 内の結果を信用しない。まず sandbox 外で再実行して切り分ける。
+- `nan` が出た場合、まずデータ破損を疑う前に「sandbox 内実行ではないか」を確認する。
+
 ### サブモジュール構成
 3つのgitサブモジュールがある。nnue-pytorchの中身を編集する場合は、サブモジュール内で先にコミットし、その後親リポジトリでサブモジュール参照を更新してコミットする。
 
