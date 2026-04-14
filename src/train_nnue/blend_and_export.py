@@ -65,6 +65,9 @@ def blend_expert_weights(nnue_experts, gate_weights):
         for _ in range(param.dim() - 1):
             w = w.unsqueeze(-1)
         blended[name] = (param * w).sum(dim=0)
+        base_name = f"base_{name}"
+        if hasattr(nnue_experts, base_name):
+            blended[name] = blended[name] + getattr(nnue_experts, base_name).data
 
     return blended
 
@@ -264,13 +267,17 @@ if __name__ == '__main__':
     state_dict = ckpt['state_dict']
 
     # Extract NNUEExperts from state_dict
-    from train_nnue.expert_blending_model import NNUEExperts
+    from train_nnue.expert_blending_model import (
+        NNUEExperts,
+        detect_blend_mode_from_state_dict,
+    )
     # Determine n_experts from checkpoint
     n_experts = state_dict['model.nnue_experts.input_bias'].shape[0]
     num_features = state_dict['model.nnue_experts.input_weight'].shape[2]
-    print(f"n_experts={n_experts}, num_features={num_features}")
+    blend_mode = detect_blend_mode_from_state_dict(state_dict)
+    print(f"n_experts={n_experts}, num_features={num_features}, blend_mode={blend_mode}")
 
-    experts = NNUEExperts(n_experts, num_features)
+    experts = NNUEExperts(n_experts, num_features, blend_mode=blend_mode)
     expert_state = {}
     prefix = 'model.nnue_experts.'
     for k, v in state_dict.items():

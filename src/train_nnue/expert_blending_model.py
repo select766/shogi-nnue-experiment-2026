@@ -175,10 +175,24 @@ class NNUEExperts(nn.Module):
     L2 = 32
     L3 = 32
 
-    def __init__(self, n_experts, num_features):
+    PARAM_NAMES = (
+        "input_weight",
+        "input_bias",
+        "l1_weight",
+        "l1_bias",
+        "l2_weight",
+        "l2_bias",
+        "output_weight",
+        "output_bias",
+    )
+
+    def __init__(self, n_experts, num_features, blend_mode="weighted"):
         super().__init__()
         self.n_experts = n_experts
         self.num_features = num_features
+        self.blend_mode = blend_mode
+        if self.blend_mode not in {"weighted", "residual"}:
+            raise ValueError(f"Unsupported blend_mode: {self.blend_mode}")
 
         # Expert weight parameters: (N_EXPERTS, out_features, in_features)
         self.input_weight = nn.Parameter(torch.zeros(n_experts, self.L1, num_features))
@@ -193,7 +207,41 @@ class NNUEExperts(nn.Module):
         self.output_weight = nn.Parameter(torch.zeros(n_experts, 1, self.L3))
         self.output_bias = nn.Parameter(torch.zeros(n_experts, 1))
 
-    def _blended_linear(self, x, weight, bias, gate_weights):
+        if self.blend_mode == "residual":
+            self.base_input_weight = nn.Parameter(
+                torch.zeros(self.L1, num_features), requires_grad=False
+            )
+            self.base_input_bias = nn.Parameter(
+                torch.zeros(self.L1), requires_grad=False
+            )
+            self.base_l1_weight = nn.Parameter(
+                torch.zeros(self.L2, 2 * self.L1), requires_grad=False
+            )
+            self.base_l1_bias = nn.Parameter(
+                torch.zeros(self.L2), requires_grad=False
+            )
+            self.base_l2_weight = nn.Parameter(
+                torch.zeros(self.L3, self.L2), requires_grad=False
+            )
+            self.base_l2_bias = nn.Parameter(
+                torch.zeros(self.L3), requires_grad=False
+            )
+            self.base_output_weight = nn.Parameter(
+                torch.zeros(1, self.L3), requires_grad=False
+            )
+            self.base_output_bias = nn.Parameter(
+                torch.zeros(1), requires_grad=False
+            )
+
+    def _blended_linear(
+        self,
+        x,
+        weight,
+        bias,
+        gate_weights,
+        base_weight=None,
+        base_bias=None,
+    ):
         """線形層を expert 重みでブレンドして計算する。
 
         Args:
@@ -205,6 +253,8 @@ class NNUEExperts(nn.Module):
             out: (batch, out_features)
         """
         out = None
+        if base_weight is not None:
+            out = F.linear(x, base_weight, base_bias)
         for k in range(self.n_experts):
             out_k = F.linear(x, weight[k], bias[k])  # (batch, out_features)
             g = gate_weights[:, k].unsqueeze(1)      # (batch, 1)
@@ -235,22 +285,64 @@ class NNUEExperts(nn.Module):
         # linear は重みに対して線形なので、重みブレンド後の F.linear と等価に
         # Σ_k gate_k * F.linear(x, W_k, b_k) で計算できる。
         # これにより (batch, 256, num_features) の巨大中間テンソル生成を避ける。
-        w = self._blended_linear(w_in, self.input_weight, self.input_bias, gate_weights)
-        b = self._blended_linear(b_in, self.input_weight, self.input_bias, gate_weights)
+        base_input_weight = getattr(self, "base_input_weight", None)
+        base_input_bias = getattr(self, "base_input_bias", None)
+        base_l1_weight = getattr(self, "base_l1_weight", None)
+        base_l1_bias = getattr(self, "base_l1_bias", None)
+        base_l2_weight = getattr(self, "base_l2_weight", None)
+        base_l2_bias = getattr(self, "base_l2_bias", None)
+        base_output_weight = getattr(self, "base_output_weight", None)
+        base_output_bias = getattr(self, "base_output_bias", None)
+
+        w = self._blended_linear(
+            w_in,
+            self.input_weight,
+            self.input_bias,
+            gate_weights,
+            base_weight=base_input_weight,
+            base_bias=base_input_bias,
+        )
+        b = self._blended_linear(
+            b_in,
+            self.input_weight,
+            self.input_bias,
+            gate_weights,
+            base_weight=base_input_weight,
+            base_bias=base_input_bias,
+        )
 
         # 視点の結合
         l0_ = (us * torch.cat([w, b], dim=1)) + (them * torch.cat([b, w], dim=1))
         l0_ = torch.clamp(l0_, 0.0, 1.0)
 
         # Hidden layers and output: blended-weight semantics
-        l1_ = self._blended_linear(l0_, self.l1_weight, self.l1_bias, gate_weights)
+        l1_ = self._blended_linear(
+            l0_,
+            self.l1_weight,
+            self.l1_bias,
+            gate_weights,
+            base_weight=base_l1_weight,
+            base_bias=base_l1_bias,
+        )
         l1_ = torch.clamp(l1_, 0.0, 1.0)
 
-        l2_ = self._blended_linear(l1_, self.l2_weight, self.l2_bias, gate_weights)
+        l2_ = self._blended_linear(
+            l1_,
+            self.l2_weight,
+            self.l2_bias,
+            gate_weights,
+            base_weight=base_l2_weight,
+            base_bias=base_l2_bias,
+        )
         l2_ = torch.clamp(l2_, 0.0, 1.0)
 
         output = self._blended_linear(
-            l2_, self.output_weight, self.output_bias, gate_weights
+            l2_,
+            self.output_weight,
+            self.output_bias,
+            gate_weights,
+            base_weight=base_output_weight,
+            base_bias=base_output_bias,
         )
 
         return output
@@ -326,7 +418,22 @@ def _extract_nnue_state_dict(ckpt):
     raise KeyError("Could not find NNUE keys like 'input.weight' in checkpoint state_dict")
 
 
-def load_nnue_experts(ckpt_path, n_experts, feature_set):
+def detect_blend_mode_from_state_dict(state_dict, prefix="model.nnue_experts."):
+    if f"{prefix}base_input_weight" in state_dict:
+        return "residual"
+    return "weighted"
+
+
+def _pad_to_shape(src, shape):
+    if tuple(src.shape) == tuple(shape):
+        return src
+    padded = src.new_zeros(shape)
+    slices = tuple(slice(0, min(s, d)) for s, d in zip(src.shape, shape))
+    padded[slices] = src[slices]
+    return padded
+
+
+def load_nnue_experts(ckpt_path, n_experts, feature_set, blend_mode="weighted"):
     """NNUEチェックポイントからN_EXPERTS個のexpert重みを初期化する。
 
     学習済みの1つのNNUE重みをN_EXPERTS個に複製して初期化する。
@@ -342,7 +449,7 @@ def load_nnue_experts(ckpt_path, n_experts, feature_set):
     state_dict = _extract_nnue_state_dict(ckpt)
 
     num_features = feature_set.num_features
-    experts = NNUEExperts(n_experts, num_features)
+    experts = NNUEExperts(n_experts, num_features, blend_mode=blend_mode)
 
     # NNUE state_dict key → NNUEExperts attribute name
     param_map = {
@@ -361,14 +468,14 @@ def load_nnue_experts(ckpt_path, n_experts, feature_set):
             src = state_dict[nnue_key]  # (out_features, in_features) or (out_features,)
             dst = getattr(experts, expert_key)  # (n_experts, ...)
             # input層の重みサイズが異なる場合 (HalfKP → HalfKP^ のパディング)
-            if src.shape != dst.shape[1:]:
-                padded = torch.zeros(dst.shape[1:])
-                # src の範囲だけコピーし、残り (virtual features) はゼロ
-                slices = tuple(slice(0, s) for s in src.shape)
-                padded[slices] = src
-                src = padded
-            # 1つのNNUE重みをN_EXPERTS個に複製
-            dst.copy_(src.unsqueeze(0).expand_as(dst))
+            src = _pad_to_shape(src, dst.shape[1:])
+            if blend_mode == "weighted":
+                # 1つのNNUE重みをN_EXPERTS個に複製
+                dst.copy_(src.unsqueeze(0).expand_as(dst))
+            else:
+                dst.zero_()
+                base_key = f"base_{expert_key}"
+                getattr(experts, base_key).copy_(src)
 
     return experts
 
@@ -411,6 +518,7 @@ def create_expert_blending_model(
     adapter_hidden=128,
     adapter_noise_scale=1.0,
     backbone_type="dnn",
+    blend_mode="weighted",
     device='cpu',
 ):
     """全コンポーネントを組み立ててExpertBlendingModelを返すファクトリ関数。
@@ -453,7 +561,12 @@ def create_expert_blending_model(
     else:
         raise ValueError(f"Unsupported backbone_type: {backbone_type}")
 
-    nnue_experts = load_nnue_experts(nnue_ckpt_path, n_experts, feature_set)
+    nnue_experts = load_nnue_experts(
+        nnue_ckpt_path,
+        n_experts,
+        feature_set,
+        blend_mode=blend_mode,
+    )
 
     model = ExpertBlendingModel(
         backbone=backbone,

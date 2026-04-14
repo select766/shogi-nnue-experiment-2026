@@ -218,7 +218,9 @@ class ExpertBlendingLightningModule(pl.LightningModule):
             )
         param_groups.append(
             {
-                "params": list(self.model.nnue_experts.parameters()),
+                "params": [
+                    p for p in self.model.nnue_experts.parameters() if p.requires_grad
+                ],
                 "lr": self.lr_nnue,
                 "initial_lr": self.lr_nnue,
             }
@@ -284,6 +286,12 @@ def main():
     parser.add_argument("--backbone-weights", required=False, help="dlshogi .npz weights path")
     parser.add_argument("--nnue-checkpoint", required=True, help="NNUE .ckpt path for expert init")
     parser.add_argument("--n-experts", type=int, default=4, help="Number of NNUE experts")
+    parser.add_argument(
+        "--blend-mode",
+        default="weighted",
+        choices=["weighted", "residual"],
+        help="NNUE expert blending mode",
+    )
     parser.add_argument("--adapter-hidden", type=int, default=128, help="Adapter hidden dim")
     parser.add_argument(
         "--adapter-noise-scale",
@@ -356,6 +364,7 @@ def main():
         adapter_hidden=args.adapter_hidden,
         adapter_noise_scale=args.adapter_noise_scale,
         backbone_type=args.backbone_type,
+        blend_mode=args.blend_mode,
         device="cpu",  # PL will move to GPU
     )
     trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)

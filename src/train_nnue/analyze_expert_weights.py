@@ -26,7 +26,10 @@ import torch
 
 import features as nnue_features
 from train_nnue.expert_blending_dataset import ExpertBlendingDataset
-from train_nnue.expert_blending_model import create_expert_blending_model
+from train_nnue.expert_blending_model import (
+    create_expert_blending_model,
+    detect_blend_mode_from_state_dict,
+)
 from train_nnue.train_expert_blending import ExpertBlendingLightningModule
 
 
@@ -158,6 +161,8 @@ def main():
     print(f"Device: {device}")
 
     feature_set = nnue_features.get_feature_set_from_name(args.feature_set)
+    ckpt = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
+    blend_mode = detect_blend_mode_from_state_dict(ckpt["state_dict"])
 
     # Build model structure
     print("Building model...")
@@ -167,6 +172,7 @@ def main():
         feature_set=feature_set,
         n_experts=args.n_experts,
         adapter_hidden=args.adapter_hidden,
+        blend_mode=blend_mode,
         device="cpu",
     )
 
@@ -174,7 +180,6 @@ def main():
 
     # Load trained weights from checkpoint
     print(f"Loading checkpoint: {args.checkpoint}")
-    ckpt = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
     lit_module.load_state_dict(ckpt["state_dict"])
 
     # Load validation data

@@ -98,7 +98,13 @@ def _detect_backbone_type(state_dict):
 
 def load_expert_blending_model(checkpoint_path, device):
     """Expert Blendingチェックポイントからモデルを復元する。DNN/NNUEバックボーン自動判定。"""
-    from train_nnue.expert_blending_model import DNNAdapter, DNNBackbone, NNUEBackbone, NNUEExperts
+    from train_nnue.expert_blending_model import (
+        DNNAdapter,
+        DNNBackbone,
+        NNUEBackbone,
+        NNUEExperts,
+        detect_blend_mode_from_state_dict,
+    )
     from dlshogi.network.policy_value_network_resnet10_swish import (
         PolicyValueNetwork as DlshogiPVNet,
     )
@@ -107,6 +113,7 @@ def load_expert_blending_model(checkpoint_path, device):
     state_dict = ckpt["state_dict"]
 
     backbone_type = _detect_backbone_type(state_dict)
+    blend_mode = detect_blend_mode_from_state_dict(state_dict)
     n_experts = state_dict["model.nnue_experts.input_weight"].shape[0]
     num_features = state_dict["model.nnue_experts.input_weight"].shape[2]
 
@@ -120,7 +127,7 @@ def load_expert_blending_model(checkpoint_path, device):
         backbone = NNUEBackbone(bb_num_features, n_experts=n_experts)
         adapter = None
 
-    nnue_experts = NNUEExperts(n_experts, num_features)
+    nnue_experts = NNUEExperts(n_experts, num_features, blend_mode=blend_mode)
     model = ExpertBlendingModel(backbone, adapter, nnue_experts, backbone_type=backbone_type)
 
     model_state = {k[len("model."):]: v for k, v in state_dict.items() if k.startswith("model.")}

@@ -93,13 +93,16 @@ def extract_expert_states(checkpoint_path):
     """Expert Blendingチェックポイントから各エキスパートのNNUE state_dictを抽出する。
 
     Returns:
-        list[dict]: 各エキスパートのstate_dict (NNUE形式のキー)
+        tuple[list[dict], str]: 各エキスパートのstate_dict (NNUE形式のキー), blend_mode
     """
+    from train_nnue.expert_blending_model import detect_blend_mode_from_state_dict
+
     ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     state_dict = ckpt["state_dict"]
+    blend_mode = detect_blend_mode_from_state_dict(state_dict)
 
     n_experts = state_dict["model.nnue_experts.input_weight"].shape[0]
-    log(f"  n_experts={n_experts}")
+    log(f"  n_experts={n_experts}, blend_mode={blend_mode}")
 
     # NNUEExperts param name -> NNUE model param name
     param_map = {
@@ -118,10 +121,13 @@ def extract_expert_states(checkpoint_path):
         sd = {}
         for expert_key, nnue_key in param_map.items():
             full_key = f"model.nnue_experts.{expert_key}"
-            sd[nnue_key] = state_dict[full_key][k]
+            expert_value = state_dict[full_key][k]
+            if blend_mode == "residual":
+                expert_value = expert_value + state_dict[f"model.nnue_experts.base_{expert_key}"]
+            sd[nnue_key] = expert_value
         expert_states.append(sd)
 
-    return expert_states
+    return expert_states, blend_mode
 
 
 def main():
@@ -172,7 +178,7 @@ def main():
     feature_set = nnue_features.get_feature_set_from_name(args.feature_set)
 
     log("Loading expert weights from checkpoint...")
-    expert_states = extract_expert_states(args.expert_blending_checkpoint)
+    expert_states, _ = extract_expert_states(args.expert_blending_checkpoint)
     n_experts = len(expert_states)
 
     models = []

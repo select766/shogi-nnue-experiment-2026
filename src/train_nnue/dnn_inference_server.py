@@ -41,6 +41,7 @@ from train_nnue.expert_blending_model import (
     NNUEBackbone,
     NNUEExperts,
     ExpertBlendingModel,
+    detect_blend_mode_from_state_dict,
     load_backbone,
 )
 from train_nnue.blend_and_export import blend_expert_weights, quantize_and_pack
@@ -118,6 +119,7 @@ def load_model_from_checkpoint(
     # Load checkpoint
     ckpt = torch.load(checkpoint_path, map_location=device, weights_only=False)
     state_dict = ckpt['state_dict']
+    blend_mode = detect_blend_mode_from_state_dict(state_dict)
 
     backbone_type = backbone_type.lower()
     if backbone_type == "nnue":
@@ -160,7 +162,7 @@ def load_model_from_checkpoint(
 
     # Reconstruct nnue_experts
     num_features = state_dict['model.nnue_experts.input_weight'].shape[2]
-    nnue_experts = NNUEExperts(n_experts, num_features)
+    nnue_experts = NNUEExperts(n_experts, num_features, blend_mode=blend_mode)
     expert_state = {}
     prefix = 'model.nnue_experts.'
     for k, v in state_dict.items():
