@@ -141,13 +141,38 @@ def write_score_histogram(scores_for_expert, expert_id, total, score_bins, out_p
     plt.close(fig)
 
 
+def select_representative_indices(col, dominant, expert_id, top_k):
+    """Expert j の代表局面 index を「担当局面の p 中央値近傍」から選ぶ。
+
+    1. argmax_{j'} p(i, j') = j を満たす i に絞る (dominant filter)
+    2. p(i, j) の昇順で並べ、中央付近の top_k 個を選ぶ
+
+    こうすることで、gate が極端に反応する adversarial な局面ではなく、
+    担当エキスパートが「ふつうに選んでいる」局面を抽出できる。
+    """
+    indices = np.where(dominant == expert_id)[0]
+    if len(indices) == 0:
+        return np.array([], dtype=int)
+    sorted_idx = indices[np.argsort(col[indices])]
+    n = len(sorted_idx)
+    if n <= top_k:
+        return sorted_idx
+    center = n // 2
+    start = max(0, center - top_k // 2)
+    end = start + top_k
+    if end > n:
+        end = n
+        start = end - top_k
+    return sorted_idx[start:end]
+
+
 def write_html(output_dir, html_path, n_experts, dominant, weights, plies, scores, psfens, top_k, meta):
     rows = []
     for j in range(n_experts):
         col = weights[:, j]
-        order = np.argsort(-col)[:top_k]
+        chosen = select_representative_indices(col, dominant, j, top_k)
         cells = []
-        for idx in order:
+        for idx in chosen:
             svg = render_position_svg(psfens[int(idx)])
             svg_name = f"expert_{j}_top_{len(cells)}.svg"
             with open(os.path.join(output_dir, svg_name), "w", encoding="utf-8") as fp:
@@ -185,7 +210,7 @@ def write_html(output_dir, html_path, n_experts, dominant, weights, plies, score
         f.write(
             "<tr><th>Expert</th><th>Ply histogram</th>"
             "<th>Score histogram</th>"
-            f"<th>Representative positions (top-{top_k})</th></tr>\n"
+            f"<th>Representative positions (median-p of dominant, n={top_k})</th></tr>\n"
         )
         for j, n_assigned, cells in rows:
             f.write("<tr>\n")
