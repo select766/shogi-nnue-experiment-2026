@@ -59,12 +59,13 @@ def blend_expert_weights(nnue_experts, gate_weights):
     for name in param_names:
         # param shape: (n_experts, *param_shape)
         param = getattr(nnue_experts, name).data
-        # gate_weights を param の次元に合わせて reshape
-        # gate_weights: (n_experts,) -> (n_experts, 1, 1, ...) for broadcasting
-        w = gate_weights
-        for _ in range(param.dim() - 1):
-            w = w.unsqueeze(-1)
-        blended[name] = (param * w).sum(dim=0)
+        # ナイーブな broadcast 乗算 + sum は (n_experts, *) の中間テンソルを
+        # 物理的に確保するため、input_weight (約 1 GB) で大きなコストになる。
+        # (n_experts,) と (n_experts, prod) の matmul に落とすと BLAS GEMV を
+        # 利用でき、中間メモリも要らない。
+        param_flat = param.reshape(param.shape[0], -1)
+        blended_flat = torch.matmul(gate_weights, param_flat)
+        blended[name] = blended_flat.reshape(param.shape[1:])
         base_name = f"base_{name}"
         if hasattr(nnue_experts, base_name):
             blended[name] = blended[name] + getattr(nnue_experts, base_name).data

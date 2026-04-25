@@ -43,6 +43,26 @@
 支配的なのは **blend+pack (~400ms)** と **C++ 側の重み取り込み + IPC (~345ms)** の 2 つ。
 infer (gate weights 推論) は ~6ms で誤差レベル。
 
+### iter1: blend_expert_weights を matmul (GEMV) に置換 (2026-04-25)
+
+- 対象 ckpt: 同上
+- 変更点: `src/train_nnue/blend_and_export.py` の `blend_expert_weights` で
+  `(param * w).sum(dim=0)` ナイーブ broadcast を `torch.matmul(gate, param.reshape(E, -1))` に変更。
+  - 元の式は input_weight (E=8, L1=256, F=125388) で約 1 GB の中間テンソルを物理確保していた。
+  - matmul に落とすと BLAS GEMV が使われ、中間メモリ不要 + マルチスレッド GEMV で高速化。
+- 数値的影響: 量子化後 int16 で `0/32,099,328` 不一致 (純粋に等価)。
+
+| 指標                       | mean  | median | min   | max   | stdev |
+| -------------------------- | ----- | ------ | ----- | ----- | ----- |
+| wall-clock per `go` (ms)   | 668.0 | 668.0  | 659.4 | 678.9 | 5.0   |
+| Python `infer` (ms)        | 6.7   | 7.0    | 6.0   | 7.0   | 0.5   |
+| Python `blend+pack` (ms)   | 310.6 | 310.5  | 307.0 | 319.0 | 2.7   |
+
+- baseline からの改善: **wall -83.8 ms (-11.1%)**, **blend -89.6 ms (-22.4%)**
+- 残り内訳 (推定): blend+pack 311 ms / IPC + UpdateWeightsFromBuffer + 探索 ~351 ms
+- 100 ms 目標まで: あと **-568 ms**。次は IPC ペイロードを大幅削減 or
+  blend+pack をさらに削るために input_weight を事前量子化する案。
+
 ## 追記テンプレート
 
 新しい改善を入れたら、以下の体裁で追記する:
