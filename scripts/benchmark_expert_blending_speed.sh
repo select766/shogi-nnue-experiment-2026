@@ -1,17 +1,14 @@
 #!/bin/bash
-# Expert Blending の評価関数合成にかかる時間を計測するスクリプト。
+# Expert Blending の評価関数合成にかかる時間を計測するスクリプト (iter6+ 用)。
 #
-# go nodes <N> を回して bestmove までの時間を測る。
-# N が小さければ探索コストは無視できるので、合成パイプラインの代理指標になる。
+# iter6 以降は Python サーバーを廃止し、やねうら王本体が
+# backbone.onnx + head.bin + head.json を直接ロードする。
+# 本スクリプトは export_for_yaneuraou.py で一時ディレクトリへエクスポートし、
+# やねうら王に渡して go nodes を回す。
 #
 # Usage:
 #   bash scripts/benchmark_expert_blending_speed.sh \
-#     <expert_blending_checkpoint> \
-#     [backbone_weights] [n_experts] [nodes] [iters]
-#
-# 例 (デフォルトの 180.ckpt を測る):
-#   bash scripts/benchmark_expert_blending_speed.sh \
-#     logs/expert_blending_8experts_v4_paired_uniform50_noise0_lambda05/checkpoints/180.ckpt
+#     [checkpoint] [backbone_weights] [n_experts] [nodes] [iters]
 set -e
 
 CHECKPOINT=${1:-logs/expert_blending_8experts_v4_paired_uniform50_noise0_lambda05/checkpoints/180.ckpt}
@@ -32,18 +29,12 @@ abspath_from_root() {
 
 CHECKPOINT="$(abspath_from_root "$CHECKPOINT")"
 BACKBONE_WEIGHTS="$(abspath_from_root "$BACKBONE_WEIGHTS")"
-
 ENGINE="$ROOT_DIR/bin/YaneuraOu-expert-blending"
-NNUE_PYTHON="$ROOT_DIR/nnue-pytorch/.venv/bin/python"
 EVAL_DIR="$ROOT_DIR/bin/eval"
-SERVER_LOG=${DNN_SERVER_LOG:-/tmp/dnn_inference_server_bench.log}
+ONNX_LIB_DIR="$ROOT_DIR/YaneuraOu/extra/onnxruntime/linux/current/lib"
 
 if [ ! -x "$ENGINE" ]; then
     echo "Error: engine not found or not executable: $ENGINE" >&2
-    exit 1
-fi
-if [ ! -x "$NNUE_PYTHON" ]; then
-    echo "Error: python not found: $NNUE_PYTHON" >&2
     exit 1
 fi
 if [ ! -f "$CHECKPOINT" ]; then
@@ -58,7 +49,9 @@ fi
 cd "$ROOT_DIR/nnue-pytorch"
 source .venv/bin/activate
 
-PYTHONPATH="$ROOT_DIR/src:$PYTHONPATH" python -m train_nnue.benchmark_blending_speed \
+PYTHONPATH="$ROOT_DIR/src:$ROOT_DIR/dlshogi-source:$ROOT_DIR/nnue-pytorch:$PYTHONPATH" \
+LD_LIBRARY_PATH="$ONNX_LIB_DIR:$LD_LIBRARY_PATH" \
+python -m train_nnue.benchmark_blending_speed \
     --engine "$ENGINE" \
     --checkpoint "$CHECKPOINT" \
     --backbone-weights "$BACKBONE_WEIGHTS" \
@@ -66,5 +59,4 @@ PYTHONPATH="$ROOT_DIR/src:$PYTHONPATH" python -m train_nnue.benchmark_blending_s
     --n-experts "$N_EXPERTS" \
     --nodes "$NODES" \
     --iters "$ITERS" \
-    --server-log "$SERVER_LOG" \
-    --python "$NNUE_PYTHON"
+    --onnxruntime-libdir "$ONNX_LIB_DIR"

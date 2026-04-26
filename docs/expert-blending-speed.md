@@ -207,6 +207,99 @@ wall の改善は -14 ms にとどまる。
   - 本命は依然「blend を C++ 側に寄せて Python は gate のみ送る」アーキ変更。
     これにより Python 60 ms をほぼ撤廃でき、wall を 90-100 ms 圏に持ち込める。
 
+### iter6: Python/IPC 撤廃 + onnxruntime + C++ 内 ブレンド (2026-04-26)
+
+これまでは Python サブプロセスを起動し、pipe / mmap を経由して合成済み 64 MB
+重みをやねうら王へ送り込んでいた。本 iter ではその構造そのものを廃止し、
+**やねうら王本体だけで完結**する形に再設計した。
+
+#### アーキテクチャの変更
+
+- やねうら王に **onnxruntime (CPU prebuilt 1.19.2)** を同梱
+  (`YaneuraOu/extra/onnxruntime/`)。`fetch_onnxruntime.sh` でダウンロード。
+- やねうら王に **dlshogi cppshogi** を vendoring (`YaneuraOu/source/eval/nnue/
+  dlshogi_cppshogi/`)。`dlshogi_features::make_features_from_sfen()` で
+  `Position` から ONNX backbone への入力 (features1 / features2) を作る。
+- 学習済みモデル → やねうら王ロード形式の変換ツール
+  `src/train_nnue/export_for_yaneuraou.py` を新規追加。
+  - `backbone.onnx` : `DNNBackbone` + `DNNAdapter` を 1 つの ONNX に
+    エクスポート (gate (8,) softmax 出力)。
+  - `head.bin`      : 128B 固定ヘッダ + E 個の expert を **事前量子化**
+    (FT bias / FT weight int16, FC bias int32, FC weight int8 padded) で
+    連続書き出し。`(F, L1)` 順 (やねうら王 memcpy 順)。residual モードでは
+    末尾に `base_*` 1 セット。
+  - `head.json`     : 人間可読のメタ情報 (C++ は読まない)。
+- `dnn_bridge.{h,cpp}` を撤去し `expert_blending_loader.{h,cpp}` に置換。
+  - `setoption ExpertBlendingDir <path>` でディレクトリを指定。
+  - 各 go の前に C++ で:
+      ① `Position::sfen()` → cppshogi で features1/2
+      ② onnxruntime で gate (8,) を推論
+      ③ head.bin の 8 expert × int16 重みを gate でブレンドし、
+         `UpdateWeightsFromBuffer` 互換のバイト列を組み立てる
+      ④ 既存の `Eval::NNUE::UpdateWeightsFromBuffer` に渡す
+- USI option `DNNServerCmd` は削除。代わりに `ExpertBlendingDir`。
+
+#### ブレンドカーネルの実装メモ
+
+- FT weight (32M elem) のブレンドは中間 float バッファ (256MB の write/read)
+  を使うとメモリ帯域でボトルネック化したため、**1024 要素チャンク** に分割
+  して L1 cache に局所化する実装に変更。これで blend 120ms → **71ms**。
+- `lrintf` + `clamp` で int16 へ書き戻す。8 expert × float の積和は
+  -O3 + AVX2 で SIMD 化される (clang 14)。
+- fixed-point (int16×int16→int32 累積) も試したが、AVX2 で
+  vpmaddwd を活かすには gather/permute が必要で、scalar 実装では float 版に
+  劣った (165ms)。将来 SIMD intrinsic で書き直せばさらに削れる余地あり。
+
+#### 計測結果
+
+| 指標                       | mean  | median | min   | max   | stdev |
+| -------------------------- | ----- | ------ | ----- | ----- | ----- |
+| wall-clock per `go` (ms)   | 144.1 | 144.0  | 143.5 | 146.1 | 0.7   |
+
+内訳 (`EXPERT_BLENDING_VERBOSE=1` で `info string ExpertBlending timing(ms)` を確認):
+- feat (cppshogi 局面エンコード): **0.01 ms** (誤差レベル)
+- onnx (gate 推論, 1 thread CPU):  **9.5 ms**
+- blend (FT/FC 合成 + UpdateWeightsFromBuffer 用バッファ組み立て): **71 ms**
+- 残り (UpdateWeightsFromBuffer の memcpy + 1000 ノード探索 + USI 往復): **~63 ms**
+
+#### 比較サマリ
+
+| iter | wall (ms) | Python？ | IPC 形式             | 主な変更                          |
+| ---- | ---------:|:--------:| -------------------- | --------------------------------- |
+| 0    | 751.8     | yes      | pipe (~64MB)         | baseline                          |
+| 1    | 668.0     | yes      | pipe                 | blend を matmul に                |
+| 2    | 429.1     | yes      | pipe                 | C++ FT を memcpy 化               |
+| 3    | 370.5     | yes      | pipe                 | FT input_weight を起動時に転置    |
+| 4    | 176.8     | yes      | pipe (block on write)| numpy in-place + memoryview write |
+| 5    | 163.2     | yes      | mmap shm             | 64MB pipe 転送を撤廃              |
+| **6** | **144.1** | **no**  | **同一プロセス**     | **onnxruntime + C++ ブレンド**    |
+
+- iter5 比 **wall -19.1 ms (-11.7%)**、isready の起動コストも 3.10 s → 1.01 s
+  (Python/torch のコールドスタートが消えたため)。
+- baseline (iter0) からの累計: **wall -607.7 ms (-80.8%)**。
+- アーキ的副次効果:
+  - 配布物が 1 ファイル + DLL になり、Python 環境のデプロイが不要。
+  - GPU を要求しなくなる (CPU のみで完結)。Windows portable build も視野。
+- 残るボトルネック:
+  - blend 71 ms (memory-bound. SIMD intrinsic で更に半減可能)
+  - onnx 9.5 ms (1 thread CPU。-march/quantization で改善余地)
+
+#### ファイル/オプション変更まとめ
+
+新規:
+- `src/train_nnue/export_for_yaneuraou.py`
+- `YaneuraOu/source/eval/nnue/dlshogi_cppshogi/` (cppshogi vendoring + bridge)
+- `YaneuraOu/source/eval/nnue/expert_blending_loader.{h,cpp}`
+- `YaneuraOu/extra/onnxruntime/` (prebuilt 配置場所 + fetch_onnxruntime.sh)
+
+削除:
+- `YaneuraOu/source/eval/nnue/dnn_bridge.{h,cpp}`
+- USI option `DNNServerCmd`
+
+旧 Python スクリプトは互換用に残置:
+- `src/train_nnue/dnn_inference_server.py` (もはや engine からは呼ばれないが、
+  Python だけで `blend_and_pack` を試す等の検証用)。
+
 ## 追記テンプレート
 
 新しい改善を入れたら、以下の体裁で追記する:
