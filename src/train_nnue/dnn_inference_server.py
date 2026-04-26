@@ -21,7 +21,9 @@ Usage:
 """
 
 import argparse
+import atexit
 import contextlib
+import mmap
 import os
 import struct
 import sys
@@ -303,12 +305,51 @@ def main():
         packer = None
         log(f"FastBlendingPacker disabled: {e}")
 
+    # 共有メモリ (mmap) IPC をセットアップ。Python は重みを mmap に直接書き、
+    # C++ は同じファイルを mmap して読む。pipe 経由で 64 MB 転送する代わりに
+    # gate (32B) のみ pipe で送ることで、転送レイテンシを大きく削減する。
+    if packer is not None:
+        shm_size = packer.payload_size
+    else:
+        # fallback サイズ: HalfKP 最大相当 (factorized 等) を確保。実サイズは
+        # 重みパケットの先頭で送られるサイズ uint32 で同期する。
+        # ここでは後段で正確なサイズを得るため、初回呼び出し時の payload で確定させる。
+        # 当面は十分大きめ (128 MB) を確保。
+        shm_size = 128 * 1024 * 1024
+
+    shm_path = f"/tmp/expert_blending_shm_{os.getpid()}.bin"
+    # ファイルを正しいサイズで作る (sparse でなく、書き込み可能で)。
+    with open(shm_path, "wb") as f:
+        f.truncate(shm_size)
+    shm_fd = os.open(shm_path, os.O_RDWR)
+    shm_mmap = mmap.mmap(shm_fd, shm_size)
+
+    def _cleanup_shm():
+        try:
+            shm_mmap.close()
+        except Exception:
+            pass
+        try:
+            os.close(shm_fd)
+        except Exception:
+            pass
+        try:
+            os.unlink(shm_path)
+        except Exception:
+            pass
+    atexit.register(_cleanup_shm)
+
+    if packer is not None:
+        packer.attach_shm(shm_mmap)
+        log(f"shm: path={shm_path} size={shm_size}")
+
     board = cshogi.Board()
 
-    # Signal ready
-    sys.stdout.buffer.write(b"ready\n")
+    # Signal ready (with shm path + size)
+    ready_msg = f"ready {shm_path} {shm_size}\n"
+    sys.stdout.buffer.write(ready_msg.encode())
     sys.stdout.buffer.flush()
-    log("ready")
+    log(f"ready (shm path={shm_path}, size={shm_size})")
 
     # Main loop
     request_count = 0
@@ -349,24 +390,23 @@ def main():
                 f"Protocol requires exactly 8 experts, but got {len(gate_weights_list)}"
             )
 
-        # Send response:
-        # [8 x float32 blending weights] + [uint32 size] + [payload bytes]
-        # packer の write_to_stream パスでは合計サイズが事前に分かるため、
-        # 重みバイトを一度も bytes 化せずに stdout に直接流せる。
+        # Response protocol (shm 版):
+        #   1) Python が mmap に重みを書き込む (size は固定 = packer.payload_size)
+        #   2) Python が pipe に [8 × float32 gate] + [uint32 size] を書く
+        #      ← この pipe write の完了が C++ に対する「mmap 書き込み完了」シグナル
+        # C++ は gate を読んだ後に mmap から重みを読む (pipe で 64 MB 転送しない)。
         if packer is not None:
+            packer.write_to_shm(gate_weights)
             size = packer.payload_size
-            sys.stdout.buffer.write(struct.pack("<8f", *gate_weights_list))
-            sys.stdout.buffer.write(struct.pack("<I", size))
-            packer.write_to_stream(gate_weights, sys.stdout.buffer)
-            sys.stdout.buffer.flush()
         else:
             blended = blend_expert_weights(nnue_experts, gate_weights)
             weight_bytes = quantize_and_pack(blended, feature_set)
             size = len(weight_bytes)
-            sys.stdout.buffer.write(struct.pack("<8f", *gate_weights_list))
-            sys.stdout.buffer.write(struct.pack("<I", size))
-            sys.stdout.buffer.write(weight_bytes)
-            sys.stdout.buffer.flush()
+            shm_mmap[:size] = weight_bytes
+
+        sys.stdout.buffer.write(struct.pack("<8f", *gate_weights_list))
+        sys.stdout.buffer.write(struct.pack("<I", size))
+        sys.stdout.buffer.flush()
 
         t2 = time.time()
 

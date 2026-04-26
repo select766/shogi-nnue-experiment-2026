@@ -166,6 +166,47 @@ infer (gate weights 推論) は ~6ms で誤差レベル。
   これを根本的に削るにはアーキテクチャ変更で、Python は gate (32 B) のみを
   送り、blend を C++ 側に持っていく必要がある。
 
+### iter5: 共有メモリ (mmap) IPC で 64 MB pipe 転送を撤廃 (2026-04-26)
+
+- 対象 ckpt: 同上
+- 変更点:
+  - `src/train_nnue/dnn_inference_server.py`:
+    - 起動時に `/tmp/expert_blending_shm_<pid>.bin` を作成 + mmap。
+    - ready 行を `"ready <path> <size>\n"` に拡張。旧 `"ready"` も C++ 側で
+      互換的にサポート (mmap なしフォールバック)。
+    - 毎 go: `packer.write_to_shm(gate)` で mmap に直接書き、pipe には
+      gate (32 B) + size (4 B) のみ送る。
+  - `src/train_nnue/blend_and_export.py::FastBlendingPacker`:
+    - `attach_shm(buf)` / `write_to_shm(gate)` を追加。numpy view 経由で
+      mmap に直接書き込む。FT bias / FT weight / FC を所定オフセットへ。
+  - `YaneuraOu/source/eval/nnue/dnn_bridge.cpp`:
+    - ready 行に shm path/size がある場合、`open` + `mmap(PROT_READ, MAP_SHARED)`。
+    - `request_weights` で payload 用の pipe read を撤廃し、mmap から
+      memcpy で `buffer` に取り出す (既存 API 維持)。
+- 数値的影響: なし (wire format は同一)。
+
+| 指標                       | mean  | median | min   | max   | stdev |
+| -------------------------- | ----- | ------ | ----- | ----- | ----- |
+| wall-clock per `go` (ms)   | 163.2 | 163.0  | 157.5 | 169.8 | 2.9   |
+| Python `infer` (ms)        | 6.3   | 6.0    | 5.0   | 8.0   | 0.8   |
+| Python `blend` (ms)        | 60.1  | 59.5   | 57.0  | 67.0  | 2.4   |
+
+注: `blend` が 106 → 60 ms に大きく減ったのは、pipe write の blocking
+(64 MB を C++ 側が pipe から読み終えるまでの待ち) が消えたため。実際の
+Python 計算量は iter4 と同じ ~58 ms。一方、C++ 側に memcpy 64 MB
+(mmap → vector<char>) が新たに発生して ~5 ms 程度コストが乗るので、
+wall の改善は -14 ms にとどまる。
+
+- iter4 からの改善: **wall -13.6 ms (-7.7%)**。
+- baseline からの累計: **wall -588.6 ms (-78.3%)**。
+- 残り内訳 (推定): Python 60 ms / C++ memcpy + 探索 + 残 ~103 ms。
+- 100 ms 目標まで: あと **-63 ms**。
+- 次のターゲット:
+  - C++ 側 `request_weights` で `vector<char>` への memcpy を撤廃し、
+    `UpdateWeightsFromBuffer` に mmap ポインタを直渡し (-5 ms 程度)。
+  - 本命は依然「blend を C++ 側に寄せて Python は gate のみ送る」アーキ変更。
+    これにより Python 60 ms をほぼ撤廃でき、wall を 90-100 ms 圏に持ち込める。
+
 ## 追記テンプレート
 
 新しい改善を入れたら、以下の体裁で追記する:

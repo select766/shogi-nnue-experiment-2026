@@ -252,6 +252,86 @@ class FastBlendingPacker:
             + fc_bytes(1, out_in)
         )
 
+    def attach_shm(self, shm_buffer):
+        """書き込み対象として外部の mmap (もしくは bytearray) を結びつける。
+
+        以後 ``write_to_shm(gate)`` で蓄積バッファ無しに直接書き込める。
+        ``shm_buffer`` は少なくとも ``self.payload_size`` バイトの mutable
+        バッファ (writable buffer protocol) であること。
+        """
+        F, L1 = self._F, self._L1
+        ft_b_off = 0
+        ft_w_off = L1 * 2  # FT bias int16
+        fc_off = ft_w_off + F * L1 * 2
+
+        # numpy view (zero-copy) を mmap 上に作る。
+        self._shm = shm_buffer
+        self._shm_ft_b_np = np.frombuffer(
+            shm_buffer, dtype=np.int16, offset=ft_b_off, count=L1
+        )
+        self._shm_ft_w_np = np.frombuffer(
+            shm_buffer, dtype=np.int16, offset=ft_w_off, count=F * L1
+        ).reshape(F, L1)
+        self._shm_fc_off = fc_off
+        # FC 領域用の使い回し bytearray (毎回 clear する)
+        self._shm_fc_buf = bytearray()
+
+    def write_to_shm(self, gate_weights):
+        """attach_shm 済みの mmap バッファに合成済み重みを書き込む。"""
+        gate = gate_weights.detach().to(self.ft_w_flat.device).to(torch.float32)
+
+        # FT bias
+        ft_b = torch.matmul(gate, self.ft_b_scaled)
+        if self.ft_b_base_scaled is not None:
+            ft_b = ft_b + self.ft_b_base_scaled
+        np.copyto(
+            self._shm_ft_b_np,
+            ft_b.round().to(torch.int16).numpy(),
+            casting="unsafe",
+        )
+
+        # FT weight
+        gate_2d = gate.unsqueeze(0)
+        torch.matmul(gate_2d, self.ft_w_flat, out=self._ft_w_buf_f32)
+        f32_np = self._ft_w_buf_f32_np
+        if self._ft_w_base_scaled_np is not None:
+            np.add(f32_np, self._ft_w_base_scaled_np, out=f32_np)
+        np.rint(f32_np, out=f32_np)
+        np.copyto(self._shm_ft_w_np, f32_np, casting="unsafe")
+
+        # FC
+        fc_buf = self._shm_fc_buf
+        fc_buf.clear()
+        for name in ("l1_weight", "l1_bias", "l2_weight", "l2_bias",
+                     "output_weight", "output_bias"):
+            param = getattr(self.experts, name).data
+            flat = param.reshape(param.shape[0], -1)
+            blended = torch.matmul(gate, flat).reshape(param.shape[1:])
+            base = getattr(self.experts, f"base_{name}", None)
+            if base is not None:
+                blended = blended + base.data
+            # store into temp dict by name; we still call _pack_fc_layer below
+            if name == "l1_weight":
+                fc_l1_w = blended
+            elif name == "l1_bias":
+                fc_l1_b = blended
+            elif name == "l2_weight":
+                fc_l2_w = blended
+            elif name == "l2_bias":
+                fc_l2_b = blended
+            elif name == "output_weight":
+                fc_o_w = blended
+            elif name == "output_bias":
+                fc_o_b = blended
+        _pack_fc_layer(fc_buf, fc_l1_w, fc_l1_b)
+        _pack_fc_layer(fc_buf, fc_l2_w, fc_l2_b)
+        _pack_fc_layer(fc_buf, fc_o_w, fc_o_b, is_output=True)
+
+        # FC 部分は小サイズなので bytearray から mmap にコピー
+        off = self._shm_fc_off
+        # mmap (or bytearray) supports slice assignment with bytes-like
+        self._shm[off : off + len(fc_buf)] = fc_buf
+
     def write_to_stream(self, gate_weights, stream):
         """ブレンド済み量子化重みを `stream` (file-like) に直接書き出す。
 
