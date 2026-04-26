@@ -105,6 +105,28 @@ def coalesce_ft_weights(weight, feature_set):
     return weight_coalesced
 
 
+def _pack_fc_layer(buf, weight, bias, is_output=False):
+    """FC 層 (bias int32 + weight int8 padded) を buf に追記する。"""
+    if is_output:
+        bias_scale = OUTPUT_BIAS_SCALE
+    else:
+        bias_scale = FC_BIAS_SCALE
+    weight_scale = bias_scale / ACTIVATION_SCALE
+    max_weight = 127.0 / weight_scale
+
+    q_bias = bias.mul(bias_scale).round().to(torch.int32)
+    buf.extend(q_bias.flatten().numpy().tobytes())
+
+    q_weight = weight.clamp(-max_weight, max_weight).mul(weight_scale).round().to(torch.int8)
+    num_input = q_weight.shape[1]
+    if num_input % 32 != 0:
+        padded = num_input + 32 - (num_input % 32)
+        new_w = torch.zeros(q_weight.shape[0], padded, dtype=torch.int8)
+        new_w[:, :num_input] = q_weight
+        q_weight = new_w
+    buf.extend(q_weight.flatten().numpy().tobytes())
+
+
 def quantize_and_pack(blended, feature_set):
     """ブレンド済み重みを量子化し、ヘッダなしの生バイナリ (little-endian) として返す。
 
@@ -143,34 +165,96 @@ def quantize_and_pack(blended, feature_set):
     buf.extend(ft_weight.transpose(0, 1).contiguous().flatten().numpy().tobytes())
 
     # --- FC Layers ---
-    def pack_fc_layer(weight, bias, is_output=False):
-        if is_output:
-            bias_scale = OUTPUT_BIAS_SCALE
-        else:
-            bias_scale = FC_BIAS_SCALE
-        weight_scale = bias_scale / ACTIVATION_SCALE
-        max_weight = 127.0 / weight_scale
-
-        # Bias: int32
-        q_bias = bias.mul(bias_scale).round().to(torch.int32)
-        buf.extend(q_bias.flatten().numpy().tobytes())
-
-        # Weight: int8, with padding to multiple of 32
-        q_weight = weight.clamp(-max_weight, max_weight).mul(weight_scale).round().to(torch.int8)
-        num_input = q_weight.shape[1]
-        if num_input % 32 != 0:
-            padded = num_input + 32 - (num_input % 32)
-            new_w = torch.zeros(q_weight.shape[0], padded, dtype=torch.int8)
-            new_w[:, :num_input] = q_weight
-            q_weight = new_w
-        # Stored as [outputs][padded_inputs]
-        buf.extend(q_weight.flatten().numpy().tobytes())
-
-    pack_fc_layer(blended['l1_weight'], blended['l1_bias'])
-    pack_fc_layer(blended['l2_weight'], blended['l2_bias'])
-    pack_fc_layer(blended['output_weight'], blended['output_bias'], is_output=True)
+    _pack_fc_layer(buf, blended['l1_weight'], blended['l1_bias'])
+    _pack_fc_layer(buf, blended['l2_weight'], blended['l2_bias'])
+    _pack_fc_layer(buf, blended['output_weight'], blended['output_bias'], is_output=True)
 
     return bytes(buf)
+
+
+class FastBlendingPacker:
+    """毎 go の blend+pack を高速化するための事前計算キャッシュ。
+
+    入力 weight (FT) は約 64MB (32M int16) を占めるため、毎回の
+      - FT_SCALE 倍 (mul) … float ops 32M
+      - transpose(0,1).contiguous() … 64MB のメモリ shuffle
+    が支配的。これを起動時に一回だけ済ませておくと、毎回の合成は
+      - matmul で C++ メモリ順の (num_features, L1) を直接得る
+      - round → int16 → tobytes
+    だけになる。
+
+    制限: 現状は HalfKP 非 factorized (num_virtual_features == 0) のみ対応。
+    factorized の場合は coalesce が必要なので fallback パスを使う。
+    """
+
+    def __init__(self, nnue_experts, feature_set):
+        if feature_set.num_virtual_features != 0:
+            raise NotImplementedError(
+                "FastBlendingPacker currently supports only non-factorized features"
+            )
+        self.feature_set = feature_set
+        self.experts = nnue_experts
+
+        # nnue_experts.input_weight: (E, L1, F)
+        # → (E, F, L1) に転置 + × FT_SCALE してキャッシュ。
+        iw = nnue_experts.input_weight.data.detach().to("cpu")
+        ft_w_scaled = (iw.permute(0, 2, 1).contiguous().mul(FT_SCALE))
+        E, F, L1_ = ft_w_scaled.shape
+        self._ft_w_scaled_shape = (F, L1_)
+        self.ft_w_flat = ft_w_scaled.reshape(E, F * L1_)
+
+        # input_bias: (E, L1) は × FT_SCALE のみ
+        self.ft_b_scaled = nnue_experts.input_bias.data.detach().to("cpu").mul(FT_SCALE)
+
+        # residual mode: base 重みも事前にスケール済みキャッシュ
+        bw = getattr(nnue_experts, "base_input_weight", None)
+        if bw is not None:
+            base_w = bw.data.detach().to("cpu")
+            # (L1, F) → (F, L1) 転置 + × FT_SCALE
+            self.ft_w_base_scaled = base_w.t().contiguous().mul(FT_SCALE)
+        else:
+            self.ft_w_base_scaled = None
+        bb = getattr(nnue_experts, "base_input_bias", None)
+        if bb is not None:
+            self.ft_b_base_scaled = bb.data.detach().to("cpu").mul(FT_SCALE)
+        else:
+            self.ft_b_base_scaled = None
+
+    def blend_and_pack(self, gate_weights):
+        gate = gate_weights.detach().to(self.ft_w_flat.device).to(torch.float32)
+        buf = bytearray()
+
+        # --- FT bias (fast path) ---
+        ft_b = torch.matmul(gate, self.ft_b_scaled)  # (L1,) 既にスケール済み
+        if self.ft_b_base_scaled is not None:
+            ft_b = ft_b + self.ft_b_base_scaled
+        buf.extend(ft_b.round().to(torch.int16).cpu().numpy().tobytes())
+
+        # --- FT weight (fast path: 既に転置 + スケール済み) ---
+        ft_w = torch.matmul(gate, self.ft_w_flat)  # (F * L1,) 行優先
+        ft_w = ft_w.reshape(self._ft_w_scaled_shape)  # (F, L1) 既に C++ メモリ順
+        if self.ft_w_base_scaled is not None:
+            ft_w = ft_w + self.ft_w_base_scaled
+        buf.extend(ft_w.round().to(torch.int16).cpu().numpy().tobytes())
+
+        # --- FC 層: 小サイズなので通常パス ---
+        fc_blended = {}
+        for name in ("l1_weight", "l1_bias", "l2_weight", "l2_bias",
+                     "output_weight", "output_bias"):
+            param = getattr(self.experts, name).data
+            flat = param.reshape(param.shape[0], -1)
+            blended = torch.matmul(gate, flat).reshape(param.shape[1:])
+            base = getattr(self.experts, f"base_{name}", None)
+            if base is not None:
+                blended = blended + base.data
+            fc_blended[name] = blended.detach().to("cpu")
+
+        _pack_fc_layer(buf, fc_blended["l1_weight"], fc_blended["l1_bias"])
+        _pack_fc_layer(buf, fc_blended["l2_weight"], fc_blended["l2_bias"])
+        _pack_fc_layer(buf, fc_blended["output_weight"], fc_blended["output_bias"],
+                       is_output=True)
+
+        return bytes(buf)
 
 
 def write_nnue_file(blended, feature_set, output_path):

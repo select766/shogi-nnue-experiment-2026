@@ -44,7 +44,11 @@ from train_nnue.expert_blending_model import (
     detect_blend_mode_from_state_dict,
     load_backbone,
 )
-from train_nnue.blend_and_export import blend_expert_weights, quantize_and_pack
+from train_nnue.blend_and_export import (
+    FastBlendingPacker,
+    blend_expert_weights,
+    quantize_and_pack,
+)
 from train_nnue.verify_dlshogi import encode_position
 
 
@@ -290,6 +294,15 @@ def main():
     log(f"Model loaded. num_features={feature_set.num_features}, "
         f"num_real_features={feature_set.num_real_features}")
 
+    # 事前計算した転置 + スケール済み input_weight を持つ高速合成機を構築。
+    # factorized HalfKP の場合は coalesce が必要なので fallback。
+    try:
+        packer = FastBlendingPacker(nnue_experts, feature_set)
+        log("FastBlendingPacker enabled (FT input_weight pre-transposed/pre-scaled)")
+    except NotImplementedError as e:
+        packer = None
+        log(f"FastBlendingPacker disabled: {e}")
+
     board = cshogi.Board()
 
     # Signal ready
@@ -331,8 +344,11 @@ def main():
         t1 = time.time()
 
         # Blend and quantize
-        blended = blend_expert_weights(nnue_experts, gate_weights)
-        weight_bytes = quantize_and_pack(blended, feature_set)
+        if packer is not None:
+            weight_bytes = packer.blend_and_pack(gate_weights)
+        else:
+            blended = blend_expert_weights(nnue_experts, gate_weights)
+            weight_bytes = quantize_and_pack(blended, feature_set)
 
         t2 = time.time()
 

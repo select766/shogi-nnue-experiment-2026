@@ -95,6 +95,40 @@ infer (gate weights 推論) は ~6ms で誤差レベル。
   - もしくはアーキテクチャを変えて Python 側は gate (32B) のみ送信し、
     blend を C++ で行う (64MB IPC を一気に解消)。
 
+### iter3: FT input_weight を起動時に転置 + FT_SCALE 倍してキャッシュ (2026-04-26)
+
+- 対象 ckpt: 同上
+- 変更点:
+  - `src/train_nnue/blend_and_export.py` に `FastBlendingPacker` クラスを追加。
+    起動時に input_weight を `(E, num_features, L1)` (= C++ 期待のメモリ順) に
+    transpose し、`FT_SCALE = 127` を掛けた状態でキャッシュする。
+    input_bias / base 重みも同様にスケール済みで保持する。
+  - `src/train_nnue/dnn_inference_server.py` を `packer.blend_and_pack(gate)`
+    経路に切り替え (factorized 特徴量使用時のみ従来 `blend_expert_weights`
+    + `quantize_and_pack` にフォールバック)。
+  - 毎 go の作業は: matmul → reshape (転置不要) → round → int16 → tobytes。
+    `transpose(0,1).contiguous()` (~64MB shuffle) と `× FT_SCALE`、加えて
+    1 GB 中間バッファを伴う元の broadcast (iter1 で除去済み) を完全に回避。
+- 数値的影響: 量子化後 int16 で `7 / 32,099,584` 不一致 (max abs diff = 1)。
+  原因は浮動小数点演算順序の違いによる丸め境界跨ぎ (× FT_SCALE を行う
+  タイミングが matmul の前後で異なる)。実用上問題ないと判断。
+
+| 指標                       | mean  | median | min   | max   | stdev |
+| -------------------------- | ----- | ------ | ----- | ----- | ----- |
+| wall-clock per `go` (ms)   | 370.5 | 369.4  | 359.3 | 384.2 | 7.9   |
+| Python `infer` (ms)        | 7.1   | 7.0    | 6.0   | 8.0   | 0.8   |
+| Python `blend+pack` (ms)   | 250.2 | 250.0  | 243.0 | 260.0 | 5.2   |
+
+- iter2 からの改善: **wall -58.6 ms (-13.7%)**, **blend -61.5 ms (-19.7%)**。
+- baseline からの累計: **wall -381.3 ms (-50.7%)**。
+- 残り内訳 (推定): blend+pack 250 ms / C++ + IPC + 探索 ~120 ms
+- 100 ms 目標まで: あと **-270 ms**。Python blend+pack 250 ms 内訳の予想は
+  matmul ~50 ms / `round.to(int16)` ~80 ms / `tobytes` + IPC コピー ~50 ms / 残 70 ms。
+  次は (a) numpy で `np.rint`/`astype` を使って int16 変換を高速化、
+  (b) matmul の `out=` 引数で割当を削減、
+  (c) もしくは C++ 側に blend を寄せて 64 MB IPC を撤廃する大改修、
+  あたりが有力。
+
 ## 追記テンプレート
 
 新しい改善を入れたら、以下の体裁で追記する:
