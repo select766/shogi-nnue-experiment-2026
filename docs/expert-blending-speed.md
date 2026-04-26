@@ -63,6 +63,38 @@ infer (gate weights 推論) は ~6ms で誤差レベル。
 - 100 ms 目標まで: あと **-568 ms**。次は IPC ペイロードを大幅削減 or
   blend+pack をさらに削るために input_weight を事前量子化する案。
 
+### iter2: C++ `UpdateWeightsFromBuffer` の FT を memcpy 化 (2026-04-26)
+
+- 対象 ckpt: 同上
+- 変更点:
+  - `YaneuraOu/source/eval/nnue/nnue_feature_transformer.h` に
+    `LoadParametersFromBuffer(const char*)` を追加 (FT bias / weight を memcpy で
+    一括コピー)。`kBufferReadBytes` 定数で読み取りバイト数を提供。
+  - `YaneuraOu/source/eval/nnue/evaluate_nnue.cpp::UpdateWeightsFromBuffer` で
+    FT 部分は memcpy 経路、FC 部分のみ従来の istream 経路を使うように変更。
+  - 動機: `read_little_endian<int16_t>` は per-element `stream.read()` +
+    バイト単位アンパックなので、FT の 32M+ 要素 (64MB) ループが支配的だった。
+    on-wire は LE 平坦化で x86_64 のメモリレイアウトと一致するため
+    memcpy で安全。FC 層はスクランブル順序があるので memcpy 化していない
+    (ただし合計 < 17KB なので影響なし)。
+
+| 指標                       | mean  | median | min   | max   | stdev |
+| -------------------------- | ----- | ------ | ----- | ----- | ----- |
+| wall-clock per `go` (ms)   | 429.1 | 429.3  | 424.9 | 433.8 | 2.4   |
+| Python `infer` (ms)        | 6.3   | 6.0    | 5.0   | 7.0   | 0.6   |
+| Python `blend+pack` (ms)   | 311.7 | 312.0  | 306.0 | 317.0 | 2.8   |
+
+- iter1 からの改善: **wall -238.9 ms (-35.8%)**。
+  blend は不変 (Python 側未変更) だが、C++ 側が ~351 ms → ~111 ms に短縮。
+- baseline からの累計: **wall -322.7 ms (-42.9%)**。
+- 残り内訳 (推定): blend+pack 312 ms / C++ + IPC + 探索 ~111 ms
+- 100 ms 目標まで: あと **-329 ms**。Python blend+pack 312 ms が支配的になったので
+  次はこちらを削る。候補:
+  - input_weight を起動時に量子化 + 転置済みでキャッシュし、
+    blend を `(8, num_features, L1)` 形状で実行 → `transpose` + `mul` + `round` を回避。
+  - もしくはアーキテクチャを変えて Python 側は gate (32B) のみ送信し、
+    blend を C++ で行う (64MB IPC を一気に解消)。
+
 ## 追記テンプレート
 
 新しい改善を入れたら、以下の体裁で追記する:
