@@ -343,15 +343,6 @@ def main():
 
         t1 = time.time()
 
-        # Blend and quantize
-        if packer is not None:
-            weight_bytes = packer.blend_and_pack(gate_weights)
-        else:
-            blended = blend_expert_weights(nnue_experts, gate_weights)
-            weight_bytes = quantize_and_pack(blended, feature_set)
-
-        t2 = time.time()
-
         gate_weights_list = gate_weights.detach().cpu().tolist()
         if len(gate_weights_list) != 8:
             raise RuntimeError(
@@ -360,11 +351,24 @@ def main():
 
         # Send response:
         # [8 x float32 blending weights] + [uint32 size] + [payload bytes]
-        size = len(weight_bytes)
-        sys.stdout.buffer.write(struct.pack("<8f", *gate_weights_list))
-        sys.stdout.buffer.write(struct.pack("<I", size))
-        sys.stdout.buffer.write(weight_bytes)
-        sys.stdout.buffer.flush()
+        # packer の write_to_stream パスでは合計サイズが事前に分かるため、
+        # 重みバイトを一度も bytes 化せずに stdout に直接流せる。
+        if packer is not None:
+            size = packer.payload_size
+            sys.stdout.buffer.write(struct.pack("<8f", *gate_weights_list))
+            sys.stdout.buffer.write(struct.pack("<I", size))
+            packer.write_to_stream(gate_weights, sys.stdout.buffer)
+            sys.stdout.buffer.flush()
+        else:
+            blended = blend_expert_weights(nnue_experts, gate_weights)
+            weight_bytes = quantize_and_pack(blended, feature_set)
+            size = len(weight_bytes)
+            sys.stdout.buffer.write(struct.pack("<8f", *gate_weights_list))
+            sys.stdout.buffer.write(struct.pack("<I", size))
+            sys.stdout.buffer.write(weight_bytes)
+            sys.stdout.buffer.flush()
+
+        t2 = time.time()
 
         request_count += 1
         log(f"[{request_count}] sfen={sfen[:40]}... "

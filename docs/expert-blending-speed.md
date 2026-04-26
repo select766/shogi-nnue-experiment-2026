@@ -122,12 +122,49 @@ infer (gate weights 推論) は ~6ms で誤差レベル。
 - iter2 からの改善: **wall -58.6 ms (-13.7%)**, **blend -61.5 ms (-19.7%)**。
 - baseline からの累計: **wall -381.3 ms (-50.7%)**。
 - 残り内訳 (推定): blend+pack 250 ms / C++ + IPC + 探索 ~120 ms
-- 100 ms 目標まで: あと **-270 ms**。Python blend+pack 250 ms 内訳の予想は
-  matmul ~50 ms / `round.to(int16)` ~80 ms / `tobytes` + IPC コピー ~50 ms / 残 70 ms。
-  次は (a) numpy で `np.rint`/`astype` を使って int16 変換を高速化、
-  (b) matmul の `out=` 引数で割当を削減、
-  (c) もしくは C++ 側に blend を寄せて 64 MB IPC を撤廃する大改修、
-  あたりが有力。
+- 100 ms 目標まで: あと **-270 ms**。Python blend+pack 250 ms 内訳の実測は
+  matmul 98 ms / `round.to(int16)` 82 ms / `tobytes` 63 ms / FC ~0 ms。
+  matmul はメモリ帯域 (64 MB×8 expert read) で律速、スレッドを増やしても 17 % 程度。
+  攻めるべきは round/cast の Python オーバーヘッドと、`tobytes` で生じる
+  64 MB の bytes() 割当。
+
+### iter4: matmul `out=` + numpy round + memoryview 直書き (2026-04-26)
+
+- 対象 ckpt: 同上
+- 変更点:
+  - `FastBlendingPacker.__init__` で FT weight 用の事前確保バッファ
+    `(F, L1)` 形状の float32 / int16 (numpy view 込み) を持たせ、
+    `payload_size` を起動時に計算。
+  - 新メソッド `write_to_stream(gate, stream)` を追加:
+    - matmul は `torch.matmul(g.unsqueeze(0), ft_w_flat, out=...)` でバッファ再利用
+    - round / int16 化は `np.rint(out=)` + `np.copyto(casting='unsafe')` で in-place
+    - 64 MB の int16 結果は `memoryview(...).cast('B')` を `stream.write` に
+      直接渡し、bytes() 変換 (=64 MB のもう 1 回コピー) を撤廃
+  - `dnn_inference_server.py` を `packer.write_to_stream(gate, sys.stdout.buffer)`
+    パスに切り替え (size は `packer.payload_size` で事前確定)。
+  - 旧 `blend_and_pack(gate)` は `BytesIO` 経由で互換維持。
+- 数値的影響: iter3 と同じ 7 / 32 M 不一致 (max abs diff = 1)。
+
+| 指標                       | mean  | median | min   | max   | stdev |
+| -------------------------- | ----- | ------ | ----- | ----- | ----- |
+| wall-clock per `go` (ms)   | 176.8 | 176.0  | 174.1 | 186.0 | 2.9   |
+| Python `infer` (ms)        | 6.8   | 6.0    | 5.0   | 10.0  | 1.7   |
+| Python `blend+pack` (ms)*  | 105.6 | 105.0  | 103.0 | 114.0 | 2.4   |
+
+注 *: iter4 から `blend+pack` の計測区間が「stdout flush 完了まで」になり、
+64 MB の pipe write による blocking 待ち (≈ C++ 側の read 完了) を含む。
+これまでの iter1-3 では pipe write の前で計測終了していたため、
+直接比較は不可だが、wall は確実に短縮されている。
+
+- iter3 からの改善: **wall -193.7 ms (-52.3%)**。
+- baseline からの累計: **wall -575.0 ms (-76.5%)**。
+- 残り内訳 (推定): Python (blend + IPC write 待ち) 106 ms / C++ + 探索 71 ms
+- 100 ms 目標まで: あと **-77 ms**。残るのは大きく 2 系統:
+  - Python の matmul 98 ms (1 GB 読込メモリ帯域がボトルネック)
+  - 64 MB IPC pipe (write/read)
+  どちらも実体は同じ「合成済み 64 MB 重みを Python→C++ に流すコスト」。
+  これを根本的に削るにはアーキテクチャ変更で、Python は gate (32 B) のみを
+  送り、blend を C++ 側に持っていく必要がある。
 
 ## 追記テンプレート
 

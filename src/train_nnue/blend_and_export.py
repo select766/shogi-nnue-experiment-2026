@@ -200,7 +200,9 @@ class FastBlendingPacker:
         iw = nnue_experts.input_weight.data.detach().to("cpu")
         ft_w_scaled = (iw.permute(0, 2, 1).contiguous().mul(FT_SCALE))
         E, F, L1_ = ft_w_scaled.shape
-        self._ft_w_scaled_shape = (F, L1_)
+        self._E = E
+        self._F = F
+        self._L1 = L1_
         self.ft_w_flat = ft_w_scaled.reshape(E, F * L1_)
 
         # input_bias: (E, L1) は × FT_SCALE のみ
@@ -212,32 +214,71 @@ class FastBlendingPacker:
             base_w = bw.data.detach().to("cpu")
             # (L1, F) → (F, L1) 転置 + × FT_SCALE
             self.ft_w_base_scaled = base_w.t().contiguous().mul(FT_SCALE)
+            self._ft_w_base_scaled_np = self.ft_w_base_scaled.numpy()
         else:
             self.ft_w_base_scaled = None
+            self._ft_w_base_scaled_np = None
         bb = getattr(nnue_experts, "base_input_bias", None)
         if bb is not None:
             self.ft_b_base_scaled = bb.data.detach().to("cpu").mul(FT_SCALE)
         else:
             self.ft_b_base_scaled = None
 
-    def blend_and_pack(self, gate_weights):
-        gate = gate_weights.detach().to(self.ft_w_flat.device).to(torch.float32)
-        buf = bytearray()
+        # FT weight 用の事前確保バッファ。matmul((1,E),(E,F*L1),out=...) は
+        # 出力 shape (1, F*L1) を要求するので、そのまま (1, F*L1) で確保し
+        # (F, L1) view を numpy 経由で持つ。
+        self._ft_w_buf_f32 = torch.empty((1, F * L1_), dtype=torch.float32)
+        self._ft_w_buf_f32_view = self._ft_w_buf_f32.view(F, L1_)
+        self._ft_w_buf_f32_np = self._ft_w_buf_f32_view.numpy()
+        self._ft_w_buf_i16 = torch.empty((F, L1_), dtype=torch.int16)
+        self._ft_w_buf_i16_np = self._ft_w_buf_i16.numpy()
 
-        # --- FT bias (fast path) ---
-        ft_b = torch.matmul(gate, self.ft_b_scaled)  # (L1,) 既にスケール済み
+        # 払い出すバイト数 (FT_bias int16 + FT_weight int16 + FC packed)
+        # FT 部分のサイズは確定。FC は _pack_fc_layer の paddding 仕様から計算する。
+        ft_bytes = (L1_ + F * L1_) * 2
+        # L1 (32 out × padded(2*L1=512) input) + L2 (32×32) + output (1×32)
+        L2 = nnue_experts.l1_weight.shape[1]
+        L3 = nnue_experts.l2_weight.shape[1]
+        l1_in = nnue_experts.l1_weight.shape[2]
+        l2_in = nnue_experts.l2_weight.shape[2]
+        out_in = nnue_experts.output_weight.shape[2]
+        def fc_bytes(out_dim, in_dim):
+            padded = ((in_dim + 31) // 32) * 32
+            return out_dim * 4 + out_dim * padded  # bias int32 + weight int8(padded)
+        self.payload_size = (
+            ft_bytes
+            + fc_bytes(L2, l1_in)
+            + fc_bytes(L3, l2_in)
+            + fc_bytes(1, out_in)
+        )
+
+    def write_to_stream(self, gate_weights, stream):
+        """ブレンド済み量子化重みを `stream` (file-like) に直接書き出す。
+
+        64 MB クラスの中間 ``bytes`` オブジェクトを作らないことが目的。
+        """
+        gate = gate_weights.detach().to(self.ft_w_flat.device).to(torch.float32)
+
+        # --- FT bias (small) ---
+        ft_b = torch.matmul(gate, self.ft_b_scaled)
         if self.ft_b_base_scaled is not None:
             ft_b = ft_b + self.ft_b_base_scaled
-        buf.extend(ft_b.round().to(torch.int16).cpu().numpy().tobytes())
+        ft_b_i16 = ft_b.round().to(torch.int16).numpy()
+        stream.write(memoryview(ft_b_i16).cast("B"))
 
-        # --- FT weight (fast path: 既に転置 + スケール済み) ---
-        ft_w = torch.matmul(gate, self.ft_w_flat)  # (F * L1,) 行優先
-        ft_w = ft_w.reshape(self._ft_w_scaled_shape)  # (F, L1) 既に C++ メモリ順
-        if self.ft_w_base_scaled is not None:
-            ft_w = ft_w + self.ft_w_base_scaled
-        buf.extend(ft_w.round().to(torch.int16).cpu().numpy().tobytes())
+        # --- FT weight (大): 事前確保バッファに matmul、numpy で round/cast、
+        # memoryview を直接 stream に渡して bytes 割当を回避 ---
+        gate_2d = gate.unsqueeze(0)  # (1, E)
+        torch.matmul(gate_2d, self.ft_w_flat, out=self._ft_w_buf_f32)
+        f32_np = self._ft_w_buf_f32_np  # (F, L1) の numpy view
+        if self._ft_w_base_scaled_np is not None:
+            np.add(f32_np, self._ft_w_base_scaled_np, out=f32_np)
+        np.rint(f32_np, out=f32_np)
+        np.copyto(self._ft_w_buf_i16_np, f32_np, casting="unsafe")
+        stream.write(memoryview(self._ft_w_buf_i16_np).cast("B"))
 
-        # --- FC 層: 小サイズなので通常パス ---
+        # --- FC 層: 小サイズ。bytearray にまとめてから書く ---
+        fc_buf = bytearray()
         fc_blended = {}
         for name in ("l1_weight", "l1_bias", "l2_weight", "l2_bias",
                      "output_weight", "output_bias"):
@@ -248,13 +289,18 @@ class FastBlendingPacker:
             if base is not None:
                 blended = blended + base.data
             fc_blended[name] = blended.detach().to("cpu")
-
-        _pack_fc_layer(buf, fc_blended["l1_weight"], fc_blended["l1_bias"])
-        _pack_fc_layer(buf, fc_blended["l2_weight"], fc_blended["l2_bias"])
-        _pack_fc_layer(buf, fc_blended["output_weight"], fc_blended["output_bias"],
+        _pack_fc_layer(fc_buf, fc_blended["l1_weight"], fc_blended["l1_bias"])
+        _pack_fc_layer(fc_buf, fc_blended["l2_weight"], fc_blended["l2_bias"])
+        _pack_fc_layer(fc_buf, fc_blended["output_weight"], fc_blended["output_bias"],
                        is_output=True)
+        stream.write(fc_buf)
 
-        return bytes(buf)
+    def blend_and_pack(self, gate_weights):
+        """互換用: bytes を返すバージョン。テスト用途や 1 回限りの呼び出し向け。"""
+        import io
+        bio = io.BytesIO()
+        self.write_to_stream(gate_weights, bio)
+        return bio.getvalue()
 
 
 def write_nnue_file(blended, feature_set, output_path):
