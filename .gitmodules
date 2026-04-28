@@ -1,13 +1,14 @@
 [submodule "YaneuraOu"]
 	path = YaneuraOu
-	url = https://github.com/yaneurao/YaneuraOu.git
+	url = git@github.com:select766/yaneuraou-expert-blending.git
+	branch = blending
 [submodule "tanuki-learner"]
 	path = tanuki-learner
-	url = https://github.com/select766/tanuki-
+	url = git@github.com:select766/tanuki-.git
 	branch = tanuki-dr4-learner-linux
 [submodule "nnue-pytorch"]
 	path = nnue-pytorch
-	url = https://github.com/select766/nnue-pytorch
+	url = git@github.com:select766/nnue-pytorch.git
 	branch = shogi-linux-halfkp256
 [submodule "dlshogi-source"]
 	path = dlshogi-source
