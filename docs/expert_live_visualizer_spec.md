@@ -79,9 +79,12 @@ info string blending_weight=[0.123, 0.456, 0.789, 0.012, 0.034, 0.045, 0.067, 0.
 | エキスパート番号 | `Expert 0` のような識別子 | 静的 |
 | ラベル名 | `相振り飛車・終盤` などの日本語ラベル | 静的 |
 | 手数帯の説明 | `主な局面: 100〜150手台` | 静的 |
-| 代表局面画像 | 代表的な盤面 SVG 1枚 | 静的 |
+| 特徴タグ | `相振り飛車` `終盤` などのバッジ | 静的 |
 | 混合比率（数値） | `45%` のような大きめ文字 | **動的** |
 | 混合比率（背景色） | 0% → `#ffffff`、100% → `#ff7777` | **動的** |
+| 混合比率（下部バー） | 幅が比率に応じて変化するプログレスバー | **動的** |
+
+注: 代表局面画像はレイアウト上の制約から省略。
 
 ### 色の仕様
 
@@ -116,16 +119,13 @@ B = round(255 - 136 × ratio)
 
 ### エンドポイント
 
-- `GET /` → `index.html` を返す
+- `GET /` または `GET /index.html` → `tools/expert_live_visualizer/index.html` を返す
 - `GET /api/weights` → 最新の混合比率 JSON を返す
   ```json
-  {
-    "weights": [0.05, 0.08, 0.12, 0.25, 0.03, 0.22, 0.10, 0.15],
-    "timestamp": 1714000000.0,
-    "ply": null
-  }
+  { "weights": [0.05, 0.08, 0.12, 0.25, 0.03, 0.22, 0.10, 0.15], "timestamp": 1714000000.0 }
   ```
-- `GET /static/<path>` → SVG 画像などの静的ファイル配信
+  ログなし・該当行なしの場合: `{ "weights": null, "timestamp": ... }`
+- `GET /<path>` → プロジェクトルートを起点とした静的ファイル配信（ディレクトリトラバーサル防止あり）
 
 ### ログ読み取り
 
@@ -143,22 +143,25 @@ B = round(255 - 136 × ratio)
 
 ```
 tools/expert_live_visualizer/
-  index.html      # ブラウザ表示ページ（静的 + JS ポーリング）
-  server.py       # Python HTTPサーバー
-  README.md       # 起動方法
+  index.html   # ブラウザ表示ページ（JS ポーリング、デモモード内蔵）
+  server.py    # Python HTTP サーバー（標準ライブラリのみ）
+  README.md    # 起動方法
 ```
 
 ---
 
-## 起動方法（予定）
+## 起動方法
 
 ```bash
-# YaneuraOuの出力をteeでファイルに保存しながら対局
+# 1. YaneuraOuの出力をteeでファイルに保存しながら対局
 ./YaneuraOu ... 2>&1 | tee /tmp/yaneuraou.log
 
-# 別ターミナルでビジュアライザーを起動
-cd tools/expert_live_visualizer
-python server.py --log /tmp/yaneuraou.log --port 8765
+# 2. プロジェクトルートからサーバーを起動
+python3 tools/expert_live_visualizer/server.py \
+    --log /tmp/yaneuraou.log --port 8765
 
-# ブラウザで http://localhost:8765 を開く（右 1/3 に配置）
+# 3. ブラウザで開く（右 1/3 に配置）
+#    http://localhost:8765/
 ```
+
+`--log` を省略するとデモモードで起動する（局面シナリオを自動切替しながらアニメーション表示）。
