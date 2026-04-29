@@ -5,7 +5,8 @@ test_input_*/
 shuffle-model.md
 
 # Build artifacts and runtime
-bin/
+/bin/*
+!/bin/YaneuraOu-expert-blending.bat
 
 # NNUE model files
 *.bin

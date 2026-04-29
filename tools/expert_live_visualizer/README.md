@@ -22,6 +22,15 @@ info string blending_weight=[0.123, 0.456, ...]
 ./YaneuraOu | tee /tmp/yaneuraou.log
 ```
 
+Windows では、将棋 GUI のエンジン実行ファイルとして以下を登録する。
+
+```
+bin\YaneuraOu-expert-blending.bat
+```
+
+このバッチファイルは `YaneuraOu-expert-blending.exe` の stdout を GUI に返しながら、デフォルトで `%TEMP%\yaneuraou-expert-blending.log` に追記する。
+別のログパスを使う場合は、起動前に環境変数 `YANEURAOU_EXPERT_BLENDING_LOG` を設定する。
+
 ### 2. サーバーを起動する
 
 **プロジェクトルート**（`train-nnue/`）から実行する。
@@ -33,6 +42,34 @@ python3 tools/expert_live_visualizer/server.py \
 ```
 
 `--log` を省略するとデモモード（シナリオアニメーション）で起動する。
+
+Windows コマンドプロンプトの場合:
+
+```bat
+python tools\expert_live_visualizer\server.py --log "%TEMP%\yaneuraou-expert-blending.log" --port 8765
+```
+
+Windows PowerShell の場合:
+
+```powershell
+python .\tools\expert_live_visualizer\server.py --log "$env:TEMP\yaneuraou-expert-blending.log" --port 8765
+```
+
+ログパスを変更する場合は、バッチファイル側とサーバー側で同じ値を指定する。
+
+コマンドプロンプト:
+
+```bat
+set "YANEURAOU_EXPERT_BLENDING_LOG=C:\path\to\yaneuraou-expert-blending.log"
+python tools\expert_live_visualizer\server.py --log "%YANEURAOU_EXPERT_BLENDING_LOG%" --port 8765
+```
+
+PowerShell:
+
+```powershell
+$env:YANEURAOU_EXPERT_BLENDING_LOG = "C:\path\to\yaneuraou-expert-blending.log"
+python .\tools\expert_live_visualizer\server.py --log $env:YANEURAOU_EXPERT_BLENDING_LOG --port 8765
+```
 
 ### 3. ブラウザで開く
 
