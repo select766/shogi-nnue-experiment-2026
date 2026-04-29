@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>局面適応型AI 専門家切替モニター</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Hiragino Sans', 'Meiryo', 'Yu Gothic', sans-serif;
+      background: #f0f0f0;
+      color: #222;
+      width: 630px;
+      min-height: 100vh;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      background: linear-gradient(135deg, #1a3a6b 0%, #2d5a9e 100%);
+      color: #fff;
+      padding: 10px 18px 8px;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .header p {
+      font-size: 15px;
+      line-height: 1.55;
+      color: #c8d8f0;
+    }
+    .header .status-row {
+      display: flex;
+      align-items: center;
+      margin-top: 6px;
+      gap: 8px;
+    }
+    .status-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #4fc;
+      flex-shrink: 0;
+      animation: blink 1.4s ease-in-out infinite;
+    }
+    .status-dot.offline { background: #888; animation: none; }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+    .status-text {
+      font-size: 14px;
+      color: #9bbde0;
+    }
+
+    /* ---- Expert list ---- */
+    .expert-list {
+      padding: 4px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    /* ---- Expert box ---- */
+    .expert-box {
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #ddd;
+      transition: background-color 0.6s ease;
+      background: #fff;
+    }
+    .expert-box-inner {
+      display: flex;
+      align-items: stretch;
+    }
+
+    /* Center: info */
+    .info-col {
+      flex: 1;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      min-width: 0;
+    }
+    .expert-header-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      overflow: hidden;
+    }
+    .expert-id {
+      font-size: 14px;
+      color: #444;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .expert-label {
+      font-size: 18px;
+      font-weight: bold;
+      color: #1a1a2e;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .expert-meta-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .expert-ply {
+      font-size: 14px;
+      color: #444;
+      white-space: nowrap;
+    }
+    .expert-feature-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .feature-tag {
+      font-size: 12px;
+      background: #dce6f5;
+      color: #2d5a9e;
+      border-radius: 3px;
+      padding: 2px 6px;
+      white-space: nowrap;
+    }
+
+    /* Right: ratio */
+    .ratio-col {
+      flex: 0 0 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 6px;
+      gap: 4px;
+    }
+    .ratio-number {
+      font-size: 36px;
+      font-weight: bold;
+      color: #1a1a2e;
+      line-height: 1;
+      text-align: center;
+    }
+    .ratio-label {
+      font-size: 13px;
+      color: #444;
+      text-align: center;
+    }
+
+    /* Progress bar at bottom of box */
+    .ratio-bar-container {
+      height: 6px;
+      background: rgba(0,0,0,0.08);
+    }
+    .ratio-bar {
+      height: 6px;
+      background: linear-gradient(to right, #f0a060, #e05050);
+      transition: width 0.6s ease;
+    }
+
+    /* Demo mode label */
+    .demo-badge {
+      display: inline-block;
+      font-size: 12px;
+      background: #e8a000;
+      color: #fff;
+      border-radius: 3px;
+      padding: 2px 6px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ============ Header ============ -->
+<div class="header">
+  <h1>局面適応型AI 専門家切替モニター</h1>
+  <p>
+    このAIは将棋の局面の特徴（序盤・終盤・戦型など）を自動で読み取り、8人の"専門家（エキスパート）"の判断を組み合わせて最善手を探しています。各バーの大きさが現在の専門家の貢献度です。
+  </p>
+  <div class="status-row">
+    <div class="status-dot" id="statusDot"></div>
+    <span class="status-text" id="statusText">デモ表示中<span class="demo-badge">DEMO</span></span>
+  </div>
+</div>
+
+<!-- ============ Expert list ============ -->
+<div class="expert-list" id="expertList">
+  <!-- JS で生成 -->
+</div>
+
+
+<script>
+// ---- 静的エキスパート定義 ----
+const EXPERTS = [
+  {
+    id: 0,
+    label: "相振り飛車・終盤",
+    plyDesc: "主な局面: 100〜160手台",
+    tags: ["相振り飛車", "終盤"],
+    img: "../../results/visualize_experts_8experts_lambda05_180/expert_0_top_5.svg"
+  },
+  {
+    id: 1,
+    label: "汎用（序盤〜中盤）",
+    plyDesc: "主な局面: 50〜100手台",
+    tags: ["居飛車", "中盤"],
+    img: "../../results/visualize_experts_8experts_lambda05_180/expert_1_top_5.svg"
+  },
+  {
+    id: 2,
+    label: "穴熊戦",
+    plyDesc: "主な局面: 70〜150手台",
+    tags: ["穴熊", "囲い重視"],
+    img: "../../results/visualize_experts_8experts_lambda05_180/expert_2_top_5.svg"
+  },
+  {
+    id: 3,
+    label: "入玉・長手数終盤",
+    plyDesc: "主な局面: 80〜200手台",
+    tags: ["入玉", "終盤"],
+    img: "../../results/visualize_experts_8experts_lambda05_180/expert_3_top_5.svg"
+  },
+  {
+    id: 4,
+    label: "序盤専門",
+    plyDesc: "主な局面: 10〜60手台",
+    tags: ["序盤", "定跡域"],
+    img: "../../results/visualize_experts_8experts_lambda05_180/expert_4_top_5.svg"
+  },
+  {
+    id: 5,
+    label: "入玉・激戦終盤",
+    plyDesc: "主な局面: 80〜180手台",
+    tags: ["入玉", "激戦終盤"],
+    img: "../../results/visualize_experts_8experts_lambda05_180/expert_5_top_5.svg"
+  },
+  {
+    id: 6,
+    label: "相振り飛車・終盤 B",
+    plyDesc: "主な局面: 80〜150手台",
+    tags: ["相振り飛車", "終盤"],
+    img: "../../results/visualize_experts_8experts_lambda05_180/expert_6_top_5.svg"
+  },
+  {
+    id: 7,
+    label: "入玉×相振り飛車",
+    plyDesc: "主な局面: 90〜200手台",
+    tags: ["入玉", "相振り飛車"],
+    img: "../../results/visualize_experts_8experts_lambda05_180/expert_7_top_5.svg"
+  }
+];
+
+// ---- デモ用の局面シナリオ ----
+// 複数のシナリオを巡回してアニメーションを演出
+const DEMO_SCENARIOS = [
+  // 序盤
+  { label: "序盤（20手目ごろ）",   weights: [0.02, 0.07, 0.03, 0.01, 0.75, 0.03, 0.04, 0.05] },
+  // 居飛車中盤
+  { label: "居飛車中盤（55手目ごろ）", weights: [0.04, 0.55, 0.10, 0.05, 0.12, 0.06, 0.05, 0.03] },
+  // 穴熊終盤
+  { label: "穴熊終盤（100手目ごろ）",  weights: [0.06, 0.08, 0.52, 0.08, 0.03, 0.10, 0.08, 0.05] },
+  // 入玉含み終盤
+  { label: "入玉含み終盤（130手目ごろ）", weights: [0.05, 0.05, 0.08, 0.28, 0.02, 0.25, 0.10, 0.17] },
+  // 相振り飛車終盤
+  { label: "相振り飛車終盤（120手目ごろ）", weights: [0.22, 0.06, 0.07, 0.08, 0.02, 0.08, 0.28, 0.19] },
+];
+
+let currentScenario = 0;
+let weights = [...DEMO_SCENARIOS[0].weights];
+
+// ---- 色計算 ----
+function ratioToColor(ratio) {
+  const r = 255;
+  const g = Math.round(255 - 136 * ratio);
+  const b = Math.round(255 - 136 * ratio);
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+// ---- DOM 生成 ----
+function buildExpertBoxes() {
+  const list = document.getElementById('expertList');
+  list.innerHTML = '';
+  EXPERTS.forEach((exp, i) => {
+    const box = document.createElement('div');
+    box.className = 'expert-box';
+    box.id = `expert-box-${i}`;
+
+    const tagsHtml = exp.tags.map(t => `<span class="feature-tag">${t}</span>`).join('');
+    box.innerHTML = `
+      <div class="expert-box-inner">
+        <div class="info-col">
+          <div class="expert-header-row">
+            <span class="expert-id">Expert ${exp.id}</span>
+            <span class="expert-label">${exp.label}</span>
+          </div>
+          <div class="expert-meta-row">
+            <span class="expert-ply">${exp.plyDesc}</span>
+            <div class="expert-feature-tags">${tagsHtml}</div>
+          </div>
+        </div>
+        <div class="ratio-col">
+          <div class="ratio-number" id="ratio-num-${i}">0%</div>
+          <div class="ratio-label">貢献度</div>
+        </div>
+      </div>
+      <div class="ratio-bar-container">
+        <div class="ratio-bar" id="ratio-bar-${i}" style="width:0%"></div>
+      </div>
+    `;
+    list.appendChild(box);
+  });
+}
+
+// ---- 表示更新 ----
+function updateDisplay(w) {
+  w.forEach((ratio, i) => {
+    const pct = Math.round(ratio * 100);
+    const box = document.getElementById(`expert-box-${i}`);
+    const num = document.getElementById(`ratio-num-${i}`);
+    const bar = document.getElementById(`ratio-bar-${i}`);
+    if (!box) return;
+    box.style.backgroundColor = ratioToColor(ratio);
+    num.textContent = pct + '%';
+    bar.style.width = pct + '%';
+  });
+}
+
+// ---- デモ: シナリオ切替 ----
+function advanceDemo() {
+  currentScenario = (currentScenario + 1) % DEMO_SCENARIOS.length;
+  const s = DEMO_SCENARIOS[currentScenario];
+  weights = s.weights;
+  document.getElementById('statusText').innerHTML =
+    `デモ: ${s.label}<span class="demo-badge">DEMO</span>`;
+  updateDisplay(weights);
+}
+
+// ---- 本番: サーバーポーリング ----
+async function pollServer() {
+  try {
+    const res = await fetch('/api/weights', { signal: AbortSignal.timeout(2000) });
+    if (!res.ok) throw new Error('not ok');
+    const data = await res.json();
+    if (data.weights) {
+      weights = data.weights;
+      updateDisplay(weights);
+      document.getElementById('statusDot').className = 'status-dot';
+      document.getElementById('statusText').textContent = 'ライブ表示中';
+      return true;
+    }
+  } catch (e) {
+    // サーバーがなければデモモード継続
+  }
+  return false;
+}
+
+// ---- 初期化・ループ ----
+buildExpertBoxes();
+updateDisplay(DEMO_SCENARIOS[0].weights);
+
+let demoMode = true;
+let demoTimer = null;
+
+function startDemoLoop() {
+  demoTimer = setInterval(advanceDemo, 3000);
+}
+
+function stopDemoLoop() {
+  if (demoTimer) { clearInterval(demoTimer); demoTimer = null; }
+}
+
+async function tick() {
+  const live = await pollServer();
+  if (live && demoMode) {
+    demoMode = false;
+    stopDemoLoop();
+  } else if (!live && !demoMode) {
+    demoMode = true;
+    document.getElementById('statusDot').className = 'status-dot offline';
+    document.getElementById('statusText').innerHTML =
+      `サーバー未接続<span class="demo-badge">DEMO</span>`;
+    startDemoLoop();
+  }
+}
+
+startDemoLoop();
+setInterval(tick, 1000);
+tick(); // 初回即時
+</script>
+</body>
+</html>
