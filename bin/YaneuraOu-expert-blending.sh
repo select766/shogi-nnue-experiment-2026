@@ -38,5 +38,8 @@ fi
 # 既存の LD_LIBRARY_PATH を尊重しつつ先頭に追加。
 export LD_LIBRARY_PATH="${ONNX_LIB_DIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
-# GUI 側から渡された USI 引数 (通常はなし) をそのまま転送して exec。
-exec "$ENGINE" "$@"
+# stdout を /tmp のログファイルに tee しながら GUI へ流す。
+# -a (append) にすることで対局をまたいでもログが蓄積される。
+# 可視化サーバーはこのファイルを末尾スキャンして blending_weight を取得する。
+LOG_FILE="/tmp/yaneuraou-expert-blending.log"
+exec "$ENGINE" "$@" > >(tee -a "$LOG_FILE")
