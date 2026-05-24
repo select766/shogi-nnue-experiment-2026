@@ -1,0 +1,126 @@
+direction: down
+
+# ---- 学習データグループ ----
+training_data: "学習データ (ペア形式)" {
+  style.font-size: 22
+  style.fill: "#E3F2FD"
+  style.stroke: "#1565C0"
+  style.stroke-width: 2
+  grid-columns: 2
+  root_A: "ルート局面 A" {
+    style.fill: "#BBDEFB"
+    style.stroke: "#1976D2"
+    style.stroke-width: 2
+  }
+  random_B: "ランダム局面 B\n(Aから最大50手後)" {
+    style.fill: "#BBDEFB"
+    style.stroke: "#1976D2"
+    style.stroke-width: 2
+  }
+}
+
+# ---- DNNチェーン (コンテナでまとめる) ----
+dnn_chain: "" {
+  style.stroke: transparent
+  style.fill: transparent
+
+  dnn_bb: "DNN Backbone\n(重み固定)\n[局面 A のみ入力]" {
+    style.fill: "#E8EAF6"
+    style.stroke: "#3949AB"
+    style.stroke-width: 2
+  }
+  dnn_ad: "DNN Adapter\n(学習対象)" {
+    style.fill: "#E8F5E9"
+    style.stroke: "#388E3C"
+    style.stroke-width: 2
+  }
+  mix_w: "混合重み\nw0...w7 (和=1)" {
+    style.fill: "#F3E5F5"
+    style.stroke: "#7B1FA2"
+    style.stroke-width: 2
+  }
+
+  dnn_bb -> dnn_ad: "特徴マップ"
+  dnn_ad -> mix_w: "8次元"
+}
+
+# ---- NNUEエキスパートグループ ----
+experts: "NNUE Experts x 8\n(すべて学習対象)" {
+  style.font-size: 20
+  style.fill: "#FFF3E0"
+  style.stroke: "#E65100"
+  style.stroke-width: 2
+  grid-columns: 2
+  e0: "Expert 0\n相振り飛車/終盤" { style.fill: "#FFE0B2"; style.stroke: "#EF6C00" }
+  e1: "Expert 1\n汎用エキスパート" { style.fill: "#FFE0B2"; style.stroke: "#EF6C00" }
+  e2: "Expert 2\n穴熊的" { style.fill: "#FFE0B2"; style.stroke: "#EF6C00" }
+  e3: "Expert 3\n入玉あり/終盤" { style.fill: "#FFE0B2"; style.stroke: "#EF6C00" }
+  e4: "Expert 4\n序盤専用 (49%)" { style.fill: "#FFE0B2"; style.stroke: "#EF6C00" }
+  e5: "Expert 5\n入玉あり/終盤" { style.fill: "#FFE0B2"; style.stroke: "#EF6C00" }
+  e6: "Expert 6\n相振り飛車/終盤" { style.fill: "#FFE0B2"; style.stroke: "#EF6C00" }
+  e7: "Expert 7\n入玉/相振り飛車" { style.fill: "#FFE0B2"; style.stroke: "#EF6C00" }
+}
+
+# ---- パラメータ空間加重平均 ----
+param_avg: "パラメータ空間 加重平均\nsum(wi × NNUE重みi)" {
+  style.fill: "#F3E5F5"
+  style.stroke: "#6A1B9A"
+  style.stroke-width: 2
+}
+
+# ---- 合成NNUE評価関数 ----
+synth: "合成NNUE評価関数\n(局面Aのルート専用)" {
+  style.fill: "#E0F2F1"
+  style.stroke: "#00695C"
+  style.stroke-width: 2
+}
+
+# ---- 教師値 ----
+teacher: "教師値 (局面 B)\n探索評価値 / 対局結果" {
+  style.fill: "#FCE4EC"
+  style.stroke: "#C62828"
+  style.stroke-width: 2
+}
+
+# ---- NNUE推論 ----
+nnue_infer: "NNUE推論\n局面 B を評価\n(HalfKP特徴量)" {
+  style.fill: "#E0F2F1"
+  style.stroke: "#00695C"
+  style.stroke-width: 2
+}
+
+# ---- 損失計算 ----
+loss: "損失計算\n予測値 vs 教師値\n誤差逆伝播" {
+  style.fill: "#FCE4EC"
+  style.stroke: "#C62828"
+  style.stroke-width: 2
+}
+
+# ---- 脚注 ----
+footnote: "※ DNN Backbone には誤差を逆伝播しない (重み固定)" {
+  style.font-size: 13
+  style.fill: "#F5F5F5"
+  style.stroke: "#BDBDBD"
+}
+
+# ---- 順序制御 (透明ダミーエッジ) ----
+# training_data → dnn_chain と experts を同層に
+training_data -> dnn_chain: "" { style.opacity: 0; style.stroke-width: 0 }
+training_data -> experts: "" { style.opacity: 0; style.stroke-width: 0 }
+# teacher を synth の次の層に押し込む
+synth -> teacher: "" { style.opacity: 0; style.stroke-width: 0 }
+# footnote を loss の後に
+loss -> footnote: "" { style.opacity: 0; style.stroke-width: 0 }
+
+# ---- 順伝播エッジ ----
+# training_data.root_A は training_data コンテナ経由で dnn_chain へ (ラベル付き)
+training_data -> dnn_chain.dnn_bb: "局面テンソル"
+dnn_chain.mix_w -> param_avg: "混合重み"
+experts -> param_avg: "NNUE重み"
+param_avg -> synth
+synth -> nnue_infer: "重みを渡す"
+teacher -> loss: "教師値"
+nnue_infer -> loss
+
+# NOTE: training_data.random_B -> nnue_infer は postprocess.py で追加
+# NOTE: 逆伝播エッジ (loss -> dnn_ad, loss -> experts) は postprocess.py で追加

@@ -1,0 +1,97 @@
+direction: down
+
+上部: {
+  label: ""
+  direction: right
+  style.fill: transparent
+  style.stroke: transparent
+
+  DNN列: {
+    label: ""
+    direction: down
+    style.fill: transparent
+    style.stroke: transparent
+
+    入力局面: {
+      label: "入力局面\n(ルート局面)"
+      style.fill: "#FFFFFF"
+    }
+    dnn_backbone: {
+      label: "DNN Backbone\n10ブロック ResNet\n重み: 固定"
+      style.fill: "#E8EEF8"
+      style.stroke: "#4466AA"
+    }
+    dnn_adapter: {
+      label: "DNN Adapter\nGAP -> 全結合2層\n学習対象"
+      style.fill: "#C8DCFA"
+      style.stroke: "#2255BB"
+    }
+    混合重み: {
+      label: "混合重み (8次元)\nsoftmax, 和=1\n学習対象"
+      style.fill: "#C8DCFA"
+      style.stroke: "#2255BB"
+    }
+    入力局面 -> dnn_backbone: "局面テンソル"
+    dnn_backbone -> dnn_adapter: "特徴マップ"
+    dnn_adapter -> 混合重み: "8次元ベクトル"
+  }
+
+  experts: {
+    label: "NNUE Experts x 8\n(各エキスパートは独立した\n重みセット、すべて学習対象)"
+    style.fill: "#EEF2FF"
+    style.stroke: "#5566BB"
+    grid-columns: 3
+    expert1: {
+      label: "Expert 1"
+      style.fill: "#EEF2FF"
+    }
+    ellipsis: {
+      label: "…"
+      style.fill: transparent
+      style.stroke: transparent
+    }
+    expertN: {
+      label: "Expert N"
+      style.fill: "#EEF2FF"
+    }
+  }
+}
+
+下部: {
+  label: ""
+  grid-columns: 4
+  horizontal-gap: 10
+  vertical-gap: 10
+  style.fill: transparent
+  style.stroke: transparent
+
+  加重平均: {
+    label: "パラメータ空間 加重平均\nsum(wi × NNUE重みi)"
+    style.fill: "#C8DCFA"
+    style.stroke: "#2255BB"
+  }
+  合成NNUE: {
+    label: "合成NNUE評価関数\n(この手番専用)"
+    style.fill: "#C8DCFA"
+    style.stroke: "#2255BB"
+  }
+  やねうら王: {
+    label: "やねうら王\nαβ探索 / NNUEは固定で使用\n学習対象外"
+    style.fill: "#F0F0F0"
+    style.stroke: "#888888"
+  }
+  最善手: {
+    label: "最善手 / 評価値"
+    style.fill: "#FFFFFF"
+  }
+}
+
+上部 -> 下部: "" {
+  style.opacity: 0
+  style.stroke-width: 0
+}
+上部.DNN列.混合重み -> 下部.加重平均: "混合重み"
+上部.experts -> 下部.加重平均: "NNUE重みセット"
+下部.加重平均 -> 下部.合成NNUE
+下部.合成NNUE -> 下部.やねうら王
+下部.やねうら王 -> 下部.最善手
