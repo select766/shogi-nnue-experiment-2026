@@ -3,8 +3,7 @@
 Generates a markdown report with concrete checks and results.
 
 Usage:
-  source nnue-pytorch/.venv/bin/activate
-  PYTHONPATH=src python -m train_nnue.validate_val_loss_hypotheses \
+  scripts/nnue_python.sh -m train_nnue.validate_val_loss_hypotheses \
     --logdir logs/expert_blending_8experts_v4_paired_noise0 \
     --train-bin dataset/split_v1_paired/train.bin \
     --val-bin dataset/split_v1_paired/val1.bin \

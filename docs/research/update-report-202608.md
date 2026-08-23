@@ -6,9 +6,18 @@
   採用候補は63.32%で、差は+0.45ポイントだった。対応ありの正確McNemar検定は
   `p=0.314924`であり、正方向だが優位性は確認できない。詳細は
   `docs/research/results/accuracy-eval-10k-current/README.md`に記録した。
+- checkpoint 510からのモデル変更では、1.5-entmaxがvalidation lossを維持しつつ実効expert数を
+  6.13から3.92へ下げた。しかし固定10,000局面の一致率は63.04%で、HalfKPとの差+0.17ポイント
+  (`p=0.714084`)、dense checkpoint 180との差-0.28ポイント (`p=0.527044`)だった。疎化は達成したが
+  指し手改善へは転換されていない。詳細は
+  `docs/research/results/gate-model-change-20260823/README.md`に記録した。
 - 現在の採用候補 (`uniform50 + lambda=0.5`, checkpoint 180) は、100万ノード・同一1,000局面でベースライン NNUE の 64.4% に対して 63.3% だった。ただし対応ありの正確 McNemar 検定は `p=0.439` で、有意な劣化とはいえない。
 - 一方、gate が密すぎるという仮説には根拠がある。checkpoint 180 の validation gate entropy は 1.814 (`log(8)=2.079` の87.2%) で、実効 expert 数 `exp(H)` は約6.1だった。代表局面の最大重みも平均0.281に留まる。
-- 次に優先すべきなのは expert 数の追加ではなく、8 expertsを固定したまま「局面ごとの低entropy」と「データ全体の利用均衡」を別々に制御する実験である。
+- entropy・balance・entmaxによる疎化は完了し、疎化自体は達成したが指し手一致率を改善しなかった。
+- router蒸留も実施したが、単一expert oracle、taskとの混合、blended-loss最適化gate教師の全条件で
+  task-only対照を改善しなかった。最適化教師自身には大きな改善余地があるため、次はDNN側paired
+  局面だけを入力とするrouterの情報制約を見直す。詳細は
+  `docs/research/results/router-distillation-20260823/README.md`に記録した。
 - 最善手一致率は1万局面へ拡大し、対応あり比較を行う。現観測値から1.1ポイント差を検出する概算必要数は約10,833局面なので、まず10,000、確証が必要なら12,000以上を使う。
 
 ## 現状認識の根拠
@@ -132,6 +141,16 @@ checkpoint 180 の10,000 validation positionsに対する `argmax` 担当割合�
 
 ### 2. gate診断を追加する
 
+実装状況 (2026-08-23): `scripts/diagnose_gate.sh`を追加し、以下の全指標を
+validation先頭10,000局面から`results/gate_diagnostics_8experts_lambda05_180.json`へ保存した。
+checkpoint 180ではentropy平均1.807、実効expert数平均6.19、最大重み平均0.305で、
+gateが密という従来判断を再確認した。expert単独評価値のexpert間相関は平均0.966、
+gate top-1のoracle一致率は7.67%だった。周辺分布から期待される偶然一致率9.74%に対する
+liftも0.79であり、top-1 routerは単独expert oracleと整合していない。blended平均loss 0.2503に対する単独expert oracleの
+平均lossは0.1612で、routingを改善できる余地はある。ただしexpert間相関は高く、routerと
+expert多様性の両方が制約候補である。指標定義は`docs/operations/expert-analysis.md`を参照する。
+詳細結果は`docs/research/results/gate-diagnostics-lambda05-180/README.md`に保存した。
+
 各validation epochまたは独立10,000局面で次を保存する。
 
 - 局面別: entropy `H(p)`, `max(p)`, top-2 mass, effective experts `exp(H)`。
@@ -142,6 +161,14 @@ checkpoint 180 の10,000 validation positionsに対する `argmax` 担当割合�
 これにより「gateが曖昧」「experts自体が似ている」「gateが誤ったexpertを選ぶ」を区別できる。
 
 ### 3. 最初のモデル変更
+
+実装・実験状況 (2026-08-23): 温度4条件、entropy＋balance 8条件、1.5-entmax＋balance
+3条件をcheckpoint 510初期値で比較した。温度とentropy正則化には選抜基準を通る条件がなく、
+entmax・balanceなしを6 epoch fine-tuneした候補だけが、独立10,000 validation positionsで
+loss 0.0337878、実効expert 3.92、死expertなしとなった。この候補の固定10,000局面一致率は
+63.04%で、HalfKP比+0.17ポイント (`p=0.714084`)、dense checkpoint 180比-0.28ポイント
+(`p=0.527044`)だった。validation上の疎化は実探索の改善へ転換されなかったため、hard top-kへは
+進まなかった。その後のrouter蒸留も改善しなかったため、次はrouter入力の情報量を見直す。
 
 8 experts、DNN backbone、uniform-50、checkpoint 510初期値を固定し、次の順で比較する。
 
@@ -158,8 +185,14 @@ checkpoint 180 の10,000 validation positionsに対する `argmax` 担当割合�
 
 ### 4. 判断基準
 
+実装・実験状況 (2026-08-23): router蒸留は3段階で検証した。単一expert hard/soft教師では
+oracle top-1一致が20.43%から最大28.96%へ上がった一方、validation lossは0.0338493から
+0.0386505へ悪化した。勾配scaleを合わせたtaskとの混合も改善せず、実際のblend lossを局面ごとに
+最適化したgate教師でも最良0.0338608だった。候補なしとして独立validation窓と固定testには進めない。
+
 - **継続**: validation lossを悪化させず、gateが明確に疎になり、10,000局面の対応あり差が正方向。
-- **設計変更**: oracle expertには改善余地があるのにgate top-1一致率が低い場合。router教師あり蒸留やranking lossを検討する。
+- **設計変更**: oracle teacherには改善余地があるのに蒸留後のtask lossが改善しない場合。routerへ
+  NNUE側の実局面特徴を直接与えるなど、入力情報を見直す。
 - **expert側を変更**: expert単独出力の相関が極端に高くoracle改善も小さい場合。出力空間の多様性を直接促す方法を検討する。
 - **中止**: validation loss改善が自己対局へ一貫して転換せず、信頼区間上も実用差がない場合。
 

@@ -1,6 +1,9 @@
 # 実験結果
 
 - [固定10,000局面の最善手一致率](accuracy-eval-10k-current/README.md)
+- [Checkpoint 180のgate・oracle診断](gate-diagnostics-lambda05-180/README.md)
+- [Gateモデル変更実験: entropy・balance・1.5-entmax](gate-model-change-20260823/README.md)
+- [Router蒸留実験](router-distillation-20260823/README.md)
 - [DNN gateの手数別loss](check-loss-per-gameply-dnn-backbone-v4/README.md)
 - [NNUE gateの手数別loss](check-loss-per-gameply-nnue-backbone/README.md)
 - [旧pairedデータの手数別loss](check-loss-per-gameply/README.md)

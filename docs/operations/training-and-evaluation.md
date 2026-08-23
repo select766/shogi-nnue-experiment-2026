@@ -111,6 +111,76 @@ scripts/gpu_python.sh -u -m train_nnue.check_loss_per_gameply \
 `check_loss_per_expert`など他のGPU評価も同様に`scripts/gpu_python.sh`を使い、必ず
 `/tmp`へリダイレクトする。
 
+## Gate診断
+
+局面別の疎性、全体利用均衡、expert単独評価値の相関・分散、oracle routing改善上限を
+validation 10,000局面でまとめて保存する。
+
+```bash
+bash scripts/diagnose_gate.sh \
+  logs/expert_blending_8experts_v4_paired_uniform50_noise0_lambda05/checkpoints/180.ckpt \
+  results/gate_diagnostics_8experts_lambda05_180.json
+```
+
+詳細な指標定義とJSON仕様は[Expert分析](expert-analysis.md)を参照する。
+
+## Gate正則化の短期比較
+
+checkpoint 510を同一初期値として、`lambda_sparse={0,1e-4,1e-3,1e-2}`と
+`lambda_balance={1e-3,1e-2}`の8条件を各3 epoch学習する。
+
+```bash
+bash scripts/run_gate_regularization_sweep.sh
+```
+
+各runのTensorBoard値は次のコマンドでJSONへ集約できる。短期比較を通過した候補だけ追加学習し、
+独立10,000局面のgate診断と最善手一致率へ進める。
+
+```bash
+scripts/nnue_python.sh -m train_nnue.summarize_gate_regularization \
+  --pattern 'gate_reg_short3_*_from510' \
+  --output results/gate_regularization_short3_from510.json
+```
+
+softmaxで基準を通らなかった場合の1.5-entmax短期比較:
+
+```bash
+bash scripts/run_entmax15_sweep.sh
+
+scripts/nnue_python.sh -m train_nnue.summarize_gate_regularization \
+  --pattern 'gate_entmax15_short3_*_from510' \
+  --output results/gate_entmax15_short3_from510.json
+```
+
+`--gate-transform entmax15`はcheckpointのhyperparametersへ保存され、gate診断、可視化、
+weight分析、やねうら王用ONNX exportで自動復元される。旧checkpointは`softmax`として扱う。
+
+## Router蒸留
+
+checkpoint 510のexpertsを固定し、pairedデータと同じ順序のteacher cacheを作ってadapterだけを
+短期学習する。cache生成と学習はGPU必須で、各スクリプトが`gpu_python.sh`と`/tmp`ログを使う。
+
+```bash
+# expert単独loss（hard/soft teacher用）
+bash scripts/generate_router_teacher_caches.sh
+
+# 単一expert oracleの純粋蒸留とtask-only対照
+bash scripts/run_router_distillation_sweep.sh
+
+# task lossと勾配scaleを合わせたsoft teacher補助損失
+bash scripts/run_router_distillation_combined_sweep.sh
+
+# 実際のblend lossを局面ごとに最適化したgate teacher
+bash scripts/generate_optimized_gate_teacher_caches.sh
+bash scripts/run_optimized_gate_distillation_sweep.sh
+```
+
+`*.npy` cacheは`tmp/router_teacher_cache/checkpoint510/`へ置く。単一expert版は
+`(positions, 8)`のloss、最適化gate版は`(positions, 16)`で先頭8列がexpert loss、後半8列が
+teacher gateである。`--val-start-position`はbatch sizeの倍数を指定し、cacheとpaired binaryを
+同じ位置から読む。結果と判断は
+[router蒸留実験](../research/results/router-distillation-20260823/README.md)に記録した。
+
 ## TensorBoard
 
 ```bash

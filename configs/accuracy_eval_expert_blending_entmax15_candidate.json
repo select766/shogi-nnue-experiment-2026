@@ -1,0 +1,12 @@
+{
+  "engine_path": "bin/YaneuraOu-expert-blending.sh",
+  "engine_options": {
+    "Threads": 1,
+    "EvalDir": "bin/eval",
+    "ExpertBlendingDir": "tmp/expert_blending_entmax15_candidate"
+  },
+  "go_params": {
+    "nodes": 1000000
+  },
+  "num_workers": 4
+}

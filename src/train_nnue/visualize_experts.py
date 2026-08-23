@@ -631,7 +631,10 @@ def main():
     feature_set = nnue_features.get_feature_set_from_name(args.feature_set)
     ckpt = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
     blend_mode = detect_blend_mode_from_state_dict(ckpt["state_dict"])
-    print(f"blend_mode={blend_mode}")
+    gate_transform = ckpt.get("hyper_parameters", {}).get(
+        "gate_transform", "softmax"
+    )
+    print(f"blend_mode={blend_mode} gate_transform={gate_transform}")
 
     print("Building model ...")
     model = create_expert_blending_model(
@@ -641,6 +644,7 @@ def main():
         n_experts=args.n_experts,
         adapter_hidden=args.adapter_hidden,
         blend_mode=blend_mode,
+        gate_transform=gate_transform,
         device="cpu",
     )
     lit_module = ExpertBlendingLightningModule(model=model)

@@ -16,6 +16,34 @@ from dlshogi.network.policy_value_network_resnet10_swish import (
 from dlshogi import serializers
 
 
+def entmax15(logits, dim=-1):
+    """Compute 1.5-entmax probabilities without an external dependency."""
+    logits = logits / 2.0
+    logits = logits - logits.max(dim=dim, keepdim=True).values
+    sorted_logits, _ = torch.sort(logits, dim=dim, descending=True)
+    rho_shape = [1] * logits.dim()
+    rho_shape[dim] = logits.shape[dim]
+    rho = torch.arange(
+        1, logits.shape[dim] + 1, device=logits.device, dtype=logits.dtype
+    ).view(rho_shape)
+    mean = sorted_logits.cumsum(dim) / rho
+    mean_square = sorted_logits.square().cumsum(dim) / rho
+    variance_sum = rho * (mean_square - mean.square())
+    delta = (1.0 - variance_sum) / rho
+    taus = mean - torch.sqrt(torch.clamp(delta, min=0.0))
+    support_size = (taus <= sorted_logits).sum(dim=dim, keepdim=True)
+    threshold = taus.gather(dim, support_size - 1)
+    return torch.clamp(logits - threshold, min=0.0).square()
+
+
+def transform_gate_logits(logits, transform="softmax"):
+    if transform == "softmax":
+        return F.softmax(logits, dim=-1)
+    if transform == "entmax15":
+        return entmax15(logits, dim=-1)
+    raise ValueError(f"Unsupported gate transform: {transform}")
+
+
 class DNNBackbone(nn.Module):
     """dlshogiのPolicyValueNetworkからbackbone部分(10 residual blocks)の出力を取り出すラッパー。
 
@@ -83,14 +111,22 @@ class DNNAdapter(nn.Module):
     """backboneの特徴マップからexpert混合重みを計算するゲーティングネットワーク。
 
     入力: feat (batch, 192, 9, 9)
-    処理: Global Average Pooling → FC → ReLU → FC → [noise +] softmax
+    処理: Global Average Pooling → FC → ReLU → FC → [noise +] probability transform
     出力: weights (batch, N_EXPERTS), 総和=1
     """
 
-    def __init__(self, in_channels=192, hidden_dim=128, n_experts=4, noise_scale=1.0):
+    def __init__(
+        self,
+        in_channels=192,
+        hidden_dim=128,
+        n_experts=4,
+        noise_scale=1.0,
+        gate_transform="softmax",
+    ):
         super().__init__()
         self.n_experts = n_experts
         self.noise_scale = noise_scale
+        self.gate_transform = gate_transform
         self.fc1 = nn.Linear(in_channels, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, n_experts)
 
@@ -100,7 +136,7 @@ class DNNAdapter(nn.Module):
             feat: (batch, C, H, W) backbone特徴マップ
             training: Trueの場合、logitsにGaussian noiseを加える
         Returns:
-            weights: (batch, N_EXPERTS) softmax正規化された混合重み
+            weights: (batch, N_EXPERTS) 正規化された混合重み
         """
         # Global Average Pooling: (batch, C, H, W) -> (batch, C)
         x = feat.mean(dim=[2, 3])
@@ -109,7 +145,7 @@ class DNNAdapter(nn.Module):
         if training and self.noise_scale > 0.0:
             noise = torch.randn_like(logits) * self.noise_scale
             logits = logits + noise
-        weights = F.softmax(logits, dim=-1)
+        weights = transform_gate_logits(logits, self.gate_transform)
         return weights
 
 
@@ -120,11 +156,18 @@ class NNUEBackbone(nn.Module):
     L2 = 32
     L3 = 32
 
-    def __init__(self, num_features, n_experts=4, noise_scale=1.0):
+    def __init__(
+        self,
+        num_features,
+        n_experts=4,
+        noise_scale=1.0,
+        gate_transform="softmax",
+    ):
         super().__init__()
         self.num_features = num_features
         self.n_experts = n_experts
         self.noise_scale = noise_scale
+        self.gate_transform = gate_transform
 
         self.input = nn.Linear(num_features, self.L1)
         self.l1 = nn.Linear(2 * self.L1, self.L2)
@@ -154,7 +197,7 @@ class NNUEBackbone(nn.Module):
         if training and self.noise_scale > 0.0:
             logits = logits + (torch.randn_like(logits) * self.noise_scale)
 
-        return F.softmax(logits, dim=-1)
+        return transform_gate_logits(logits, self.gate_transform)
 
 
 class NNUEExperts(nn.Module):
@@ -347,6 +390,57 @@ class NNUEExperts(nn.Module):
 
         return output
 
+    def forward_expert(self, expert_index, us, them, w_in, b_in):
+        """Evaluate one expert directly, including the base in residual mode."""
+        if not 0 <= expert_index < self.n_experts:
+            raise IndexError(f"expert_index out of range: {expert_index}")
+        if w_in.is_sparse:
+            w_in = w_in.to_dense()
+        if b_in.is_sparse:
+            b_in = b_in.to_dense()
+
+        def expert_linear(x, weight, bias, base_weight_name, base_bias_name):
+            output = F.linear(x, weight[expert_index], bias[expert_index])
+            base_weight = getattr(self, base_weight_name, None)
+            if base_weight is not None:
+                output = output + F.linear(
+                    x, base_weight, getattr(self, base_bias_name)
+                )
+            return output
+
+        w = expert_linear(
+            w_in, self.input_weight, self.input_bias,
+            "base_input_weight", "base_input_bias",
+        )
+        b = expert_linear(
+            b_in, self.input_weight, self.input_bias,
+            "base_input_weight", "base_input_bias",
+        )
+        layer = (us * torch.cat([w, b], dim=1)) + (
+            them * torch.cat([b, w], dim=1)
+        )
+        layer = torch.clamp(layer, 0.0, 1.0)
+        layer = torch.clamp(
+            expert_linear(
+                layer, self.l1_weight, self.l1_bias,
+                "base_l1_weight", "base_l1_bias",
+            ),
+            0.0,
+            1.0,
+        )
+        layer = torch.clamp(
+            expert_linear(
+                layer, self.l2_weight, self.l2_bias,
+                "base_l2_weight", "base_l2_bias",
+            ),
+            0.0,
+            1.0,
+        )
+        return expert_linear(
+            layer, self.output_weight, self.output_bias,
+            "base_output_weight", "base_output_bias",
+        )
+
 
 class ExpertBlendingModel(nn.Module):
     """DNNBackbone + DNNAdapter + NNUEExpertsを統合したモデル。
@@ -364,7 +458,7 @@ class ExpertBlendingModel(nn.Module):
         self.nnue_experts = nnue_experts
         self.backbone_type = backbone_type
 
-    def forward(self, *inputs, training=True):
+    def forward(self, *inputs, training=True, return_gate=False):
         """
         Args:
             x1: (batch, 62, 9, 9) dlshogi features1
@@ -386,6 +480,8 @@ class ExpertBlendingModel(nn.Module):
                 feat = self.backbone(x1, x2)
             gate_weights = self.adapter(feat, training=training)
         value = self.nnue_experts(gate_weights, us, them, w_in, b_in)
+        if return_gate:
+            return value, gate_weights
         return value
 
 
@@ -480,7 +576,13 @@ def load_nnue_experts(ckpt_path, n_experts, feature_set, blend_mode="weighted"):
     return experts
 
 
-def load_nnue_backbone(ckpt_path, feature_set, n_experts=4, noise_scale=1.0):
+def load_nnue_backbone(
+    ckpt_path,
+    feature_set,
+    n_experts=4,
+    noise_scale=1.0,
+    gate_transform="softmax",
+):
     """NNUEチェックポイントから NNUEBackbone を初期化する。"""
     ckpt = torch.load(ckpt_path, map_location='cpu', weights_only=False)
     state_dict = _extract_nnue_state_dict(ckpt)
@@ -489,6 +591,7 @@ def load_nnue_backbone(ckpt_path, feature_set, n_experts=4, noise_scale=1.0):
         num_features=feature_set.num_features,
         n_experts=n_experts,
         noise_scale=noise_scale,
+        gate_transform=gate_transform,
     )
 
     with torch.no_grad():
@@ -519,6 +622,7 @@ def create_expert_blending_model(
     adapter_noise_scale=1.0,
     backbone_type="dnn",
     blend_mode="weighted",
+    gate_transform="softmax",
     device='cpu',
 ):
     """全コンポーネントを組み立ててExpertBlendingModelを返すファクトリ関数。
@@ -548,6 +652,7 @@ def create_expert_blending_model(
             hidden_dim=adapter_hidden,
             n_experts=n_experts,
             noise_scale=adapter_noise_scale,
+            gate_transform=gate_transform,
         )
     elif backbone_type == "nnue":
         backbone = load_nnue_backbone(
@@ -555,6 +660,7 @@ def create_expert_blending_model(
             feature_set,
             n_experts=n_experts,
             noise_scale=adapter_noise_scale,
+            gate_transform=gate_transform,
         )
         backbone.to(device)
         adapter = None

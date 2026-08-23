@@ -23,6 +23,14 @@ activateしたりしない。
 | `eval_accuracy.sh` | 最善手一致率評価 | 必ず`/tmp`または指定ファイル |
 | `compare_accuracy.sh` | ベースラインとの対応あり統計・層別比較 | 標準出力 |
 | `eval_match.sh` | 最終候補の固定探索自己対局 | `/tmp/eval_match_*.log` |
+| `diagnose_gate.sh` | gate疎性・expert機能差・oracle routing診断 | `/tmp/diagnose_gate_*.log` |
+| `run_gate_regularization_sweep.sh` | entropy＋balance正則化の3 epoch短期比較 | `/tmp/train_nnue_gate_reg_*.log` |
+| `run_entmax15_sweep.sh` | 1.5-entmax＋balanceの3 epoch短期比較 | `/tmp/train_nnue_gate_entmax15_*.log` |
+| `generate_router_teacher_caches.sh` | expert単独lossのrouter teacher cache生成 | `/tmp/router_teacher_cache_*.log` |
+| `run_router_distillation_sweep.sh` | hard/soft router蒸留の3 epoch短期比較 | `/tmp/train_nnue_router_distill_*.log` |
+| `run_router_distillation_combined_sweep.sh` | task＋soft router蒸留の勾配調整比較 | `/tmp/train_nnue_router_distill_combined_*.log` |
+| `generate_optimized_gate_teacher_caches.sh` | blend loss最適化gate teacher生成 | `/tmp/optimized_gate_teacher_*.log` |
+| `run_optimized_gate_distillation_sweep.sh` | 最適化gate teacher蒸留の3 epoch短期比較 | `/tmp/train_nnue_router_gate_teacher_*.log` |
 | `benchmark_expert_blending_speed.sh` | 推論速度測定 | スクリプト内で指定 |
 
 引数と実行例は[学習・評価手順](../docs/operations/training-and-evaluation.md)を参照する。

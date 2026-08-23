@@ -274,8 +274,14 @@ def _load_checkpoint(checkpoint_path, n_experts):
     adapter_fc1_weight = state_dict["model.adapter.fc1.weight"]
     hidden_dim = adapter_fc1_weight.shape[0]
     in_channels = adapter_fc1_weight.shape[1]
+    gate_transform = ckpt.get("hyper_parameters", {}).get(
+        "gate_transform", "softmax"
+    )
     adapter = DNNAdapter(
-        in_channels=in_channels, hidden_dim=hidden_dim, n_experts=n_experts
+        in_channels=in_channels,
+        hidden_dim=hidden_dim,
+        n_experts=n_experts,
+        gate_transform=gate_transform,
     )
     adapter_state = {}
     prefix = "model.adapter."
@@ -285,7 +291,7 @@ def _load_checkpoint(checkpoint_path, n_experts):
     adapter.load_state_dict(adapter_state)
     adapter.eval()
 
-    return experts, adapter, blend_mode, num_features, hidden_dim
+    return experts, adapter, blend_mode, num_features, hidden_dim, gate_transform
 
 
 def export_backbone_onnx(
@@ -360,6 +366,7 @@ def write_head_json(
     features1_num: int,
     features2_num: int,
     adapter_hidden_dim: int,
+    gate_transform: str,
     backbone_weights_basename: str,
 ):
     """head.json を書き出す。"""
@@ -377,6 +384,7 @@ def write_head_json(
         "input_features1_channels": features1_num,
         "input_features2_channels": features2_num,
         "adapter_hidden_dim": adapter_hidden_dim,
+        "gate_transform": gate_transform,
         "backbone_onnx": "backbone.onnx",
         "head_bin": "head.bin",
         "source_backbone_weights": backbone_weights_basename,
@@ -429,15 +437,23 @@ def main():
 
     # checkpoint
     print(f"loading checkpoint: {args.checkpoint}")
-    experts, adapter, blend_mode, num_features_ckpt, hidden_dim = _load_checkpoint(
-        args.checkpoint, args.n_experts
-    )
+    (
+        experts,
+        adapter,
+        blend_mode,
+        num_features_ckpt,
+        hidden_dim,
+        gate_transform,
+    ) = _load_checkpoint(args.checkpoint, args.n_experts)
     if num_features_ckpt != num_features_real:
         raise ValueError(
             f"checkpoint num_features={num_features_ckpt} != "
             f"feature_set.num_real_features={num_features_real}"
         )
-    print(f"  blend_mode={blend_mode} hidden_dim={hidden_dim}")
+    print(
+        f"  blend_mode={blend_mode} hidden_dim={hidden_dim} "
+        f"gate_transform={gate_transform}"
+    )
 
     # backbone
     print(f"loading backbone weights: {args.backbone_weights}")
@@ -477,6 +493,7 @@ def main():
         features1_num=features1_num,
         features2_num=features2_num,
         adapter_hidden_dim=hidden_dim,
+        gate_transform=gate_transform,
         backbone_weights_basename=Path(args.backbone_weights).name,
     )
 

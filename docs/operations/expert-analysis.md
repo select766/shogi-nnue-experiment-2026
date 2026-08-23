@@ -4,6 +4,45 @@
 
 PyTorch環境は直接activateせず、リポジトリルートから次を実行する。
 
+### Gate診断
+
+次期実験のモデル選択に使う機械可読診断は、validation先頭10,000局面へ固定して実行する。
+
+```bash
+bash scripts/diagnose_gate.sh \
+  logs/expert_blending_8experts_v4_paired_uniform50_noise0_lambda05/checkpoints/180.ckpt \
+  results/gate_diagnostics_8experts_lambda05_180.json
+```
+
+ログは`/tmp/diagnose_gate_gate_diagnostics_8experts_lambda05_180.log`へ保存される。GPU必須で、
+sandbox外から`scripts/gpu_python.sh`のCUDA実演算preflightを通して実行する。expert数、
+backbone種別、adapter hidden、blend modeと学習目的関数の`lambda`、label smoothing、score scalingは
+checkpointから復元する。目的関数だけを明示的に変える場合は`--lambda`、
+`--label-smoothing-eps`、`--score-scaling`をwrapperの第3引数以降へ指定できる。
+
+paired validationでは、DNN側局面からgateを計算し、対応するNNUE側qsearch局面で各expertの
+評価値とlossを計算する。これは学習時と同じrouting意味論である。
+
+#### 保存する指標
+
+| 区分 | 指標 |
+|---|---|
+| 局面別疎性 | entropy、最大重み、top-2 mass、`exp(entropy)` |
+| 全体利用 | argmax利用数・率・CV、平均gate重み、そのCV、一様分布からのKL、dead experts |
+| expert機能差 | 同一局面に対するexpert単独評価値の相関行列、相関要約、局面別expert評価値分散 |
+| routing価値 | blended/top-1/oracle loss、oracle改善上限、gate top-1とoracleの一致率 |
+| routing分布 | oracle利用率、gate top-1×oracle混同行列、周辺分布から期待される偶然一致率とlift |
+
+oracleは各局面でlossが最小の単独expertである。`oracle_improvement_over_blended`は
+`mean(blended loss) - mean(min expert loss)`で、hard routingが完全なら得られる改善上限を表す。
+gate top-1とoracleの一致率が低く改善上限が大きければrouter側、expert評価値の相関が高く
+改善上限も小さければexpert側が主な制約候補になる。
+
+出力JSONは`meta`、`summary`、`details`からなる。`details`には局面index、手数、教師評価値、
+全gate重み、全expert単独評価値・loss、疎性指標、gate top-1、oracle expertを保存する。
+
+### 可視化
+
 ```bash
 scripts/gpu_python.sh -u -m train_nnue.visualize_experts \
   --checkpoint logs/expert_blending_8experts_v4_paired_uniform50_noise0_lambda05/checkpoints/180.ckpt \
@@ -28,7 +67,8 @@ Expert Blending で学習されたモデルにおいて、各エキスパート�
 ## 入力と前提
 
 - validation データ（学習スクリプトで使用したものと同じ）から先頭 10,000 局面程度を抽出する。
-- 各局面 `i` に対して backbone を推論し、softmax 後のエキスパート重み `p(i, j)` を得る（`Σ_j p(i, j) = 1`）。
+- 各局面 `i` に対して backbone を推論し、softmaxまたは1.5-entmax後のエキスパート重み
+  `p(i, j)` を得る（`Σ_j p(i, j) = 1`）。
 - 局面 `i` が対局中の何手目かを `m(i)` とする。
 - 局面 `i` の教師評価値を `s(i)` とする。
 

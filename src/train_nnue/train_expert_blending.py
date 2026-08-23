@@ -6,11 +6,10 @@ PyTorch Lightning ベースで、既存 NNUE と同じ損失関数
 勾配は DNN_adapter と NNUE_weights にのみ流す (backbone は frozen)。
 
 Usage:
-    cd nnue-pytorch && source .venv/bin/activate
-    PYTHONPATH=../src:$PYTHONPATH python -m train_nnue.train_expert_blending \
-        --train ../dataset/split_v1_paired_uniform_50/train \
-        --val ../dataset/split_v1_paired_uniform_50/val1 \
-        --backbone-weights ../tmp/dlshogi-model/model_resnet10_swish-072 \
+    scripts/gpu_python.sh -m train_nnue.train_expert_blending \
+        --train dataset/split_v1_paired_uniform_50/train \
+        --val dataset/split_v1_paired_uniform_50/val1 \
+        --backbone-weights tmp/dlshogi-model/model_resnet10_swish-072 \
         --nnue-checkpoint logs/halfkp_v1/checkpoints/83000.ckpt
 """
 
@@ -28,6 +27,79 @@ from train_nnue.expert_blending_dataset import (
     create_data_loaders,
 )
 from train_nnue.expert_blending_model import create_expert_blending_model
+
+
+def compute_gate_statistics(gate_weights):
+    """Return differentiable sparsity and balance statistics for a batch."""
+    entropy_per_position = -(
+        gate_weights * (gate_weights + 1e-12).log()
+    ).sum(dim=-1)
+    mean_gate = gate_weights.mean(dim=0)
+    balance_kl = (
+        mean_gate * (mean_gate * gate_weights.shape[1] + 1e-12).log()
+    ).sum()
+    return {
+        "entropy": entropy_per_position.mean(),
+        "balance_kl": balance_kl,
+        "effective_experts": entropy_per_position.exp().mean(),
+        "max_weight": gate_weights.max(dim=-1).values.mean(),
+        "top2_mass": gate_weights.topk(
+            min(2, gate_weights.shape[1]), dim=-1
+        ).values.sum(dim=-1).mean(),
+    }
+
+
+def router_teacher_distribution(expert_losses, mode, temperature=0.005):
+    """Build detached hard or loss-temperature teacher probabilities."""
+    if expert_losses.ndim != 2:
+        raise ValueError("expert_losses must have shape (positions, experts)")
+    if mode == "hard":
+        return F.one_hot(
+            expert_losses.argmin(dim=-1), num_classes=expert_losses.shape[1]
+        ).to(dtype=expert_losses.dtype)
+    if mode == "soft":
+        if temperature <= 0.0:
+            raise ValueError("router teacher temperature must be positive")
+        centered = expert_losses - expert_losses.min(dim=-1, keepdim=True).values
+        return torch.softmax(-centered / temperature, dim=-1)
+    raise ValueError(f"Unsupported router teacher mode: {mode}")
+
+
+def compute_router_statistics(gate_weights, expert_losses, teacher_weights):
+    """Return router supervision loss and oracle-alignment metrics."""
+    epsilon = 1e-12
+    router_loss = -(
+        teacher_weights * (gate_weights + epsilon).log()
+    ).sum(dim=-1).mean()
+    gate_top1 = gate_weights.argmax(dim=-1)
+    oracle = expert_losses.argmin(dim=-1)
+    indices = torch.arange(gate_weights.shape[0], device=gate_weights.device)
+    regret = (
+        expert_losses[indices, gate_top1] - expert_losses[indices, oracle]
+    ).mean()
+    match = (gate_top1 == oracle).to(dtype=gate_weights.dtype).mean()
+    teacher_match = (
+        gate_top1 == teacher_weights.argmax(dim=-1)
+    ).to(dtype=gate_weights.dtype).mean()
+    expected_match = (
+        F.one_hot(gate_top1, num_classes=gate_weights.shape[1])
+        .to(dtype=gate_weights.dtype)
+        .mean(dim=0)
+        * F.one_hot(oracle, num_classes=gate_weights.shape[1])
+        .to(dtype=gate_weights.dtype)
+        .mean(dim=0)
+    ).sum()
+    teacher_entropy = -(
+        teacher_weights * (teacher_weights + epsilon).log()
+    ).sum(dim=-1).mean()
+    return {
+        "loss": router_loss,
+        "top1_match": match,
+        "teacher_top1_match": teacher_match,
+        "expected_match": expected_match,
+        "regret": regret,
+        "teacher_entropy": teacher_entropy,
+    }
 
 
 class ExpertBlendingLightningModule(pl.LightningModule):
@@ -50,6 +122,13 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         num_epochs_to_adjust_lr=50,
         min_newbob_scale=1e-5,
         momentum=0.0,
+        lambda_sparse=0.0,
+        lambda_balance=0.0,
+        gate_transform="softmax",
+        router_teacher_mode="none",
+        router_teacher_temperature=0.005,
+        lambda_router=0.0,
+        task_loss_weight=1.0,
     ):
         super().__init__()
         self.model = model
@@ -63,6 +142,13 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         self.num_epochs_to_adjust_lr = num_epochs_to_adjust_lr
         self.min_newbob_scale = min_newbob_scale
         self.momentum = momentum
+        self.lambda_sparse = lambda_sparse
+        self.lambda_balance = lambda_balance
+        self.gate_transform = gate_transform
+        self.router_teacher_mode = router_teacher_mode
+        self.router_teacher_temperature = router_teacher_temperature
+        self.lambda_router = lambda_router
+        self.task_loss_weight = task_loss_weight
 
         # NewBob state
         self.newbob_scale = 1.0
@@ -74,10 +160,17 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         self.save_hyperparameters(ignore=["model"])
         self.backbone_type = getattr(model, "backbone_type", "dnn")
 
-    def forward(self, *inputs, training=True):
-        return self.model(*inputs, training=training)
+    def forward(self, *inputs, training=True, return_gate=False):
+        return self.model(
+            *inputs, training=training, return_gate=return_gate
+        )
 
     def _compute_loss(self, batch, loss_type):
+        base_batch_length = 11 if self.backbone_type == "nnue" else 9
+        teacher_losses = (
+            batch[base_batch_length] if len(batch) > base_batch_length else None
+        )
+        batch = batch[:base_batch_length]
         if self.backbone_type == "nnue":
             us_bb, them_bb, white_bb, black_bb, us, them, white, black, outcome, score, ply = batch
             model_inputs = (us_bb, them_bb, white_bb, black_bb, us, them, white, black)
@@ -90,7 +183,10 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         nnue2score = 600
         scaling = self.score_scaling
 
-        q = self(*model_inputs, training=self.training) * nnue2score / scaling
+        raw_value, gate_weights = self(
+            *model_inputs, training=self.training, return_gate=True
+        )
+        q = raw_value * nnue2score / scaling
         t = outcome * (1.0 - self.label_smoothing_eps * 2.0) + self.label_smoothing_eps
         p = (score / scaling).sigmoid()
 
@@ -103,15 +199,94 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         lambda_ = self.lambda_
         result = lambda_ * teacher_loss + (1.0 - lambda_) * outcome_loss
         entropy = lambda_ * teacher_entropy + (1.0 - lambda_) * outcome_entropy
-        loss = result.mean() - entropy.mean()
+        task_loss = result.mean() - entropy.mean()
+        gate_statistics = compute_gate_statistics(gate_weights)
+        gate_entropy = gate_statistics["entropy"]
+        balance_kl = gate_statistics["balance_kl"]
+        regularization = (
+            self.lambda_sparse * gate_entropy
+            + self.lambda_balance * balance_kl
+        )
+        router_statistics = None
+        router_loss = task_loss.new_zeros(())
+        if teacher_losses is not None:
+            n_experts = gate_weights.shape[1]
+            if self.router_teacher_mode == "cached":
+                if teacher_losses.shape[1] != 2 * n_experts:
+                    raise ValueError(
+                        "cached gate teachers require [expert losses, weights]"
+                    )
+                teacher_weights = teacher_losses[:, n_experts:].detach()
+                teacher_losses = teacher_losses[:, :n_experts]
+            else:
+                metric_mode = (
+                    self.router_teacher_mode
+                    if self.router_teacher_mode != "none"
+                    else "hard"
+                )
+                teacher_weights = router_teacher_distribution(
+                    teacher_losses.detach(),
+                    metric_mode,
+                    self.router_teacher_temperature,
+                )
+            router_statistics = compute_router_statistics(
+                gate_weights, teacher_losses.detach(), teacher_weights
+            )
+            router_loss = router_statistics["loss"]
+        elif self.router_teacher_mode != "none":
+            raise RuntimeError("router distillation requires a teacher cache")
+        loss = (
+            self.task_loss_weight * task_loss
+            + self.lambda_router * router_loss
+            + regularization
+        )
+        effective_experts = gate_statistics["effective_experts"]
+        max_weight = gate_statistics["max_weight"]
+        top2_mass = gate_statistics["top2_mass"]
         if loss_type == "train_loss":
             # Step-wise trace for debugging/volatility checks.
             self.log("train_loss_step", loss, on_step=True, on_epoch=False, prog_bar=False)
             # Epoch aggregate to compare against val_loss (same granularity).
             self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True, batch_size=batch_size)
+            self.log("train_task_loss", task_loss, on_step=False, on_epoch=True,
+                     prog_bar=False, batch_size=batch_size)
+            self.log("train_gate_entropy", gate_entropy, on_step=False, on_epoch=True,
+                     prog_bar=False, batch_size=batch_size)
+            self.log("train_balance_kl", balance_kl, on_step=False, on_epoch=True,
+                     prog_bar=False, batch_size=batch_size)
+            if router_statistics is not None:
+                self._log_router_statistics(
+                    "train", router_statistics, batch_size
+                )
         else:
-            self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True, batch_size=batch_size)
+            self.log("val_loss", task_loss, on_step=False, on_epoch=True,
+                     prog_bar=True, batch_size=batch_size)
+            self.log("val_regularized_loss", loss, on_step=False, on_epoch=True,
+                     prog_bar=False, batch_size=batch_size)
+            self.log("val_gate_entropy", gate_entropy, on_step=False, on_epoch=True,
+                     prog_bar=False, batch_size=batch_size)
+            self.log("val_effective_experts", effective_experts, on_step=False,
+                     on_epoch=True, prog_bar=False, batch_size=batch_size)
+            self.log("val_gate_max_weight", max_weight, on_step=False, on_epoch=True,
+                     prog_bar=False, batch_size=batch_size)
+            self.log("val_gate_top2_mass", top2_mass, on_step=False, on_epoch=True,
+                     prog_bar=False, batch_size=batch_size)
+            self.log("val_balance_kl", balance_kl, on_step=False, on_epoch=True,
+                     prog_bar=False, batch_size=batch_size)
+            if router_statistics is not None:
+                self._log_router_statistics("val", router_statistics, batch_size)
         return loss
+
+    def _log_router_statistics(self, prefix, statistics, batch_size):
+        for name, value in statistics.items():
+            self.log(
+                f"{prefix}_router_{name}",
+                value,
+                on_step=False,
+                on_epoch=True,
+                prog_bar=False,
+                batch_size=batch_size,
+            )
 
     def training_step(self, batch, batch_idx):
         loss = self._compute_loss(batch, "train_loss")
@@ -216,15 +391,17 @@ class ExpertBlendingLightningModule(pl.LightningModule):
                     "initial_lr": self.lr_adapter,
                 }
             )
-        param_groups.append(
-            {
-                "params": [
-                    p for p in self.model.nnue_experts.parameters() if p.requires_grad
-                ],
-                "lr": self.lr_nnue,
-                "initial_lr": self.lr_nnue,
-            }
-        )
+        expert_parameters = [
+            p for p in self.model.nnue_experts.parameters() if p.requires_grad
+        ]
+        if expert_parameters:
+            param_groups.append(
+                {
+                    "params": expert_parameters,
+                    "lr": self.lr_nnue,
+                    "initial_lr": self.lr_nnue,
+                }
+            )
         return torch.optim.SGD(param_groups, lr=self.lr_nnue, momentum=self.momentum)
 
     def on_save_checkpoint(self, checkpoint):
@@ -299,6 +476,12 @@ def main():
         default=1.0,
         help="Gaussian noise scale added to adapter logits during training",
     )
+    parser.add_argument(
+        "--gate-transform",
+        default="softmax",
+        choices=["softmax", "entmax15"],
+        help="Probability transform applied to gate logits",
+    )
     # Training
     parser.add_argument("--lr-nnue", type=float, default=0.5, help="LR for NNUE experts")
     parser.add_argument("--lr-adapter", type=float, default=0.5, help="LR for DNN adapter")
@@ -311,8 +494,32 @@ def main():
     parser.add_argument("--num-epochs-to-adjust-lr", type=int, default=50)
     parser.add_argument("--min-newbob-scale", type=float, default=1e-5)
     parser.add_argument("--momentum", type=float, default=0.0)
+    parser.add_argument(
+        "--lambda-sparse",
+        type=float,
+        default=0.0,
+        help="Coefficient for mean per-position gate entropy",
+    )
+    parser.add_argument(
+        "--lambda-balance",
+        type=float,
+        default=0.0,
+        help="Coefficient for KL(mean gate weights || uniform)",
+    )
+    parser.add_argument("--train-teacher-cache")
+    parser.add_argument("--val-teacher-cache")
+    parser.add_argument(
+        "--router-teacher-mode",
+        default="none",
+        choices=["none", "hard", "soft", "cached"],
+    )
+    parser.add_argument("--router-teacher-temperature", type=float, default=0.005)
+    parser.add_argument("--lambda-router", type=float, default=0.0)
+    parser.add_argument("--task-loss-weight", type=float, default=1.0)
+    parser.add_argument("--freeze-experts", action="store_true")
     parser.add_argument("--max-val-positions", type=int, default=100000,
                         help="Max validation positions per epoch")
+    parser.add_argument("--val-start-position", type=int, default=0)
     parser.add_argument(
         "--train-shuffle-buffer-size",
         type=int,
@@ -334,6 +541,22 @@ def main():
                              "Ignored if --resume-from-checkpoint is also given.")
 
     args = parser.parse_args()
+
+    if (
+        args.lambda_sparse < 0.0
+        or args.lambda_balance < 0.0
+        or args.lambda_router < 0.0
+        or args.task_loss_weight < 0.0
+    ):
+        parser.error("loss coefficients must be non-negative")
+    if args.router_teacher_temperature <= 0.0:
+        parser.error("--router-teacher-temperature must be positive")
+    if args.router_teacher_mode != "none" and (
+        not args.train_teacher_cache or not args.val_teacher_cache
+    ):
+        parser.error(
+            "router distillation requires both train and validation teacher caches"
+        )
 
     required_paths = [args.train, args.val, args.nnue_checkpoint]
     if args.backbone_type == "dnn":
@@ -365,6 +588,7 @@ def main():
         adapter_noise_scale=args.adapter_noise_scale,
         backbone_type=args.backbone_type,
         blend_mode=args.blend_mode,
+        gate_transform=args.gate_transform,
         device="cpu",  # PL will move to GPU
     )
     trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -384,6 +608,13 @@ def main():
         num_epochs_to_adjust_lr=args.num_epochs_to_adjust_lr,
         min_newbob_scale=args.min_newbob_scale,
         momentum=args.momentum,
+        lambda_sparse=args.lambda_sparse,
+        lambda_balance=args.lambda_balance,
+        gate_transform=args.gate_transform,
+        router_teacher_mode=args.router_teacher_mode,
+        router_teacher_temperature=args.router_teacher_temperature,
+        lambda_router=args.lambda_router,
+        task_loss_weight=args.task_loss_weight,
     )
 
     # --- Load weights only (for fine-tuning) ---
@@ -393,6 +624,10 @@ def main():
         lit_module.load_state_dict(ckpt["state_dict"], strict=True)
         del ckpt
         print("Model weights loaded (optimizer/lr/epoch state NOT restored).")
+
+    if args.freeze_experts:
+        model.nnue_experts.requires_grad_(False)
+        print("NNUE experts frozen; training router parameters only.")
 
     # --- Data ---
     print(f"Training: {args.train}")
@@ -410,6 +645,9 @@ def main():
         train_shuffle_buffer_size=args.train_shuffle_buffer_size,
         seed=args.seed,
         backbone_type=args.backbone_type,
+        train_teacher_cache=args.train_teacher_cache,
+        val_teacher_cache=args.val_teacher_cache,
+        val_start_position=args.val_start_position,
     )
 
     # --- Trainer ---
