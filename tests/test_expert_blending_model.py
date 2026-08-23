@@ -1,10 +1,13 @@
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 try:
     import torch
 
     from train_nnue.expert_blending_model import NNUEExperts, transform_gate_logits
     from train_nnue.train_expert_blending import (
+        CheckpointEveryNEpochs,
         compute_gate_statistics,
         compute_router_statistics,
         router_teacher_distribution,
@@ -14,12 +17,36 @@ except ModuleNotFoundError:
     NNUEExperts = None
     transform_gate_logits = None
     compute_gate_statistics = None
+    CheckpointEveryNEpochs = None
     compute_router_statistics = None
     router_teacher_distribution = None
 
 
 @unittest.skipIf(torch is None, "requires the nnue PyTorch environment")
 class ForwardExpertTest(unittest.TestCase):
+    def test_periodic_checkpoint_includes_epoch_zero(self):
+        class Trainer:
+            current_epoch = 0
+            sanity_checking = True
+
+            def __init__(self):
+                self.saved = []
+
+            def save_checkpoint(self, path):
+                self.saved.append(Path(path).name)
+
+        with TemporaryDirectory() as directory:
+            callback = CheckpointEveryNEpochs(2, directory)
+            trainer = Trainer()
+            callback.on_validation_end(trainer, None)
+            trainer.sanity_checking = False
+            callback.on_validation_end(trainer, None)
+            trainer.current_epoch = 1
+            callback.on_validation_end(trainer, None)
+            trainer.current_epoch = 2
+            callback.on_validation_end(trainer, None)
+        self.assertEqual(trainer.saved, ["0.ckpt", "2.ckpt"])
+
     def test_softmax_transform_is_backward_compatible(self):
         logits = torch.randn(3, 8)
         torch.testing.assert_close(

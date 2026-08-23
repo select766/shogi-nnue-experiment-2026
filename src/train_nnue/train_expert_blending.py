@@ -453,7 +453,9 @@ class CheckpointEveryNEpochs(pl.callbacks.Checkpoint):
         self.log_dir = log_dir
 
     def on_validation_end(self, trainer, pl_module):
-        if trainer.current_epoch == 0 or trainer.current_epoch % self.every_n_epochs != 0:
+        if getattr(trainer, "sanity_checking", False):
+            return
+        if trainer.current_epoch % self.every_n_epochs != 0:
             return
         ckpt_path = os.path.join(self.log_dir, f"{trainer.current_epoch}.ckpt")
         trainer.save_checkpoint(ckpt_path)

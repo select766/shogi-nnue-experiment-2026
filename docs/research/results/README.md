@@ -1,6 +1,7 @@
 # 実験結果
 
 - [Root-grouped router実験](root-grouped-router-20260823/README.md)
+- [Root-grouped router大規模追試](root-grouped-router-scale-20260824/README.md)
 
 - [固定10,000局面の最善手一致率](accuracy-eval-10k-current/README.md)
 - [Checkpoint 180のgate・oracle診断](gate-diagnostics-lambda05-180/README.md)

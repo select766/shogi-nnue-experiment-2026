@@ -34,6 +34,7 @@ activateしたりしない。
 | `run_optimized_gate_distillation_sweep.sh` | 最適化gate teacher蒸留の3 epoch短期比較 | `/tmp/train_nnue_router_gate_teacher_*.log` |
 | `generate_root_grouped_teachers.sh` | 複数末端で共有するroot gate teacher生成・A/B評価 | `/tmp/root_grouped_teacher_*.log` |
 | `run_root_grouped_router_sweep.sh` | root-grouped task/teacher学習比較 | `/tmp/train_nnue_root_grouped_*.log` |
+| `summarize_training_curve.py` | TensorBoardの学習曲線と暫定飽和判定をJSON化 | 指定したJSON |
 | `benchmark_expert_blending_speed.sh` | 推論速度測定 | スクリプト内で指定 |
 
 引数と実行例は[学習・評価手順](../docs/operations/training-and-evaluation.md)を参照する。

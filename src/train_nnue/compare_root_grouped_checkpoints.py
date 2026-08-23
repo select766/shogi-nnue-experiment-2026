@@ -38,7 +38,7 @@ def load_model(path, backbone_weights, nnue_checkpoint, device):
     return model, checkpoint.get("hyper_parameters", {})
 
 
-def evaluate(path, args, teacher_weights):
+def evaluate(path, args, teacher_weights=None):
     model, hparams = load_model(
         path, args.backbone_weights, args.nnue_checkpoint, args.device
     )
@@ -70,28 +70,31 @@ def evaluate(path, args, teacher_weights):
                 float(hparams.get("lambda_", 1.0)),
                 float(hparams.get("label_smoothing_eps", 0.0)),
             ).reshape(int(x1.shape[0]), dataset.group_size).mean(dim=1)
-            target = torch.from_numpy(
-                teacher_weights[processed : processed + take].copy()
-            ).to(args.device)
             losses.append(group_loss[:take].cpu().numpy())
-            teacher_matches.append(
-                (gate[:take].argmax(dim=1) == target.argmax(dim=1))
-                .cpu()
-                .numpy()
-            )
-            teacher_cross_entropies.append(
-                (-(target * (gate[:take] + 1e-12).log()).sum(dim=1))
-                .cpu()
-                .numpy()
-            )
+            if teacher_weights is not None:
+                target = torch.from_numpy(
+                    teacher_weights[processed : processed + take].copy()
+                ).to(args.device)
+                teacher_matches.append(
+                    (gate[:take].argmax(dim=1) == target.argmax(dim=1))
+                    .cpu()
+                    .numpy()
+                )
+                teacher_cross_entropies.append(
+                    (-(target * (gate[:take] + 1e-12).log()).sum(dim=1))
+                    .cpu()
+                    .numpy()
+                )
             processed += take
     del model
     torch.cuda.empty_cache()
-    return {
-        "losses": np.concatenate(losses),
-        "teacher_matches": np.concatenate(teacher_matches),
-        "teacher_cross_entropies": np.concatenate(teacher_cross_entropies),
-    }
+    result = {"losses": np.concatenate(losses)}
+    if teacher_weights is not None:
+        result["teacher_matches"] = np.concatenate(teacher_matches)
+        result["teacher_cross_entropies"] = np.concatenate(
+            teacher_cross_entropies
+        )
+    return result
 
 
 def main() -> None:
@@ -99,7 +102,13 @@ def main() -> None:
     parser.add_argument("--control", required=True)
     parser.add_argument("--candidate", action="append", required=True)
     parser.add_argument("--data", required=True)
-    parser.add_argument("--teacher", required=True)
+    parser.add_argument(
+        "--teacher",
+        help=(
+            "Optional shared-teacher cache. Omit it when only paired task-loss "
+            "comparison is needed."
+        ),
+    )
     parser.add_argument("--backbone-weights", required=True)
     parser.add_argument("--nnue-checkpoint", required=True)
     parser.add_argument("--max-roots", type=int, required=True)
@@ -110,45 +119,58 @@ def main() -> None:
     args = parser.parse_args()
     if not torch.cuda.is_available() or not args.device.startswith("cuda"):
         raise RuntimeError("checkpoint comparison requires CUDA")
-    teacher = np.load(args.teacher, mmap_mode="r")
-    teacher_weights = np.asarray(teacher[: args.max_roots, teacher.shape[1] // 2 :])
+    teacher_weights = None
+    if args.teacher:
+        teacher = np.load(args.teacher, mmap_mode="r")
+        teacher_weights = np.asarray(
+            teacher[: args.max_roots, teacher.shape[1] // 2 :]
+        )
     control = evaluate(args.control, args, teacher_weights)
     output = {
         "roots": args.max_roots,
         "control": {
             "checkpoint": str(Path(args.control).resolve()),
             "mean_group_loss": float(control["losses"].mean()),
-            "router_to_shared_teacher_top1_match": float(
-                control["teacher_matches"].mean()
-            ),
-            "shared_teacher_cross_entropy": float(
-                control["teacher_cross_entropies"].mean()
-            ),
         },
         "candidates": [],
     }
+    if teacher_weights is not None:
+        output["control"].update(
+            {
+                "router_to_shared_teacher_top1_match": float(
+                    control["teacher_matches"].mean()
+                ),
+                "shared_teacher_cross_entropy": float(
+                    control["teacher_cross_entropies"].mean()
+                ),
+            }
+        )
     for path in args.candidate:
         candidate = evaluate(path, args, teacher_weights)
         delta = candidate["losses"] - control["losses"]
-        output["candidates"].append(
-            {
-                "checkpoint": str(Path(path).resolve()),
-                "mean_group_loss": float(candidate["losses"].mean()),
-                "router_to_shared_teacher_top1_match": float(
-                    candidate["teacher_matches"].mean()
+        candidate_output = {
+            "checkpoint": str(Path(path).resolve()),
+            "mean_group_loss": float(candidate["losses"].mean()),
+            "paired_loss_delta_vs_control": {
+                "mean": float(delta.mean()),
+                "bootstrap_95_interval": bootstrap_interval(
+                    delta, args.bootstrap_seed
                 ),
-                "shared_teacher_cross_entropy": float(
-                    candidate["teacher_cross_entropies"].mean()
-                ),
-                "paired_loss_delta_vs_control": {
-                    "mean": float(delta.mean()),
-                    "bootstrap_95_interval": bootstrap_interval(
-                        delta, args.bootstrap_seed
+                "fraction_improved": float((delta < 0.0).mean()),
+            },
+        }
+        if teacher_weights is not None:
+            candidate_output.update(
+                {
+                    "router_to_shared_teacher_top1_match": float(
+                        candidate["teacher_matches"].mean()
                     ),
-                    "fraction_improved": float((delta < 0.0).mean()),
-                },
-            }
-        )
+                    "shared_teacher_cross_entropy": float(
+                        candidate["teacher_cross_entropies"].mean()
+                    ),
+                }
+            )
+        output["candidates"].append(candidate_output)
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w") as file:

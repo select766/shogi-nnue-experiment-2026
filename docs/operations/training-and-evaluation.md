@@ -198,6 +198,27 @@ bash scripts/train_expert_blending.sh \
 1回、NNUEは`root batch x group_size`末端に実行され、同じgateがgroup内で共有される。結果は
 [root-grouped router実験](../research/results/root-grouped-router-20260823/README.md)を参照する。
 
+学習曲線のJSON化と、root単位の対応ありcheckpoint比較は次を使う。比較はGPU必須であり、
+sandbox外で実行して標準出力を`/tmp/*.log`へ保存する。shared-teacher指標が不要なら
+`--teacher`は省略できる。
+
+```bash
+scripts/nnue_python.sh scripts/summarize_training_curve.py \
+  --log-dir logs/RUN/lightning_logs/version_0 \
+  --output results/RUN_training_curve.json
+
+scripts/gpu_python.sh -u -m train_nnue.compare_root_grouped_checkpoints \
+  --control CONTROL.ckpt --candidate CANDIDATE.ckpt \
+  --data ROOT_GROUPED_VALIDATION \
+  --backbone-weights tmp/dlshogi-model/model_resnet10_swish-072 \
+  --nnue-checkpoint logs/halfkp_v1/checkpoints/83000.ckpt \
+  --max-roots 95232 --root-batch-size 256 \
+  --output results/RUN_comparison.json > /tmp/RUN_comparison.log 2>&1
+```
+
+`network-save-period=1`はepoch 0を含む全epochを保存する。Lightningの学習前sanity validation中は
+checkpointを保存しない。
+
 ## TensorBoard
 
 ```bash

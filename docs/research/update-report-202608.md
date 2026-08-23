@@ -18,6 +18,11 @@
   いなかった。rootごとに8末端を共有する後続実験では、A末端で決めた固定teacherが未知のB末端へ
   転移し、root-grouped task-only学習も初期checkpoint比でlossを改善した。詳細は
   `docs/research/results/root-grouped-router-20260823/README.md`に記録した。
+- root-grouped task-only学習を500万rootへ拡大した追試では、500万root時点の候補が初期checkpoint
+  に対し、選抜用Bで`-0.0002374`、未使用Aで`-0.0002407`のgroup平均loss差となった。両方の
+  root bootstrap 95%区間は上端も0未満だった。2巡目は反転悪化し、700万rootで事前定義した
+  飽和条件を満たした。次は棋譜先局面proxyではなく実探索qsearch leafをrootごとに収集する。
+  詳細は`docs/research/results/root-grouped-router-scale-20260824/README.md`に記録した。
 - 最善手一致率は1万局面へ拡大し、対応あり比較を行う。現観測値から1.1ポイント差を検出する概算必要数は約10,833局面なので、まず10,000、確証が必要なら12,000以上を使う。
 
 ## 現状認識の根拠
