@@ -1,0 +1,34 @@
+{
+  "roots": 9728,
+  "group_size_b": 8,
+  "mean_group_loss_b": {
+    "current": 0.03780214488506317,
+    "teacher_a": 0.030763085931539536,
+    "teacher_b": 0.02443574368953705
+  },
+  "cross_set_loss_delta_a_minus_current": {
+    "mean": -0.0070390598848462105,
+    "bootstrap_95_interval": [
+      -0.007479727140741958,
+      -0.006613834152808857
+    ],
+    "fraction_improved": 0.7396175986842105
+  },
+  "shared_teacher_argmax_agreement_a_b": 0.6419613486842105,
+  "router_to_shared_teacher_top1_match": {
+    "teacher_a": 0.5496504934210527,
+    "teacher_b": 0.5524259868421053
+  },
+  "router_to_single_expert_oracle_match_b": 0.3099300986842105,
+  "teacher_distribution_js": {
+    "mean": 0.03662755712866783,
+    "p50": 0.020927075296640396,
+    "p90": 0.09801153093576431,
+    "p99": 0.1840895712375641
+  },
+  "objective": {
+    "score_scaling": 361.0,
+    "lambda": 1.0,
+    "label_smoothing_eps": 0.001
+  }
+}

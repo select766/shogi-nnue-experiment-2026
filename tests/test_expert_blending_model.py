@@ -66,6 +66,35 @@ class ForwardExpertTest(unittest.TestCase):
                     blended, direct, rtol=1e-5, atol=1e-6
                 )
 
+    def test_one_root_gate_is_shared_by_every_group_leaf(self):
+        torch.manual_seed(11)
+        roots = 2
+        group_size = 3
+        experts = NNUEExperts(2, 4)
+        for parameter in experts.parameters():
+            torch.nn.init.normal_(parameter, std=0.02)
+        root_gate = torch.softmax(torch.randn(roots, 2), dim=-1)
+        expanded_gate = root_gate.repeat_interleave(group_size, dim=0)
+        leaves = roots * group_size
+        us = torch.cat([torch.ones(leaves, 256), torch.zeros(leaves, 256)], dim=1)
+        them = 1.0 - us
+        white = torch.randn(leaves, 4)
+        black = torch.randn(leaves, 4)
+        grouped = experts(expanded_gate, us, them, white, black)
+        expected = torch.cat(
+            [
+                experts(
+                    root_gate[root : root + 1].expand(group_size, -1),
+                    us[root * group_size : (root + 1) * group_size],
+                    them[root * group_size : (root + 1) * group_size],
+                    white[root * group_size : (root + 1) * group_size],
+                    black[root * group_size : (root + 1) * group_size],
+                )
+                for root in range(roots)
+            ]
+        )
+        torch.testing.assert_close(grouped, expected)
+
     def test_gate_regularization_terms(self):
         uniform = torch.full((4, 8), 1 / 8)
         uniform_statistics = compute_gate_statistics(uniform)

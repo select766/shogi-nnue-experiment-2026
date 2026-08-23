@@ -1,0 +1,274 @@
+{
+  "logs_root": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs",
+  "pattern": "root_grouped_continue2_*_from_short1",
+  "runs": [
+    {
+      "run_name": "root_grouped_continue2_g025_from_short1",
+      "lambda_sparse": 0.0,
+      "lambda_balance": 0.0,
+      "completed_validation_epochs": 2,
+      "best_epoch_index": 0,
+      "best": {
+        "val_loss": 0.03762267902493477,
+        "val_regularized_loss": 0.05446198210120201,
+        "val_gate_entropy": 1.740123987197876,
+        "val_effective_experts": 5.945639133453369,
+        "val_gate_max_weight": 0.3348361551761627,
+        "val_gate_top2_mass": 0.5339018106460571,
+        "val_balance_kl": 0.050322528928518295,
+        "val_router_loss": 1.757749080657959,
+        "val_router_top1_match": 0.31866776943206787,
+        "val_router_teacher_top1_match": 0.5651726722717285,
+        "val_router_expected_match": 0.16748368740081787,
+        "val_router_regret": 0.027709320187568665,
+        "val_router_teacher_entropy": 1.6001529693603516
+      },
+      "final": {
+        "val_loss": 0.03808456286787987,
+        "val_regularized_loss": 0.055624354630708694,
+        "val_gate_entropy": 1.8198142051696777,
+        "val_effective_experts": 6.266192436218262,
+        "val_gate_max_weight": 0.294830858707428,
+        "val_gate_top2_mass": 0.500175952911377,
+        "val_balance_kl": 0.04681769013404846,
+        "val_router_loss": 1.8308677673339844,
+        "val_router_top1_match": 0.20908717811107635,
+        "val_router_teacher_top1_match": 0.4053248465061188,
+        "val_router_expected_match": 0.141876220703125,
+        "val_router_regret": 0.027175815775990486,
+        "val_router_teacher_entropy": 1.6001529693603516
+      },
+      "histories": {
+        "val_loss": [
+          {
+            "step": 1559,
+            "value": 0.03762267902493477
+          },
+          {
+            "step": 3119,
+            "value": 0.03808456286787987
+          }
+        ],
+        "val_regularized_loss": [
+          {
+            "step": 1559,
+            "value": 0.05446198210120201
+          },
+          {
+            "step": 3119,
+            "value": 0.055624354630708694
+          }
+        ],
+        "val_gate_entropy": [
+          {
+            "step": 1559,
+            "value": 1.740123987197876
+          },
+          {
+            "step": 3119,
+            "value": 1.8198142051696777
+          }
+        ],
+        "val_effective_experts": [
+          {
+            "step": 1559,
+            "value": 5.945639133453369
+          },
+          {
+            "step": 3119,
+            "value": 6.266192436218262
+          }
+        ],
+        "val_gate_max_weight": [
+          {
+            "step": 1559,
+            "value": 0.3348361551761627
+          },
+          {
+            "step": 3119,
+            "value": 0.294830858707428
+          }
+        ],
+        "val_gate_top2_mass": [
+          {
+            "step": 1559,
+            "value": 0.5339018106460571
+          },
+          {
+            "step": 3119,
+            "value": 0.500175952911377
+          }
+        ],
+        "val_balance_kl": [
+          {
+            "step": 1559,
+            "value": 0.050322528928518295
+          },
+          {
+            "step": 3119,
+            "value": 0.04681769013404846
+          }
+        ],
+        "val_router_loss": [
+          {
+            "step": 1559,
+            "value": 1.757749080657959
+          },
+          {
+            "step": 3119,
+            "value": 1.8308677673339844
+          }
+        ],
+        "val_router_top1_match": [
+          {
+            "step": 1559,
+            "value": 0.31866776943206787
+          },
+          {
+            "step": 3119,
+            "value": 0.20908717811107635
+          }
+        ],
+        "val_router_teacher_top1_match": [
+          {
+            "step": 1559,
+            "value": 0.5651726722717285
+          },
+          {
+            "step": 3119,
+            "value": 0.4053248465061188
+          }
+        ],
+        "val_router_expected_match": [
+          {
+            "step": 1559,
+            "value": 0.16748368740081787
+          },
+          {
+            "step": 3119,
+            "value": 0.141876220703125
+          }
+        ],
+        "val_router_regret": [
+          {
+            "step": 1559,
+            "value": 0.027709320187568665
+          },
+          {
+            "step": 3119,
+            "value": 0.027175815775990486
+          }
+        ],
+        "val_router_teacher_entropy": [
+          {
+            "step": 1559,
+            "value": 1.6001529693603516
+          },
+          {
+            "step": 3119,
+            "value": 1.6001529693603516
+          }
+        ]
+      },
+      "event_file": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/root_grouped_continue2_g025_from_short1/lightning_logs/version_0/events.out.tfevents.1787493480.cufantubuntu.233109.0"
+    },
+    {
+      "run_name": "root_grouped_continue2_task_from_short1",
+      "lambda_sparse": 0.0,
+      "lambda_balance": 0.0,
+      "completed_validation_epochs": 2,
+      "best_epoch_index": 0,
+      "best": {
+        "val_loss": 0.037559568881988525,
+        "val_regularized_loss": 0.037559568881988525,
+        "val_gate_entropy": 1.7263209819793701,
+        "val_effective_experts": 5.859002113342285,
+        "val_gate_max_weight": 0.3418354392051697,
+        "val_gate_top2_mass": 0.5427473187446594,
+        "val_balance_kl": 0.05541596934199333
+      },
+      "final": {
+        "val_loss": 0.03840549662709236,
+        "val_regularized_loss": 0.03840549662709236,
+        "val_gate_entropy": 1.719037652015686,
+        "val_effective_experts": 5.690576076507568,
+        "val_gate_max_weight": 0.34559157490730286,
+        "val_gate_top2_mass": 0.564146876335144,
+        "val_balance_kl": 0.16457661986351013
+      },
+      "histories": {
+        "val_loss": [
+          {
+            "step": 1559,
+            "value": 0.037559568881988525
+          },
+          {
+            "step": 3119,
+            "value": 0.03840549662709236
+          }
+        ],
+        "val_regularized_loss": [
+          {
+            "step": 1559,
+            "value": 0.037559568881988525
+          },
+          {
+            "step": 3119,
+            "value": 0.03840549662709236
+          }
+        ],
+        "val_gate_entropy": [
+          {
+            "step": 1559,
+            "value": 1.7263209819793701
+          },
+          {
+            "step": 3119,
+            "value": 1.719037652015686
+          }
+        ],
+        "val_effective_experts": [
+          {
+            "step": 1559,
+            "value": 5.859002113342285
+          },
+          {
+            "step": 3119,
+            "value": 5.690576076507568
+          }
+        ],
+        "val_gate_max_weight": [
+          {
+            "step": 1559,
+            "value": 0.3418354392051697
+          },
+          {
+            "step": 3119,
+            "value": 0.34559157490730286
+          }
+        ],
+        "val_gate_top2_mass": [
+          {
+            "step": 1559,
+            "value": 0.5427473187446594
+          },
+          {
+            "step": 3119,
+            "value": 0.564146876335144
+          }
+        ],
+        "val_balance_kl": [
+          {
+            "step": 1559,
+            "value": 0.05541596934199333
+          },
+          {
+            "step": 3119,
+            "value": 0.16457661986351013
+          }
+        ]
+      },
+      "event_file": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/root_grouped_continue2_task_from_short1/lightning_logs/version_0/events.out.tfevents.1787493319.cufantubuntu.231985.0"
+    }
+  ]
+}

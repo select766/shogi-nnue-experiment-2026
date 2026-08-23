@@ -8,6 +8,7 @@ import features as nnue_features
 from train_nnue.diagnose_gate import infer_model_configuration, per_record_loss
 from train_nnue.expert_blending_dataset import ExpertBlendingDataset
 from train_nnue.expert_blending_model import create_expert_blending_model
+from train_nnue.root_grouped_dataset import RootGroupedDataset
 from train_nnue.train_expert_blending import (
     compute_router_statistics,
     router_teacher_distribution,
@@ -32,6 +33,7 @@ def main():
     parser.add_argument("--temperature", type=float, default=0.005)
     parser.add_argument("--batch-size", type=int, default=256)
     parser.add_argument("--device", default="cuda:0")
+    parser.add_argument("--root-grouped", action="store_true")
     args = parser.parse_args()
 
     checkpoint = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
@@ -57,14 +59,23 @@ def main():
     )
     model.nnue_experts.requires_grad_(False)
     model.to(args.device).train()
-    dataset = ExpertBlendingDataset(
-        args.bin_dir,
-        "HalfKP",
-        args.batch_size,
-        device=args.device,
-        shuffle=False,
-        teacher_cache_path=args.teacher_cache,
-    )
+    if args.root_grouped:
+        dataset = RootGroupedDataset(
+            args.bin_dir,
+            "HalfKP",
+            args.batch_size,
+            device=args.device,
+            teacher_cache_path=args.teacher_cache,
+        )
+    else:
+        dataset = ExpertBlendingDataset(
+            args.bin_dir,
+            "HalfKP",
+            args.batch_size,
+            device=args.device,
+            shuffle=False,
+            teacher_cache_path=args.teacher_cache,
+        )
     x1, x2, us, them, white, black, outcome, score, _, teacher_data = next(
         iter(dataset)
     )
@@ -77,9 +88,19 @@ def main():
         teacher_weights = router_teacher_distribution(
             expert_losses, args.teacher_mode, args.temperature
         )
-    raw_value, gate_weights = model(
-        x1, x2, us, them, white, black, training=False, return_gate=True
-    )
+    if args.root_grouped:
+        gate_weights = model.adapter(model.backbone(x1, x2), training=False)
+        raw_value = model.nnue_experts(
+            gate_weights.repeat_interleave(dataset.group_size, dim=0),
+            us,
+            them,
+            white,
+            black,
+        )
+    else:
+        raw_value, gate_weights = model(
+            x1, x2, us, them, white, black, training=False, return_gate=True
+        )
     task_loss = per_record_loss(
         raw_value,
         score,

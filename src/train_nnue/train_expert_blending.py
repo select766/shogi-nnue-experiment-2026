@@ -27,6 +27,7 @@ from train_nnue.expert_blending_dataset import (
     create_data_loaders,
 )
 from train_nnue.expert_blending_model import create_expert_blending_model
+from train_nnue.root_grouped_dataset import create_root_grouped_loaders
 
 
 def compute_gate_statistics(gate_weights):
@@ -129,6 +130,7 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         router_teacher_temperature=0.005,
         lambda_router=0.0,
         task_loss_weight=1.0,
+        root_group_size=1,
     ):
         super().__init__()
         self.model = model
@@ -149,6 +151,9 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         self.router_teacher_temperature = router_teacher_temperature
         self.lambda_router = lambda_router
         self.task_loss_weight = task_loss_weight
+        self.root_group_size = int(root_group_size)
+        if self.root_group_size <= 0:
+            raise ValueError("root_group_size must be positive")
 
         # NewBob state
         self.newbob_scale = 1.0
@@ -183,9 +188,26 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         nnue2score = 600
         scaling = self.score_scaling
 
-        raw_value, gate_weights = self(
-            *model_inputs, training=self.training, return_gate=True
-        )
+        if self.root_group_size > 1:
+            if self.backbone_type != "dnn":
+                raise RuntimeError("root-grouped training currently requires DNN backbone")
+            x1, x2, us, them, white, black = model_inputs
+            root_features = self.model.backbone(x1, x2)
+            gate_weights = self.model.adapter(
+                root_features, training=self.training
+            )
+            expanded_gate = gate_weights.repeat_interleave(
+                self.root_group_size, dim=0
+            )
+            if int(us.shape[0]) != batch_size * self.root_group_size:
+                raise RuntimeError("leaf batch does not match root_group_size")
+            raw_value = self.model.nnue_experts(
+                expanded_gate, us, them, white, black
+            )
+        else:
+            raw_value, gate_weights = self(
+                *model_inputs, training=self.training, return_gate=True
+            )
         q = raw_value * nnue2score / scaling
         t = outcome * (1.0 - self.label_smoothing_eps * 2.0) + self.label_smoothing_eps
         p = (score / scaling).sigmoid()
@@ -453,6 +475,11 @@ def main():
     parser.add_argument("--feature-set", default="HalfKP", help="NNUE feature set name")
     parser.add_argument("--batch-size", type=int, default=256, help="Batch size")
     parser.add_argument("--epoch-size", type=int, default=1000000, help="Positions per epoch")
+    parser.add_argument(
+        "--root-grouped",
+        action="store_true",
+        help="Treat train/val as root-grouped directories; epoch sizes count roots",
+    )
     # Model
     parser.add_argument(
         "--backbone-type",
@@ -558,6 +585,20 @@ def main():
             "router distillation requires both train and validation teacher caches"
         )
 
+    root_group_size = 1
+    if args.root_grouped:
+        if args.backbone_type != "dnn":
+            parser.error("--root-grouped currently supports only --backbone-type dnn")
+        import json
+
+        group_sizes = []
+        for directory in (args.train, args.val):
+            with open(os.path.join(directory, "metadata.json")) as file:
+                group_sizes.append(int(json.load(file)["group_size"]))
+        if group_sizes[0] != group_sizes[1]:
+            parser.error("root-grouped train and validation group sizes differ")
+        root_group_size = group_sizes[0]
+
     required_paths = [args.train, args.val, args.nnue_checkpoint]
     if args.backbone_type == "dnn":
         if not args.backbone_weights:
@@ -615,6 +656,7 @@ def main():
         router_teacher_temperature=args.router_teacher_temperature,
         lambda_router=args.lambda_router,
         task_loss_weight=args.task_loss_weight,
+        root_group_size=root_group_size,
     )
 
     # --- Load weights only (for fine-tuning) ---
@@ -634,21 +676,38 @@ def main():
     print(f"Validation: {args.val}")
     print(f"Batch size: {args.batch_size}, Epoch size: {args.epoch_size}")
 
-    train_loader, val_loader = create_data_loaders(
-        train_bin_dir=args.train,
-        val_bin_dir=args.val,
-        feature_set_name=args.feature_set,
-        batch_size=args.batch_size,
-        device=main_device,
-        epoch_size=args.epoch_size,
-        max_val_positions=args.max_val_positions,
-        train_shuffle_buffer_size=args.train_shuffle_buffer_size,
-        seed=args.seed,
-        backbone_type=args.backbone_type,
-        train_teacher_cache=args.train_teacher_cache,
-        val_teacher_cache=args.val_teacher_cache,
-        val_start_position=args.val_start_position,
-    )
+    if args.root_grouped:
+        train_loader, val_loader, loaded_group_size = create_root_grouped_loaders(
+            train_directory=args.train,
+            val_directory=args.val,
+            feature_set_name=args.feature_set,
+            root_batch_size=args.batch_size,
+            device=main_device,
+            epoch_roots=args.epoch_size,
+            max_val_roots=args.max_val_positions,
+            train_shuffle_buffer_size=args.train_shuffle_buffer_size,
+            seed=args.seed,
+            train_teacher_cache=args.train_teacher_cache,
+            val_teacher_cache=args.val_teacher_cache,
+        )
+        if loaded_group_size != root_group_size:
+            raise RuntimeError("root group size changed while constructing loaders")
+    else:
+        train_loader, val_loader = create_data_loaders(
+            train_bin_dir=args.train,
+            val_bin_dir=args.val,
+            feature_set_name=args.feature_set,
+            batch_size=args.batch_size,
+            device=main_device,
+            epoch_size=args.epoch_size,
+            max_val_positions=args.max_val_positions,
+            train_shuffle_buffer_size=args.train_shuffle_buffer_size,
+            seed=args.seed,
+            backbone_type=args.backbone_type,
+            train_teacher_cache=args.train_teacher_cache,
+            val_teacher_cache=args.val_teacher_cache,
+            val_start_position=args.val_start_position,
+        )
 
     # --- Trainer ---
     logdir = args.default_root_dir

@@ -1,0 +1,39 @@
+{
+  "roots": 9728,
+  "control": {
+    "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/expert_blending_8experts_v4_paired_uniform50_noise0/checkpoints/510.ckpt",
+    "mean_group_loss": 0.03780214488506317,
+    "router_to_shared_teacher_top1_match": 0.5524259868421053,
+    "shared_teacher_cross_entropy": 1.7605655193328857
+  },
+  "candidates": [
+    {
+      "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/root_grouped_short1_task_control_from510/lightning_logs/version_0/final.ckpt",
+      "mean_group_loss": 0.03766478970646858,
+      "router_to_shared_teacher_top1_match": 0.5532483552631579,
+      "shared_teacher_cross_entropy": 1.7633167505264282,
+      "paired_loss_delta_vs_control": {
+        "mean": -0.00013735542597714812,
+        "bootstrap_95_interval": [
+          -0.00019643601590998646,
+          -8.442803273868734e-05
+        ],
+        "fraction_improved": 0.6199629934210527
+      }
+    },
+    {
+      "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/root_grouped_best_task_total2/lightning_logs/version_0/final.ckpt",
+      "mean_group_loss": 0.03755958005785942,
+      "router_to_shared_teacher_top1_match": 0.5497532894736842,
+      "shared_teacher_cross_entropy": 1.7694425582885742,
+      "paired_loss_delta_vs_control": {
+        "mean": -0.0002425700513413176,
+        "bootstrap_95_interval": [
+          -0.0003522055435928996,
+          -0.000143951402025929
+        ],
+        "fraction_improved": 0.6044407894736842
+      }
+    }
+  ]
+}

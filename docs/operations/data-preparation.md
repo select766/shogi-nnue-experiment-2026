@@ -43,3 +43,18 @@ bash scripts/run_paired_shuffle.sh \
 引数は`input_dir output_dir threads max_output_samples offset_uniform_max`。処理後、ラッパーが
 `shuffled.bin`を`dnn.bin`と`nnue.bin`へ分離する。大規模な再生成を始める前に小規模入力で
 件数とペア対応を検証する。
+
+## Root-grouped pairedデータ
+
+探索ルートで一度決めたgateをK個の末端で共有する実験では、専用形式を使う。
+
+```bash
+bash scripts/run_grouped_paired_shuffle.sh \
+  INPUT_BIN_ONLY_DIR OUTPUT_DIR 8 100000 424201 8 \
+  > /tmp/root_grouped_shuffle.log 2>&1
+```
+
+引数は`input output group_size max_roots seed threads`。出力は`roots.bin`、`leaves.bin`、
+`offsets.npy`、`metadata.json`である。groupを壊さずshuffleし、各将来局面へqsearchを適用する。
+validationは`filter_root_grouped_validation.py`でtrainと同じroot SFENを除外し、
+`split_root_grouped_validation.py`で独立末端集合A/Bへ分ける。

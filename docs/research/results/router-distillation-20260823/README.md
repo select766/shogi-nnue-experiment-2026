@@ -8,9 +8,10 @@ hard/soft教師、task lossとの混合、実際のblended NNUE lossを局面ご
 上がったが、単一expert regretとblend lossは悪化したため、候補選抜と固定test評価には進めない。
 
 この結果は「良いrouting targetが存在しない」ことを意味しない。最適化gate teacher自身は
-validation 20,480局面で平均lossを0.0347783から0.0154880へ下げた。一方、その教師をDNN側の
-paired局面だけから予測するadapterへ蒸留しても改善が再現しなかった。現構成では教師の予測可能性、
-特にDNN側局面とNNUE側局面を別にしたpaired入力がrouterの情報ボトルネックになっている可能性が高い。
+validation 20,480局面で平均lossを0.0347783から0.0154880へ下げた。ただし、このteacherは末端を
+見た後でペアごとに別の重みを選ぶため、探索ルートで一度決めた重みを全末端へ固定する実運用と
+粒度が一致しない。後続のroot-grouped実験では、複数末端で共有するteacherが未知末端へ転移することを
+確認した。詳細は`../root-grouped-router-20260823/README.md`を参照する。
 
 ## 共通条件
 
@@ -81,9 +82,8 @@ task勾配norm 0.0145290、teacher cross entropy勾配norm 0.1261112から、補
 
 - hard/softな単一expert rankingをさらに調整する優先度は低い。既にoracle一致の上昇とtask悪化が
   同時に観測され、目的の不一致が明確である。
-- blended-loss teacherは十分なoracle改善上限を示すが、現router入力から再現できない。
-- 次はexpertsを増やすより、routerがNNUE側の実局面特徴を直接受け取る構成、またはpaired対応を
-  保ったままrouter入力情報を増やす小規模比較を優先する。
+- per-pair blended-loss teacherは探索時に実現不能なoracleなので、root単位で複数末端を共有する
+  teacherへ置き換える。
 
 機械可読な集計は`results/router_distillation_short3_from510.json`、
 `results/router_distillation_combined_short3_from510.json`、

@@ -11,6 +11,7 @@ RUN_NAME=""
 LOG_FILE=""
 TRAIN_ARGS=()
 DRY_RUN=0
+ROOT_GROUPED=0
 
 usage() {
     cat <<'EOF'
@@ -23,6 +24,7 @@ Options:
   --nnue-checkpoint PATH
   --log-file PATH
   --dry-run
+  --root-grouped       Use roots.bin/leaves.bin/metadata.json grouped data
 
 The current uniform-50 dataset and HalfKP checkpoint 83000 are defaults.
 Existing RUN_NAME/checkpoints/*.ckpt causes an automatic full-state resume.
@@ -38,6 +40,7 @@ while [[ $# -gt 0 ]]; do
         --nnue-checkpoint) NNUE_CHECKPOINT="$(readlink -f "${2:?missing value}")"; shift 2 ;;
         --log-file) LOG_FILE="${2:?missing value}"; shift 2 ;;
         --dry-run) DRY_RUN=1; shift ;;
+        --root-grouped) ROOT_GROUPED=1; shift ;;
         --) shift; TRAIN_ARGS=("$@"); break ;;
         -h|--help) usage; exit 0 ;;
         *) echo "ERROR: unknown argument: $1" >&2; usage >&2; exit 2 ;;
@@ -51,7 +54,12 @@ done
 }
 
 for dir in "$TRAIN_DIR" "$VAL_DIR"; do
-    for name in dnn.bin nnue.bin; do
+    if [[ "$ROOT_GROUPED" -eq 1 ]]; then
+        required_names=(roots.bin leaves.bin metadata.json)
+    else
+        required_names=(dnn.bin nnue.bin)
+    fi
+    for name in "${required_names[@]}"; do
         [[ -f "${dir}/${name}" ]] || { echo "ERROR: missing ${dir}/${name}" >&2; exit 1; }
     done
 done
@@ -85,6 +93,9 @@ CMD=("${REPO_ROOT}/scripts/gpu_python.sh" -m train_nnue.train_expert_blending \
     --default-root-dir "$RUN_DIR" \
     "${TRAIN_ARGS[@]}" \
     "${RESUME_ARGS[@]}")
+if [[ "$ROOT_GROUPED" -eq 1 ]]; then
+    CMD+=(--root-grouped)
+fi
 
 if [[ "$DRY_RUN" -eq 1 ]]; then
     printf 'Command:'

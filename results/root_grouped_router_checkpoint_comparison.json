@@ -1,0 +1,53 @@
+{
+  "roots": 9728,
+  "control": {
+    "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/root_grouped_short1_task_control_from510/lightning_logs/version_0/final.ckpt",
+    "mean_group_loss": 0.03766478970646858,
+    "router_to_shared_teacher_top1_match": 0.5532483552631579,
+    "shared_teacher_cross_entropy": 1.7633167505264282
+  },
+  "candidates": [
+    {
+      "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/root_grouped_short1_teacher_g025_from510/lightning_logs/version_0/final.ckpt",
+      "mean_group_loss": 0.037695515900850296,
+      "router_to_shared_teacher_top1_match": 0.563219572368421,
+      "shared_teacher_cross_entropy": 1.7568694353103638,
+      "paired_loss_delta_vs_control": {
+        "mean": 3.072469189646654e-05,
+        "bootstrap_95_interval": [
+          6.7628405505822765e-06,
+          5.661283717824313e-05
+        ],
+        "fraction_improved": 0.638671875
+      }
+    },
+    {
+      "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/root_grouped_short1_teacher_g100_from510/lightning_logs/version_0/final.ckpt",
+      "mean_group_loss": 0.037745725363492966,
+      "router_to_shared_teacher_top1_match": 0.5689761513157895,
+      "shared_teacher_cross_entropy": 1.7539311647415161,
+      "paired_loss_delta_vs_control": {
+        "mean": 8.093816722976044e-05,
+        "bootstrap_95_interval": [
+          3.406863541120826e-05,
+          0.00013232230209128836
+        ],
+        "fraction_improved": 0.6353824013157895
+      }
+    },
+    {
+      "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/root_grouped_short1_teacher_pure_from510/lightning_logs/version_0/final.ckpt",
+      "mean_group_loss": 0.03791200369596481,
+      "router_to_shared_teacher_top1_match": 0.5719572368421053,
+      "shared_teacher_cross_entropy": 1.750618815422058,
+      "paired_loss_delta_vs_control": {
+        "mean": 0.00024721355293877423,
+        "bootstrap_95_interval": [
+          0.00013844885011020096,
+          0.00036292865302774965
+        ],
+        "fraction_improved": 0.5549958881578947
+      }
+    }
+  ]
+}

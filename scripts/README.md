@@ -18,6 +18,7 @@ activateしたりしない。
 | スクリプト | 用途 | ログ |
 |---|---|---|
 | `run_paired_shuffle.sh` | DNN/NNUEのpairedデータ生成 | 呼び出し側で指定 |
+| `run_grouped_paired_shuffle.sh` | 1 root対K qsearch末端のgroupedデータ生成 | 呼び出し側で指定 |
 | `train_expert_blending.sh` | Expert Blending学習と自動再開 | 必ず`/tmp`または指定ファイル |
 | `export_expert_blending.sh` | checkpointをやねうら王用にexport | 標準出力 |
 | `eval_accuracy.sh` | 最善手一致率評価 | 必ず`/tmp`または指定ファイル |
@@ -31,6 +32,8 @@ activateしたりしない。
 | `run_router_distillation_combined_sweep.sh` | task＋soft router蒸留の勾配調整比較 | `/tmp/train_nnue_router_distill_combined_*.log` |
 | `generate_optimized_gate_teacher_caches.sh` | blend loss最適化gate teacher生成 | `/tmp/optimized_gate_teacher_*.log` |
 | `run_optimized_gate_distillation_sweep.sh` | 最適化gate teacher蒸留の3 epoch短期比較 | `/tmp/train_nnue_router_gate_teacher_*.log` |
+| `generate_root_grouped_teachers.sh` | 複数末端で共有するroot gate teacher生成・A/B評価 | `/tmp/root_grouped_teacher_*.log` |
+| `run_root_grouped_router_sweep.sh` | root-grouped task/teacher学習比較 | `/tmp/train_nnue_root_grouped_*.log` |
 | `benchmark_expert_blending_speed.sh` | 推論速度測定 | スクリプト内で指定 |
 
 引数と実行例は[学習・評価手順](../docs/operations/training-and-evaluation.md)を参照する。

@@ -14,10 +14,10 @@
 - 現在の採用候補 (`uniform50 + lambda=0.5`, checkpoint 180) は、100万ノード・同一1,000局面でベースライン NNUE の 64.4% に対して 63.3% だった。ただし対応ありの正確 McNemar 検定は `p=0.439` で、有意な劣化とはいえない。
 - 一方、gate が密すぎるという仮説には根拠がある。checkpoint 180 の validation gate entropy は 1.814 (`log(8)=2.079` の87.2%) で、実効 expert 数 `exp(H)` は約6.1だった。代表局面の最大重みも平均0.281に留まる。
 - entropy・balance・entmaxによる疎化は完了し、疎化自体は達成したが指し手一致率を改善しなかった。
-- router蒸留も実施したが、単一expert oracle、taskとの混合、blended-loss最適化gate教師の全条件で
-  task-only対照を改善しなかった。最適化教師自身には大きな改善余地があるため、次はDNN側paired
-  局面だけを入力とするrouterの情報制約を見直す。詳細は
-  `docs/research/results/router-distillation-20260823/README.md`に記録した。
+- per-pair router蒸留は改善しなかったが、末端ごとのteacherは探索時の固定重み制約と一致して
+  いなかった。rootごとに8末端を共有する後続実験では、A末端で決めた固定teacherが未知のB末端へ
+  転移し、root-grouped task-only学習も初期checkpoint比でlossを改善した。詳細は
+  `docs/research/results/root-grouped-router-20260823/README.md`に記録した。
 - 最善手一致率は1万局面へ拡大し、対応あり比較を行う。現観測値から1.1ポイント差を検出する概算必要数は約10,833局面なので、まず10,000、確証が必要なら12,000以上を使う。
 
 ## 現状認識の根拠
@@ -188,7 +188,8 @@ loss 0.0337878、実効expert 3.92、死expertなしとなった。この候補�
 実装・実験状況 (2026-08-23): router蒸留は3段階で検証した。単一expert hard/soft教師では
 oracle top-1一致が20.43%から最大28.96%へ上がった一方、validation lossは0.0338493から
 0.0386505へ悪化した。勾配scaleを合わせたtaskとの混合も改善せず、実際のblend lossを局面ごとに
-最適化したgate教師でも最良0.0338608だった。候補なしとして独立validation窓と固定testには進めない。
+最適化したgate教師でも最良0.0338608だった。このper-pair結果からは候補なしとしたが、後続の
+root-grouped task-only学習では固定root gateの有効性が確認された。
 
 - **継続**: validation lossを悪化させず、gateが明確に疎になり、10,000局面の対応あり差が正方向。
 - **設計変更**: oracle teacherには改善余地があるのに蒸留後のtask lossが改善しない場合。routerへ

@@ -181,6 +181,23 @@ teacher gateである。`--val-start-position`はbatch sizeの倍数を指定し
 同じ位置から読む。結果と判断は
 [router蒸留実験](../research/results/router-distillation-20260823/README.md)に記録した。
 
+探索ルートごとにK末端でgateを共有する学習は、wrapper側にも`--root-grouped`を指定する。
+
+```bash
+bash scripts/train_expert_blending.sh \
+  --run-name root_grouped_trial \
+  --train-dir tmp/root_grouped_router_pilot/train \
+  --val-dir tmp/root_grouped_router_pilot/val_disjoint_b \
+  --root-grouped -- \
+  --feature-set HalfKP --n-experts 8 --batch-size 64 \
+  --epoch-size 99840 --max-val-positions 9728 \
+  --freeze-experts --gpus 1
+```
+
+このモードでは`epoch-size`と`max-val-positions`は末端数ではなくroot数を表す。DNNはroot batchに
+1回、NNUEは`root batch x group_size`末端に実行され、同じgateがgroup内で共有される。結果は
+[root-grouped router実験](../research/results/root-grouped-router-20260823/README.md)を参照する。
+
 ## TensorBoard
 
 ```bash
