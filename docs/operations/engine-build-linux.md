@@ -10,7 +10,7 @@ cp YaneuraOu/source/YaneuraOu-by-gcc bin/YaneuraOu-by-gcc
 ## Expert Blendingエンジン
 
 現在の方式はPython推論サーバーを使わない。やねうら王が`backbone.onnx`と`head.bin`を
-直接ロードする。
+直接ロードし、CPU版onnxruntimeでgateを推論する。CUDAやGPUは不要である。
 
 ```bash
 bash YaneuraOu/extra/onnxruntime/fetch_onnxruntime.sh linux

@@ -10,7 +10,6 @@ LOG_FILE="${4:-/tmp/eval_accuracy_$(basename "$OUTPUT" .json).log}"
 
 echo "Evaluation log: $LOG_FILE"
 echo "Result JSON: $OUTPUT"
-"${REPO_ROOT}/scripts/gpu_python.sh" -c 'pass'
 "${REPO_ROOT}/scripts/project_python.sh" -m train_nnue.eval_accuracy \
     --project-root "$REPO_ROOT" \
     --config "$CONFIG" \

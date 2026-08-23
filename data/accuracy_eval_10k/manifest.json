@@ -1,0 +1,40 @@
+{
+  "format_version": 1,
+  "source": {
+    "path": "tmp/floodgate.hcpe/floodgate.hcpe",
+    "records": 856923,
+    "size_bytes": 32563074,
+    "sha256": "fb9d60b283ade32cb5c5715fe27042476bc7169cc46b6d62a2d85975c1a945ac"
+  },
+  "seed": 20260823,
+  "identity": "unique SFEN",
+  "excluded": [
+    {
+      "path": "data/accuracy_eval/train.jsonl",
+      "sha256": "e870c8ada868a87f35d00dfec01fe548c9ae256619f12ab21ebf2424078f1c90"
+    },
+    {
+      "path": "data/accuracy_eval/val.jsonl",
+      "sha256": "ee41a4a30b3115a24d31e846c0f3174467ba676ed1afd36136eb0842bce8a4bc"
+    },
+    {
+      "path": "data/accuracy_eval/test.jsonl",
+      "sha256": "2aab31fb15e8f7ed23b05af420b4211cfd6de470990b2db62ffd289e766e92bd"
+    }
+  ],
+  "splits": {
+    "validation": {
+      "count": 10000,
+      "file": "validation.jsonl",
+      "sha256": "eaa2ebc40aa5e603cb653db1212c9731234685727841ea933e845bd777754eb9"
+    },
+    "test": {
+      "count": 10000,
+      "file": "test.jsonl",
+      "sha256": "c68144ac95580a394f90421b1cfee50a71b21cfbbf3461640ca41e14619f10ff"
+    }
+  },
+  "notes": {
+    "game_ply": "HCPE does not store game ply; the move number in decoded SFEN is not treated as game-ply metadata."
+  }
+}

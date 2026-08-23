@@ -66,13 +66,17 @@ bash scripts/export_expert_blending.sh \
 
 ## 最善手一致率
 
+標準NNUE、Expert Blendingとも評価はCPUで実行する。Expert Blendingのgateはやねうら王へ
+組み込んだCPU版ONNX Runtimeが担当し、Python推論サーバーやCUDAは使わない。ただし
+やねうら王を起動する評価なので、運用規則に従ってsandbox外で実行する。
+
 ベースライン:
 
 ```bash
 bash scripts/eval_accuracy.sh \
   configs/accuracy_eval_halfkp_v1.json \
-  data/accuracy_eval/test.jsonl \
-  results/accuracy_eval_halfkp_current.json
+  data/accuracy_eval_10k/test.jsonl \
+  results/accuracy_eval_10k_halfkp_v1.json
 ```
 
 Expert Blendingは先に`tmp/expert_blending_release`へ変換してから実行する。
@@ -80,12 +84,16 @@ Expert Blendingは先に`tmp/expert_blending_release`へ変換してから実行
 ```bash
 bash scripts/eval_accuracy.sh \
   configs/accuracy_eval_expert_blending_current.json \
-  data/accuracy_eval/test.jsonl \
-  results/accuracy_eval_expert_blending_current.json
+  data/accuracy_eval_10k/test.jsonl \
+  results/accuracy_eval_10k_expert_blending_current.json
 ```
 
 ログは`/tmp/eval_accuracy_<output-name>.log`、詳細結果は指定したJSONへ保存される。設定の仕様と
-データ抽出方法は[accuracy-evaluation.md](accuracy-evaluation.md)を参照する。
+データ抽出方法は[accuracy-evaluation.md](accuracy-evaluation.md)を参照する。testはvalidationで
+選抜済みの少数候補だけに使い、両結果の対応あり比較も同文書の手順で必ず実行する。
+
+checkpoint 180を評価した2026-08-23の結果は
+[固定10,000局面評価](../research/results/accuracy-eval-10k-current/README.md)に保存している。
 
 ## validation loss診断
 

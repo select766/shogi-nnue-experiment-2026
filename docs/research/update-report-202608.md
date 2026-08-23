@@ -2,6 +2,10 @@
 
 ## 結論
 
+- 2026-08-23の固定test 10,000局面による追試では、ベースライン62.87%に対して現在の
+  採用候補は63.32%で、差は+0.45ポイントだった。対応ありの正確McNemar検定は
+  `p=0.314924`であり、正方向だが優位性は確認できない。詳細は
+  `docs/research/results/accuracy-eval-10k-current/README.md`に記録した。
 - 現在の採用候補 (`uniform50 + lambda=0.5`, checkpoint 180) は、100万ノード・同一1,000局面でベースライン NNUE の 64.4% に対して 63.3% だった。ただし対応ありの正確 McNemar 検定は `p=0.439` で、有意な劣化とはいえない。
 - 一方、gate が密すぎるという仮説には根拠がある。checkpoint 180 の validation gate entropy は 1.814 (`log(8)=2.079` の87.2%) で、実効 expert 数 `exp(H)` は約6.1だった。代表局面の最大重みも平均0.281に留まる。
 - 次に優先すべきなのは expert 数の追加ではなく、8 expertsを固定したまま「局面ごとの低entropy」と「データ全体の利用均衡」を別々に制御する実験である。
@@ -110,6 +114,13 @@ checkpoint 180 の10,000 validation positionsに対する `argmax` 担当割合�
 ## 次の実験
 
 ### 1. 評価基盤を先に固定する
+
+実装状況 (2026-08-23): `data/accuracy_eval_10k/`へvalidation/test各10,000件を固定し、
+旧3,000件とsplit間のSFEN重複がないことを確認した。`eval_accuracy`はWilson区間と層別、
+`compare_accuracy`は局面対応を検査したdiscordant countsと正確McNemar検定を出力する。
+最終候補用には`scripts/eval_match.sh`で固定ノード・開始局面ごとの先後ペア・Elo近似区間を
+保存できる。HCPEに実手数がないため、現データの`game_ply`層別は利用不可と明示し、
+実手数付きJSONLを与えた場合だけ集計する。
 
 1. HCPE全体から、既存1,000件と重複しない固定test 10,000件を作る。ハイパーパラメータ選択には別のvalidation subsetを使い、testを反復調整に使わない。
 2. 全モデルを同一局面・`Threads=1`・100万ノードで評価する。

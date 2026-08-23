@@ -9,6 +9,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from cshogi.usi import Engine
 
+from train_nnue.accuracy_statistics import accuracy_summary, stratified_summary
+
 PATH_ENGINE_OPTIONS = ("EvalDir", "ExpertBlendingDir")
 
 
@@ -169,14 +171,17 @@ def main():
     # Sort by original index
     all_results.sort(key=lambda x: x["index"])
 
-    # Compute accuracy
-    matches = sum(1 for r in all_results if r["match"])
-    accuracy = matches / total if total > 0 else 0.0
+    # Compute accuracy and diagnostics from the original dataset metadata.
+    match_values = [result["match"] for result in all_results]
+    summary = accuracy_summary(match_values)
+    accuracy = summary["accuracy"] if summary["accuracy"] is not None else 0.0
 
     output = {
         "accuracy": accuracy,
-        "matches": matches,
+        "matches": summary["matches"],
         "total": total,
+        "wilson_95": summary["wilson_95"],
+        "strata": stratified_summary(records, match_values),
         "config": config,
         "dataset_path": args.dataset,
         "details": all_results,
@@ -186,7 +191,9 @@ def main():
     with open(args.output, "w") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
-    print(f"Accuracy: {accuracy:.4f} ({matches}/{total})", file=sys.stderr)
+    print(
+        f"Accuracy: {accuracy:.4f} ({summary['matches']}/{total})", file=sys.stderr
+    )
     print(f"Results written to {args.output}", file=sys.stderr)
 
 
