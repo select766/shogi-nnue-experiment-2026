@@ -3,22 +3,13 @@
 Expert Blending (checkpoint 160) とベースライン単一NNUEの validation loss を
 `delta = nnue_ply - dnn_ply` および `nnue_ply` でbin分割して比較した。
 
-## 実行コマンド
-
-```bash
-cd nnue-pytorch && source .venv/bin/activate
-PYTHONPATH=../src:$PYTHONPATH python -u -m train_nnue.check_loss_per_gameply \
-    --expert-blending-checkpoint /home/select766/shogi/train-nnue/logs/expert_blending_8experts_v4_paired_noise0/checkpoints/160.ckpt \
-    --nnue-checkpoint /home/select766/shogi/modelarchive/train-tanuki/83000.ckpt \
-    --val /home/select766/shogi/train-nnue/dataset/split_v1_paired/train.bin \
-    --feature-set HalfKP \
-    --max-positions 1000000 \
-    --output /home/select766/shogi/train-nnue/docs/check-loss-per-gameply/loss_per_gameply.png
-```
+> **履歴資料:** 入力に使った旧pairedデータは削除済みで、この結果は再実行できない。
+> 現行データによる同じ解析は、隣接するDNN gateまたはNNUE gateのREADMEにある
+> `scripts/gpu_python.sh`経由のコマンドを使う。
 
 - データ: `dataset/split_v1_paired/train.bin` の先頭100万レコード (80B/record ペア形式)
 - Expert Blending: `logs/expert_blending_8experts_v4_paired_noise0/checkpoints/160.ckpt`
-- ベースラインNNUE: `modelarchive/train-tanuki/83000.ckpt`
+- ベースラインNNUE: 現在は`logs/halfkp_v1/checkpoints/83000.ckpt`に配置
 
 ## 結果
 

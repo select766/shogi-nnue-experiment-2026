@@ -1,5 +1,25 @@
 # エキスパートの可視化
 
+## 現行コマンド
+
+PyTorch環境は直接activateせず、リポジトリルートから次を実行する。
+
+```bash
+scripts/gpu_python.sh -u -m train_nnue.visualize_experts \
+  --checkpoint logs/expert_blending_8experts_v4_paired_uniform50_noise0_lambda05/checkpoints/180.ckpt \
+  --val dataset/split_v1_paired_uniform_50/val1 \
+  --backbone-weights tmp/dlshogi-model/model_resnet10_swish-072 \
+  --nnue-checkpoint logs/halfkp_v1/checkpoints/83000.ckpt \
+  --feature-set HalfKP \
+  --n-experts 8 \
+  --max-positions 10000 \
+  --output-dir tmp/visualize_experts \
+  > /tmp/visualize_experts.log 2>&1
+```
+
+GPUを使う場合はsandbox外で実行する。引数の正確な一覧は
+`scripts/nnue_python.sh -m train_nnue.visualize_experts --help`で確認する。
+
 ## 目的
 
 Expert Blending で学習されたモデルにおいて、各エキスパートが異なる局面に
@@ -194,5 +214,4 @@ cshogi の `board.piece(sq)` で飛車（`BROOK`/`WROOK`）または竜（`BPROM
 ## 実装メモ
 
 - 局面の画像化は `cshogi.Board` の `to_svg()` を使う。
-- 可視化対象のモデル・実行コマンド・出力先などは
-  `results/visualize_experts_*/README.txt` に記録する（再実行を再現可能にする）。
+- 可視化対象のモデル・実行コマンド・出力先などは出力ディレクトリに記録する。

@@ -1,0 +1,13 @@
+# Non-PyTorch dependencies for nnue-pytorch/.venv.
+# PyTorch CUDA wheels are installed separately by scripts/setup_python_envs.sh.
+cshogi==0.9.7
+matplotlib==3.10.8
+numpy==2.3.5
+onnx==1.21.0
+onnxruntime==1.25.0
+python-chess==0.31.4
+pytorch-lightning==1.9.5
+PyYAML==6.0.3
+setuptools==80.10.2
+tensorboard==2.20.0
+tensorboardX==2.6.4

@@ -142,8 +142,8 @@ cppshogi ヘッダは `dlshogi_features.cpp` 内でのみ include する設計�
 変換ツール (Linux 側):
 
 ```bash
-uv run python -m train_nnue.export_for_yaneuraou \
-    --checkpoint logs/<run>/checkpoints/<epoch>.ckpt \
-    --backbone-weights tmp/dlshogi-model/model_resnet10_swish-072 \
-    --output-dir bin/eval_expert_blending
+bash scripts/export_expert_blending.sh \
+    logs/<run>/checkpoints/<epoch>.ckpt \
+    bin/eval_expert_blending \
+    8
 ```

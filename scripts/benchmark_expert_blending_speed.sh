@@ -9,7 +9,7 @@
 # Usage:
 #   bash scripts/benchmark_expert_blending_speed.sh \
 #     [checkpoint] [backbone_weights] [n_experts] [nodes] [iters]
-set -e
+set -euo pipefail
 
 CHECKPOINT=${1:-logs/expert_blending_8experts_v4_paired_uniform50_noise0_lambda05/checkpoints/180.ckpt}
 BACKBONE_WEIGHTS=${2:-tmp/dlshogi-model/model_resnet10_swish-072}
@@ -46,12 +46,8 @@ if [ ! -f "$BACKBONE_WEIGHTS" ]; then
     exit 1
 fi
 
-cd "$ROOT_DIR/nnue-pytorch"
-source .venv/bin/activate
-
-PYTHONPATH="$ROOT_DIR/src:$ROOT_DIR/dlshogi-source:$ROOT_DIR/nnue-pytorch:$PYTHONPATH" \
-LD_LIBRARY_PATH="$ONNX_LIB_DIR:$LD_LIBRARY_PATH" \
-python -m train_nnue.benchmark_blending_speed \
+LD_LIBRARY_PATH="$ONNX_LIB_DIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+"$ROOT_DIR/scripts/gpu_python.sh" -m train_nnue.benchmark_blending_speed \
     --engine "$ENGINE" \
     --checkpoint "$CHECKPOINT" \
     --backbone-weights "$BACKBONE_WEIGHTS" \

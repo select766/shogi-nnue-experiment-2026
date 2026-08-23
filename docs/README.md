@@ -1,0 +1,32 @@
+# ドキュメント索引
+
+このファイルをCodexと開発者の入口とする。`operations/`だけが現行の実行手順、
+`research/`は現在の研究判断、`archive/`は参照専用の履歴である。
+
+## 最初に読む
+
+1. [Python環境](operations/python-environments.md): 2つの環境の責務と再構築方法。
+2. [学習と評価](operations/training-and-evaluation.md): 現行データによる学習、変換、loss評価、最善手一致率評価。
+3. [データ](operations/data-preparation.md): 現行データの場所、形式、再生成方針。
+4. [2026年8月研究計画](research/update-report-202608.md): 現状の根拠と次の疎gate実験。
+
+## Operations
+
+- [Python環境](operations/python-environments.md)
+- [学習と評価](operations/training-and-evaluation.md)
+- [データ準備](operations/data-preparation.md)
+- [最善手一致率の仕様](operations/accuracy-evaluation.md)
+- [Expert分析と可視化](operations/expert-analysis.md)
+- [やねうら王ビルド (Linux)](operations/engine-build-linux.md)
+- [やねうら王ビルド (Windows)](operations/engine-build-windows.md)
+
+## Research
+
+- [2026年8月の依頼](research/update-plan-202608.md)
+- [調査報告と次期実験計画](research/update-report-202608.md)
+- [実験結果索引](research/results/README.md)
+
+## Archive
+
+[archive/README.md](archive/README.md)以下は、過去の設計判断や障害調査の証跡である。
+コマンド、パス、依存バージョンは現行環境と互換性がない。

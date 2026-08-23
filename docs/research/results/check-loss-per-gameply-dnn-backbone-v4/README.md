@@ -3,24 +3,25 @@
 Expert Blending (DNNバックボーン, checkpoint 400) とベースライン単一NNUEの validation loss を
 `delta = nnue_ply - dnn_ply` および `nnue_ply` でbin分割して比較した。
 
-エンジン設定は `configs/accuracy_eval_expert_blending_uniform_50_v4.json` に対応。
+当時のエンジン設定は
+`configs/archive/accuracy_eval_expert_blending_uniform_50_v4.json`に保存している。
 
 ## 実行コマンド
 
 ```bash
-cd nnue-pytorch && source .venv/bin/activate
-PYTHONPATH=../src:$PYTHONPATH python -u -m train_nnue.check_loss_per_gameply \
-    --expert-blending-checkpoint /home/select766/shogi/train-nnue/logs/expert_blending_8experts_v4_paired_uniform50_noise0/checkpoints/400.ckpt \
-    --nnue-checkpoint /home/select766/shogi/modelarchive/train-tanuki/83000.ckpt \
-    --val-dir /home/select766/shogi/train-nnue/dataset/split_v1_paired_uniform_50/val1 \
-    --feature-set HalfKP \
-    --max-positions 1000000 \
-    --output /home/select766/shogi/train-nnue/docs/check-loss-per-gameply-dnn-backbone-v4/loss_per_gameply.png
+scripts/gpu_python.sh -u -m train_nnue.check_loss_per_gameply \
+  --expert-blending-checkpoint logs/expert_blending_8experts_v4_paired_uniform50_noise0/checkpoints/400.ckpt \
+  --nnue-checkpoint logs/halfkp_v1/checkpoints/83000.ckpt \
+  --val-dir dataset/split_v1_paired_uniform_50/val1 \
+  --feature-set HalfKP \
+  --max-positions 1000000 \
+  --output docs/research/results/check-loss-per-gameply-dnn-backbone-v4/loss_per_gameply_delta.png \
+  > /tmp/check_loss_per_gameply_dnn.log 2>&1
 ```
 
 - データ: `dataset/split_v1_paired_uniform_50/val1` の先頭100万レコード (40B/record ペア形式)
 - Expert Blending (DNNバックボーン): `logs/expert_blending_8experts_v4_paired_uniform50_noise0/checkpoints/400.ckpt`
-- ベースラインNNUE: `modelarchive/train-tanuki/83000.ckpt`
+- ベースラインNNUE: `logs/halfkp_v1/checkpoints/83000.ckpt`
 
 ## 結果
 

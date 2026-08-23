@@ -1,183 +1,92 @@
-# AGENTS.md - train-nnue リポジトリガイド
+# AGENTS.md - train-nnue
 
-## プロジェクト概要
+## 最初に読む
 
-将棋NNUEモデル (HalfKP 256x2-32-32) の学習環境。
-教師データのqsearchシャッフル、学習 (PyTorch Lightning)、モデル変換、やねうら王での動作検証までのパイプラインを管理する。
+1. `docs/README.md`
+2. `docs/operations/python-environments.md`
+3. `docs/operations/training-and-evaluation.md`
+4. 研究作業なら`docs/research/update-report-202608.md`
 
-## 重要な注意事項
+`docs/archive/`と`scripts/archive/`は参照専用であり、掲載コマンドを実行しない。
 
-### 標準出力の扱い
-学習の標準出力をClaude Code等のプロセスが直接受け取ると、ログの蓄積により数十GBのメモリを消費しPCがクラッシュする。
-学習コマンドの実行時は**必ず出力をファイルにリダイレクトする** (`> /tmp/xxx.log 2>&1`)。
-進捗確認は `tail -f` で別途行う。
+## プロジェクト
 
-### sandbox / escalation の注意
-- Claude Code の sandbox 内では GPU が見えず、`torch.cuda.is_available()` が `False` になることがある。この状態で学習・評価を回すと、CPU フォールバックやデータローダ経路の差で `nan` や `RuntimeError: Cannot access accelerator device when none is available.` が発生しうる。
-- **学習、`check_loss_per_gameply`、`check_loss_per_expert`、`eval_accuracy`、やねうら王を起動する評価は、原則として escalation して sandbox 外で実行すること。**
-- 特に `nnue-pytorch/.venv` を使う PyTorch Lightning 学習と、`bin/YaneuraOu-by-gcc` / `bin/YaneuraOu-expert-blending` を起動する検証は、sandbox 内の結果を信用しない。まず sandbox 外で再実行して切り分ける。
-- `nan` が出た場合、まずデータ破損を疑う前に「sandbox 内実行ではないか」を確認する。
+将棋NNUE (HalfKP 256x2-32-32) と Expert Blending のデータ作成、PyTorch Lightning学習、
+モデル変換、やねうら王評価を管理する。
 
-### サブモジュール構成
-3つのgitサブモジュールがある。nnue-pytorchの中身を編集する場合は、サブモジュール内で先にコミットし、その後親リポジトリでサブモジュール参照を更新してコミットする。
+## 実行環境
 
-| サブモジュール | ブランチ | 用途 |
-|--------------|---------|------|
-| `nnue-pytorch/` | `shogi-linux-halfkp256` | 学習フレームワーク (model.py, train.py等) |
-| `YaneuraOu/` | (デフォルト) | やねうら王 v9.01git (検証用、変更なし) |
-| `tanuki-learner/` | `tanuki-dr4-learner-linux` | shuffle_kifu (qsearch適用シャッフル用) |
+Pythonを手動でactivateしない。`python`、`uv run`、`PYTHONPATH=...`を直接組み立てない。
 
-### Python 環境 (2つの仮想環境)
-- `.venv/` (リポジトリルート): データ処理スクリプト用。`uv sync` で管理。`uv run python -m train_nnue.xxx` で実行。
-- `nnue-pytorch/.venv/`: 学習用 (PyTorch, python-chess 等)。nnue-pytorch 独自管理。`cd nnue-pytorch && source .venv/bin/activate` で使用。
+- データ処理・JSON・エンジン評価: `scripts/project_python.sh`
+- GPU必須の学習・loss評価: `scripts/gpu_python.sh`
+- CPUでよいPyTorch処理・モデル変換: `scripts/nnue_python.sh`
+- 初回構築: `bash scripts/setup_python_envs.sh`
+- 環境確認: `bash scripts/check_environment.sh`
+- GPU確認: `bash scripts/check_environment.sh --require-gpu`
 
-2つの環境は依存ライブラリが異なるため分離している。
+ラッパーは作業ディレクトリをリポジトリルートに固定する。相対パスはすべてリポジトリルート基準。
 
-### 大容量データのパス
-- 元データ (読み取り専用): `./dataset/kifu/tanuki-.nnue-pytorch-2024-07-30.1/` (~300GB, 1016個の .bin)
-- 加工データ出力先: `./dataset/split_v1/`
-- 検証用サブセット: `dataset_qsearch_split/` (リポジトリ直下、train.bin 9.5GB + val.bin 199MB)
+## 標準出力とGPU
 
-## ディレクトリ構成
+- 学習出力をエージェントが直接受け取るとログが数十GBになり得る。必ず`/tmp/*.log`へ
+  `> LOG 2>&1`で保存する。`scripts/train_expert_blending.sh`と`eval_accuracy.sh`は自動で保存する。
+- 学習、`check_loss_per_gameply`、`check_loss_per_expert`、`eval_accuracy`、やねうら王を起動する
+  評価はsandbox外で実行する。
+- GPU必須処理を`scripts/nnue_python.sh`から直接起動しない。`scripts/gpu_python.sh`の
+  CUDA実演算preflightを必ず通し、CPU fallbackを許可しない。
+- sandbox内ではCUDAが見えずCPU fallbackや`nan`が起きる。データ破損を疑う前に実行環境を確認する。
 
-```
-train-nnue/
-├── pyproject.toml                   # uv プロジェクト定義 (numpy 依存)
-├── uv.lock                          # 依存ロックファイル
-├── .python-version                  # Python バージョン (3.11)
-│
-├── src/train_nnue/                  # Python パッケージ (uv run で実行)
-│   ├── split_and_shuffle.py         #   データ分割 (ファイル単位、seed=42)
-│   ├── shuffle_dataset.py           #   簡易train/val分割 (レコード単位、検証用)
-│   └── run_yaneuraou.py             #   やねうら王USI動作検証
-│
-├── scripts/                         # Bash スクリプト
-│   ├── run_shuffle.sh               #   単一ディレクトリのqsearchシャッフル
-│   ├── run_shuffle_splits.sh        #   全splitのqsearchシャッフル実行
-│   └── run_train_halfkp.sh          #   学習実行 (中断・再開対応)
-│
-├── nnue-pytorch/                    # [サブモジュール] 学習フレームワーク
-│   ├── model.py                     #   NNUEモデル定義 (HalfKP 256x2-32-32)
-│   ├── train.py                     #   学習エントリポイント
-│   ├── serialize.py                 #   .ckpt → .nnue 変換
-│   ├── nnue_dataset.py              #   C++データローダー
-│   ├── features.py / halfkp.py      #   特徴量定義
-│   └── .venv/                       #   Python仮想環境 (学習用、独自管理)
-├── YaneuraOu/                       # [サブモジュール] やねうら王 (変更なし)
-├── tanuki-learner/                  # [サブモジュール] shuffle_kifu用
-│
-├── bin/                             # ビルド成果物・実行環境 (gitignore)
-│   ├── YaneuraOu-by-gcc             #   やねうら王バイナリ
-│   ├── eval/nn.bin                  #   検証用NNUEモデル
-│   └── shuffle/                     #   tanuki-learner実行環境
-│       ├── tanuki-learner           #   shuffle_kifuバイナリ
-│       └── eval/nn.bin              #   qsearch用既成モデル (学習対象とは別物)
-│
-├── logs/                            # 学習ログ・チェックポイント (gitignore)
-├── dataset_qsearch_split/           # 検証用サブセット (gitignore)
-│
-├── docs/                            # ドキュメント
-│   ├── how-to-train.md              #   大容量データ学習パイプラインの手順
-│   ├── how-to-qsearch-shuffle.md    #   qsearchシャッフルの手順 (サブセットでの検証含む)
-│   ├── how-to-setup-nnue-pytorch.md #   nnue-pytorch環境構築手順
-│   ├── how-to-build-yaneuraou.md    #   やねうら王ビルド手順
-│   ├── train-plan.md                #   学習計画・ハイパーパラメータ決定
-│   ├── shuffle-model.md             #   シャッフルモデルの手順
-│   ├── setup.md                     #   セットアップ手順
-│   └── verify-nnue-training.md      #   学習検証メモ
-│
-└── AGENTS.md                        # リポジトリガイド (本ファイル)
-```
+## 現行データ
 
-## 主要なコマンド
+- 主学習: `dataset/split_v1_paired_uniform_50/train/{dnn.bin,nnue.bin}`
+- validation: `dataset/split_v1_paired_uniform_50/val1/{dnn.bin,nnue.bin}`
+- 再生成元: `dataset/tanuki-.nnue-pytorch-2024-07-30.1/`
+- 初期NNUE: `logs/halfkp_v1/checkpoints/83000.ckpt`
+- DNN backbone: `tmp/dlshogi-model/model_resnet10_swish-072`
 
-### tanuki-learner (shuffle_kifu) のビルドと反映
+旧`split_v1`、旧paired、`uniform_50_old`は削除済み。archiveの旧パスを使わない。
+
+## 現行コマンド
+
 ```bash
-# 1. tanuki-learner を学習用ターゲットでビルド (本リポジトリ環境は BLAS なし前提)
-make -C tanuki-learner/source evallearn BLAS=NONE
+# Expert Blending学習。完全な引数例はoperations文書を参照
+bash scripts/train_expert_blending.sh --help
 
-# 2. 実行バイナリを shuffle 実行環境へ反映
-cp tanuki-learner/source/YaneuraOu-by-gcc bin/shuffle/tanuki-learner
+# checkpointをC++やねうら王形式へ変換
+bash scripts/export_expert_blending.sh CHECKPOINT OUTPUT_DIR 8
+
+# 最善手一致率
+bash scripts/eval_accuracy.sh CONFIG DATASET OUTPUT
+
+# qsearch pairedデータ生成
+bash scripts/run_paired_shuffle.sh INPUT_DIR OUTPUT_DIR 8 0 50 \
+  > /tmp/paired_shuffle.log 2>&1
 ```
 
-- ビルド成果物: `tanuki-learner/source/YaneuraOu-by-gcc`
-- `scripts/run_shuffle.sh` / `scripts/run_paired_shuffle.sh` が実際に起動するバイナリ: `bin/shuffle/tanuki-learner`
+## サブモジュール
 
-### 学習 (大容量データ)
-```bash
-# 1. データ分割
-uv run python -m train_nnue.split_and_shuffle
+| パス | 用途 |
+|---|---|
+| `nnue-pytorch/` | 学習フレームワークとC++データローダー |
+| `YaneuraOu/` | Expert Blending対応やねうら王 |
+| `tanuki-learner/` | qsearch shuffle |
+| `dlshogi-source/` | DNN特徴量とbackbone実装 |
 
-# 2. qsearchシャッフル (~10時間)
-bash scripts/run_shuffle_splits.sh 2>&1 | tee /tmp/shuffle_splits.log
+サブモジュールを編集した場合は、サブモジュール内で先にコミットし、その後親リポジトリで
+参照更新をコミットする。ユーザーの既存変更は戻さない。
 
-# 3. 学習開始 (再開も同じコマンド)
-bash scripts/run_train_halfkp.sh
+## 主要実装
 
-# 4. 進捗確認
-tail -f /tmp/train_nnue_halfkp.log
-```
+- `src/train_nnue/train_expert_blending.py`: 学習entry point
+- `src/train_nnue/expert_blending_model.py`: gateとNNUE experts
+- `src/train_nnue/expert_blending_dataset.py`: paired loader
+- `src/train_nnue/export_for_yaneuraou.py`: ONNX + head.bin export
+- `src/train_nnue/eval_accuracy.py`: 最善手一致率
+- `src/train_nnue/check_loss_per_gameply.py`: validation loss診断
 
-### モデル変換・検証
-```bash
-cd nnue-pytorch && source .venv/bin/activate
+## shuffle_kifu
 
-# .ckpt → .nnue
-python serialize.py --features "HalfKP" ../logs/halfkp_v1/checkpoints/XXXX.ckpt ../logs/halfkp_v1/nn.nnue
-
-# やねうら王に配置して検証
-cp ../logs/halfkp_v1/nn.nnue ../bin/eval/nn.bin
-cd .. && uv run python -m train_nnue.run_yaneuraou
-```
-
-### 検証用サブセットでの学習 (動作確認用)
-```bash
-cd nnue-pytorch && source .venv/bin/activate
-python train.py --features "HalfKP" --batch-size 16384 --max_epochs 200 \
-  --enable_progress_bar False --default_root_dir logs/test_run \
-  --threads 8 --lr 0.5 --accelerator gpu --devices 1 \
-  --epoch-size 100000 --network-save-period 50 \
-  ../dataset_qsearch_split/train.bin ../dataset_qsearch_split/val.bin \
-  > /tmp/train_test.log 2>&1
-```
-
-## モデルアーキテクチャ
-
-HalfKP 256x2-32-32: 入力(125388) → L1(256) → L2(32) → L3(32) → 出力(1)
-
-学習率はnewbobスケジューリング (`--lr 0.5 0.05` で2段階)。
-`newbob_scale` が `min_newbob_scale` を下回ると次のLRステージに移行し、全ステージ完了で学習終了。
-
-## train.py の再開オプション
-
-| オプション | 用途 | 復元される状態 |
-|-----------|------|--------------|
-| `--resume-from-checkpoint <.ckpt>` | 中断からの再開 | 重み + オプティマイザ + エポック + カスタム状態 |
-| `--resume-from-model <.ckpt>` | Fine-tuning | 重みのみ (LR等は初期化) |
-
-チェックポイントは `<default_root_dir>/checkpoints/` に保存される。
-
-## 学習パフォーマンスの知見
-
-### num_workers (C++データローダーのワーカースレッド数)
-
-`train.py` の `--num-workers` はC++データローダー (`nnue_dataset.py` 経由) のワーカースレッド数を制御する。
-RTX 4070 + 16コアCPU環境で、50エポック (epoch-size=1000000, batch-size=16384) のベンチマーク結果:
-
-| num_workers | 実行時間 | 平均GPU使用率 |
-|-------------|----------|---------------|
-| 1 (デフォルト) | 267s | 62.6% |
-| 8 | 232s | 72.2% |
-| 16 | 234s | 71.6% |
-| 64 | 235s | 71.6% |
-
-- `num_workers=1` → `8` で明確な改善 (実行時間 -13%、GPU使用率 +10pt)
-- `num_workers=8` 以上は頭打ち。データローダーではなくGPU側の計算 (モデルが小さくバッチ処理が軽い) が律速と推測
-- **推奨値: `--num-workers 8`**
-
-ベンチマーク詳細ログ: `logs/benchmark_num_workers/`
-
-## shuffle_kifu の注意
-
-- `shuffle_kifu` は入力ディレクトリ内の**全ファイル**をバイナリとして読み込む。`.bin` 以外のファイル (README.md等) が含まれるとセグフォルトする。シンボリックリンクディレクトリで `.bin` のみを渡すこと。
-- `bin/shuffle/eval/nn.bin` はqsearch実行に必要な既成モデル。学習対象のモデルとは別物。
+- 入力ディレクトリ内の全ファイルをバイナリとして読む。`.bin`以外を置かない。
+- 実行バイナリは`bin/shuffle/tanuki-learner`、qsearch用モデルは`bin/shuffle/eval/nn.bin`。
+- ビルドは`make -C tanuki-learner/source evallearn BLAS=NONE -j8`。

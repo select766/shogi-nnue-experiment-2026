@@ -35,8 +35,8 @@ git clone https://huggingface.co/datasets/takaoyamaoka/floodgate.hcpe
 
 全856,923件から、シード固定の乱数でtrain/val/testに各1000件を重複なく抽出し、JSONL形式で保存する。
 
-```
-uv run python -m train_nnue.extract_hcpe_subset \
+```bash
+scripts/project_python.sh -m train_nnue.extract_hcpe_subset \
   --input tmp/floodgate.hcpe/floodgate.hcpe \
   --output-dir data/accuracy_eval
 ```
@@ -80,7 +80,9 @@ uv run python -m train_nnue.extract_hcpe_subset \
 | `go_params` | `Engine.go()` に渡すパラメータ。`nodes`（ノード数指定）または `byoyomi`（秒読み）|
 | `num_workers` | 並列実行するEngineインスタンス数 |
 
-パスの解決: `engine_path` と `EvalDir` はプロジェクトルートからの相対パスで記述する。相対パスの場合、`--project-root`（デフォルト: カレントディレクトリ）を基準に絶対パスに変換してからエンジンに渡される。絶対パスの場合はそのまま使用。
+パスの解決: `engine_path`、`EvalDir`、`ExpertBlendingDir`はプロジェクトルートからの
+相対パスで記述する。`scripts/eval_accuracy.sh`がプロジェクトルートを明示し、評価実装が
+エンジン起動前に絶対パスへ変換する。絶対パスの場合はそのまま使用する。
 
 ### 設計上のポイント
 
@@ -90,14 +92,15 @@ uv run python -m train_nnue.extract_hcpe_subset \
 
 ### 実行
 
-```
-uv run python -m train_nnue.eval_accuracy \
-  --config configs/accuracy_eval_example.json \
-  --dataset data/accuracy_eval/test.jsonl \
-  --output results/accuracy_eval_suisho5.json
+```bash
+bash scripts/eval_accuracy.sh \
+  configs/accuracy_eval_example.json \
+  data/accuracy_eval/test.jsonl \
+  results/accuracy_eval_suisho5.json
 ```
 
-stderrに進捗（100局面ごと）と最終結果が出力される。
+評価はsandbox外で実行する。進捗とエンジン出力は
+`/tmp/eval_accuracy_accuracy_eval_suisho5.log`に保存される。
 
 ### 出力形式
 

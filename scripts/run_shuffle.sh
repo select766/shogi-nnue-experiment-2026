@@ -4,8 +4,8 @@
 # Example: bash scripts/run_shuffle.sh test_input_noreadme dataset_qsearch_shuffled 8
 #
 # IMPORTANT: input_dir must contain only .bin files (no README.md etc.)
-# See how-to-qsearch-shuffle.md for details.
-set -e
+# See docs/operations/data-preparation.md for details.
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 INPUT_DIR="${1:?Usage: $0 <input_dir> <output_dir> [threads]}"

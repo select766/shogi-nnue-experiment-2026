@@ -4,10 +4,10 @@
 # final output files in output_dir: dnn.bin and nnue.bin
 #
 # Usage: bash scripts/run_paired_shuffle.sh <input_dir> <output_dir> [threads] [max_output_samples] [offset_uniform_max]
-# Example: bash scripts/run_paired_shuffle.sh dataset/split_v1/input_train dataset/split_v1_paired/output_train 8 480000000 50
+# Example: bash scripts/run_paired_shuffle.sh /data/bin-only dataset/new_paired/train 8 0 50
 #
 # IMPORTANT: input_dir must contain only .bin files.
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 INPUT_DIR="${1:?Usage: $0 <input_dir> <output_dir> [threads] [max_output_samples] [offset_uniform_max]}"
@@ -73,7 +73,7 @@ for i in $(seq 1 100000); do
             exit 1
         fi
         echo "=== Splitting shuffled.bin into dnn.bin and nnue.bin ==="
-        python3 "$SCRIPT_DIR/scripts/split_paired_bin.py" \
+        "$SCRIPT_DIR/scripts/project_python.sh" "$SCRIPT_DIR/scripts/split_paired_bin.py" \
             --input "$OUTPUT_DIR/shuffled.bin" \
             --output-dir "$OUTPUT_DIR"
         rm -f "$OUTPUT_DIR/shuffled.bin"

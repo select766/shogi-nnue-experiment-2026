@@ -9,6 +9,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from cshogi.usi import Engine
 
+PATH_ENGINE_OPTIONS = ("EvalDir", "ExpertBlendingDir")
+
 
 def resolve_path(path, project_root):
     """Resolve a path relative to project_root if not absolute."""
@@ -32,6 +34,15 @@ def load_dataset(dataset_path):
             if line:
                 records.append(json.loads(line))
     return records
+
+
+def resolve_engine_option_paths(engine_options, project_root):
+    """Resolve engine options whose values are repository paths."""
+    resolved = dict(engine_options)
+    for name in PATH_ENGINE_OPTIONS:
+        if name in resolved:
+            resolved[name] = resolve_path(resolved[name], project_root)
+    return resolved
 
 
 def create_engine(engine_path, engine_options):
@@ -102,15 +113,11 @@ def main():
     # Load config
     config = load_config(args.config)
     engine_path = resolve_path(config["engine_path"], project_root)
-    engine_options = dict(config.get("engine_options", {}))
+    engine_options = resolve_engine_option_paths(
+        config.get("engine_options", {}), project_root
+    )
     go_params = config.get("go_params", {"nodes": 1000000})
     num_workers = config.get("num_workers", 4)
-
-    # Resolve EvalDir if present
-    if "EvalDir" in engine_options:
-        engine_options["EvalDir"] = resolve_path(
-            engine_options["EvalDir"], project_root
-        )
 
     print(f"Engine: {engine_path}", file=sys.stderr)
     print(f"Options: {engine_options}", file=sys.stderr)

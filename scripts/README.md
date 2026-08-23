@@ -1,0 +1,30 @@
+# スクリプト索引
+
+すべてリポジトリルートから実行する。Pythonを直接起動したり、仮想環境を
+activateしたりしない。
+
+## Python実行環境
+
+| スクリプト | 用途 |
+|---|---|
+| `setup_python_envs.sh` | ルート環境と学習環境を構築・更新 |
+| `check_environment.sh` | 依存関係、native loader、任意でCUDAを検査 |
+| `project_python.sh` | データ処理・評価用Pythonの唯一の入口 |
+| `nnue_python.sh` | PyTorch学習・解析用Pythonの唯一の入口 |
+| `gpu_python.sh` | CUDA実演算を検査してGPU必須処理を起動 |
+
+## 現行ワークフロー
+
+| スクリプト | 用途 | ログ |
+|---|---|---|
+| `run_paired_shuffle.sh` | DNN/NNUEのpairedデータ生成 | 呼び出し側で指定 |
+| `train_expert_blending.sh` | Expert Blending学習と自動再開 | 必ず`/tmp`または指定ファイル |
+| `export_expert_blending.sh` | checkpointをやねうら王用にexport | 標準出力 |
+| `eval_accuracy.sh` | 最善手一致率評価 | 必ず`/tmp`または指定ファイル |
+| `benchmark_expert_blending_speed.sh` | 推論速度測定 | スクリプト内で指定 |
+
+引数と実行例は[学習・評価手順](../docs/operations/training-and-evaluation.md)を参照する。
+過去の実験専用スクリプトは`archive/`にあり、現行処理からは呼び出さない。
+
+学習とGPU評価は`gpu_python.sh`を通す。CUDAが使えない場合はCPUへfallbackせず、
+sandbox外での再実行を求めて停止する。

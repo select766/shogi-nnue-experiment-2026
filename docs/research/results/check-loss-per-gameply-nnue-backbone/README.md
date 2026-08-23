@@ -6,19 +6,19 @@ Expert Blending (NNUEバックボーン, checkpoint 500) とベースライン�
 ## 実行コマンド
 
 ```bash
-cd nnue-pytorch && source .venv/bin/activate
-PYTHONPATH=../src:$PYTHONPATH python -u -m train_nnue.check_loss_per_gameply \
-    --expert-blending-checkpoint /home/select766/shogi/train-nnue/logs/expert_blending_8experts_v4_paired_uniform50_nnue_backbone_noise0/checkpoints/500.ckpt \
-    --nnue-checkpoint /home/select766/shogi/modelarchive/train-tanuki/83000.ckpt \
-    --val-dir /home/select766/shogi/train-nnue/dataset/split_v1_paired_uniform_50/val1 \
-    --feature-set HalfKP \
-    --max-positions 1000000 \
-    --output /home/select766/shogi/train-nnue/docs/check-loss-per-gameply-nnue-backbone/loss_per_gameply.png
+scripts/gpu_python.sh -u -m train_nnue.check_loss_per_gameply \
+  --expert-blending-checkpoint logs/expert_blending_8experts_v4_paired_uniform50_nnue_backbone_noise0/checkpoints/500.ckpt \
+  --nnue-checkpoint logs/halfkp_v1/checkpoints/83000.ckpt \
+  --val-dir dataset/split_v1_paired_uniform_50/val1 \
+  --feature-set HalfKP \
+  --max-positions 1000000 \
+  --output docs/research/results/check-loss-per-gameply-nnue-backbone/loss_per_gameply_delta.png \
+  > /tmp/check_loss_per_gameply_nnue.log 2>&1
 ```
 
 - データ: `dataset/split_v1_paired_uniform_50/val1` の先頭100万レコード (40B/record ペア形式)
 - Expert Blending (NNUEバックボーン): `logs/expert_blending_8experts_v4_paired_uniform50_nnue_backbone_noise0/checkpoints/500.ckpt`
-- ベースラインNNUE: `modelarchive/train-tanuki/83000.ckpt`
+- ベースラインNNUE: `logs/halfkp_v1/checkpoints/83000.ckpt`
 
 ## 結果
 

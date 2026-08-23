@@ -16,6 +16,7 @@ shuffle-model.md
 __pycache__/
 *.pyc
 .venv/
+.uv-cache/
 
 # Build directories
 build/
