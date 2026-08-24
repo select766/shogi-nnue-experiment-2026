@@ -1,0 +1,199 @@
+{
+  "protocol": {
+    "go_params": {
+      "nodes": 1000000
+    },
+    "threads": 1
+  },
+  "baseline": {
+    "accuracy": 0.6287,
+    "matches": 6287,
+    "total": 10000,
+    "wilson_95": {
+      "lower": 0.6191826543417869,
+      "upper": 0.638118504477601
+    }
+  },
+  "candidate": {
+    "accuracy": 0.6258,
+    "matches": 6258,
+    "total": 10000,
+    "wilson_95": {
+      "lower": 0.6162688186379849,
+      "upper": 0.6352345673719529
+    }
+  },
+  "paired": {
+    "both_correct": 5351,
+    "baseline_only": 936,
+    "candidate_only": 907,
+    "both_wrong": 2806,
+    "discordant": 1843,
+    "accuracy_difference": -0.0029,
+    "exact_mcnemar_p_value": 0.5142689924990643
+  },
+  "strata": {
+    "game_ply": {
+      "available": false,
+      "reason": "dataset records do not contain game_ply or ply"
+    },
+    "absolute_teacher_eval": {
+      "available": true,
+      "groups": {
+        "even_0_500": {
+          "candidate": {
+            "accuracy": 0.6093206951026856,
+            "matches": 3857,
+            "total": 6330,
+            "wilson_95": {
+              "lower": 0.5972385485210217,
+              "upper": 0.6212702362343341
+            }
+          },
+          "baseline": {
+            "accuracy": 0.6078988941548183,
+            "matches": 3848,
+            "total": 6330,
+            "wilson_95": {
+              "lower": 0.5958098227456677,
+              "upper": 0.6198570847513093
+            }
+          },
+          "paired": {
+            "both_correct": 3242,
+            "baseline_only": 606,
+            "candidate_only": 615,
+            "both_wrong": 1867,
+            "discordant": 1221,
+            "accuracy_difference": 0.0014218009478672985,
+            "exact_mcnemar_p_value": 0.8189227805910052
+          }
+        },
+        "advantage_501_2000": {
+          "candidate": {
+            "accuracy": 0.6595246066287245,
+            "matches": 1970,
+            "total": 2987,
+            "wilson_95": {
+              "lower": 0.6423356578327788,
+              "upper": 0.6763037662628646
+            }
+          },
+          "baseline": {
+            "accuracy": 0.672246401071309,
+            "matches": 2008,
+            "total": 2987,
+            "wilson_95": {
+              "lower": 0.6552012569503094,
+              "upper": 0.6888490760973474
+            }
+          },
+          "paired": {
+            "both_correct": 1742,
+            "baseline_only": 266,
+            "candidate_only": 228,
+            "both_wrong": 751,
+            "discordant": 494,
+            "accuracy_difference": -0.012721794442584533,
+            "exact_mcnemar_p_value": 0.09587156590860296
+          }
+        },
+        "winning_2001_plus": {
+          "candidate": {
+            "accuracy": 0.6310395314787701,
+            "matches": 431,
+            "total": 683,
+            "wilson_95": {
+              "lower": 0.5942132527781547,
+              "upper": 0.6664000193259241
+            }
+          },
+          "baseline": {
+            "accuracy": 0.6310395314787701,
+            "matches": 431,
+            "total": 683,
+            "wilson_95": {
+              "lower": 0.5942132527781547,
+              "upper": 0.6664000193259241
+            }
+          },
+          "paired": {
+            "both_correct": 367,
+            "baseline_only": 64,
+            "candidate_only": 64,
+            "both_wrong": 188,
+            "discordant": 128,
+            "accuracy_difference": 0.0,
+            "exact_mcnemar_p_value": 1.0
+          }
+        }
+      }
+    },
+    "entering_king": {
+      "available": true,
+      "groups": {
+        "other": {
+          "candidate": {
+            "accuracy": 0.6261550823623946,
+            "matches": 6234,
+            "total": 9956,
+            "wilson_95": {
+              "lower": 0.6166044415942169,
+              "upper": 0.6356084084181002
+            }
+          },
+          "baseline": {
+            "accuracy": 0.6288670148654077,
+            "matches": 6261,
+            "total": 9956,
+            "wilson_95": {
+              "lower": 0.6193293694943713,
+              "upper": 0.6383052535675735
+            }
+          },
+          "paired": {
+            "both_correct": 5329,
+            "baseline_only": 932,
+            "candidate_only": 905,
+            "both_wrong": 2790,
+            "discordant": 1837,
+            "accuracy_difference": -0.0027119325030132584,
+            "exact_mcnemar_p_value": 0.5441127874475744
+          }
+        },
+        "entering_king": {
+          "candidate": {
+            "accuracy": 0.5454545454545454,
+            "matches": 24,
+            "total": 44,
+            "wilson_95": {
+              "lower": 0.40066183198961974,
+              "upper": 0.6829476585777909
+            }
+          },
+          "baseline": {
+            "accuracy": 0.5909090909090909,
+            "matches": 26,
+            "total": 44,
+            "wilson_95": {
+              "lower": 0.444097537410319,
+              "upper": 0.7231214437245027
+            }
+          },
+          "paired": {
+            "both_correct": 22,
+            "baseline_only": 4,
+            "candidate_only": 2,
+            "both_wrong": 16,
+            "discordant": 6,
+            "accuracy_difference": -0.045454545454545456,
+            "exact_mcnemar_p_value": 0.6875000000000016
+          }
+        }
+      }
+    }
+  },
+  "baseline_result_path": "results/accuracy_eval_10k_halfkp_v1.json",
+  "candidate_result_path": "results/accuracy_eval_10k_proxy_gap_actual500k.json",
+  "dataset_path": "data/accuracy_eval_10k/test.jsonl"
+}

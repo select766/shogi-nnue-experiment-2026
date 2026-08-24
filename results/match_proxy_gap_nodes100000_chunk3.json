@@ -1,0 +1,835 @@
+{
+  "engine1": {
+    "path": "/home/select766/shogi/train-nnue/bin/YaneuraOu-expert-blending.sh",
+    "options": {
+      "Threads": "1",
+      "EvalDir": "/home/select766/shogi/train-nnue/bin/eval",
+      "ExpertBlendingDir": "/home/select766/shogi/train-nnue/tmp/proxy_gap_actual500k_release"
+    }
+  },
+  "engine2": {
+    "path": "/home/select766/shogi/train-nnue/bin/YaneuraOu-expert-blending.sh",
+    "options": {
+      "Threads": "1",
+      "EvalDir": "/home/select766/shogi/train-nnue/bin/eval",
+      "ExpertBlendingDir": "/home/select766/shogi/train-nnue/tmp/proxy_gap_control510_release"
+    }
+  },
+  "search": {
+    "nodes": 100000
+  },
+  "openings_path": "tmp/proxy_gap_match/openings_100k_chunk3.jsonl",
+  "games": 100,
+  "wins": 54,
+  "losses": 42,
+  "draws": 4,
+  "score_rate": 0.56,
+  "elo_difference": 41.89414020800522,
+  "elo_standard_error": 34.27893616187196,
+  "elo_95": {
+    "lower": -25.291340097611503,
+    "upper": 109.07962051362193
+  },
+  "details": [
+    {
+      "game": 1,
+      "opening_index": 0,
+      "sfen": "1nsr1k1+Pl/4sp3/1bpbp1pg1/5s1pp/1pP+R5/3P2P2/1P2P1NLP/1SGK1G3/7LL b GNPn3p 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 46
+    },
+    {
+      "game": 2,
+      "opening_index": 0,
+      "sfen": "1nsr1k1+Pl/4sp3/1bpbp1pg1/5s1pp/1pP+R5/3P2P2/1P2P1NLP/1SGK1G3/7LL b GNPn3p 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 76
+    },
+    {
+      "game": 3,
+      "opening_index": 1,
+      "sfen": "8l/2s1gk3/l1pnp3p/pr3s3/n8/2+rGP1pPP/P1BP5/S1G3SB1/L1K2G2L w N4Pn4p 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 46
+    },
+    {
+      "game": 4,
+      "opening_index": 1,
+      "sfen": "8l/2s1gk3/l1pnp3p/pr3s3/n8/2+rGP1pPP/P1BP5/S1G3SB1/L1K2G2L w N4Pn4p 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 67
+    },
+    {
+      "game": 5,
+      "opening_index": 2,
+      "sfen": "ln5nl/1r2gkg2/3sppspp/2pp2p2/pp5P1/2P1SPP2/PPSPP1N1P/2GK1G1R1/LN6L b Bb 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 127
+    },
+    {
+      "game": 6,
+      "opening_index": 2,
+      "sfen": "ln5nl/1r2gkg2/3sppspp/2pp2p2/pp5P1/2P1SPP2/PPSPP1N1P/2GK1G1R1/LN6L b Bb 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 95
+    },
+    {
+      "game": 7,
+      "opening_index": 3,
+      "sfen": "3g3nl/R1s2s1p1/p2ppk2p/2p2n1g1/1+R3b3/P8/1P1PPP2P/2G1KG3/+bNS5L w NL6Psl 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 49
+    },
+    {
+      "game": 8,
+      "opening_index": 3,
+      "sfen": "3g3nl/R1s2s1p1/p2ppk2p/2p2n1g1/1+R3b3/P8/1P1PPP2P/2G1KG3/+bNS5L w NL6Psl 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 73
+    },
+    {
+      "game": 9,
+      "opening_index": 4,
+      "sfen": "l2g4l/2s1k1g2/p1npppnsp/1rp4p1/2P6/P6RP/1PNPPPP2/2G1KS3/L1S1G2NL w B2Pbp 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 107
+    },
+    {
+      "game": 10,
+      "opening_index": 4,
+      "sfen": "l2g4l/2s1k1g2/p1npppnsp/1rp4p1/2P6/P6RP/1PNPPPP2/2G1KS3/L1S1G2NL w B2Pbp 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 80
+    },
+    {
+      "game": 11,
+      "opening_index": 5,
+      "sfen": "ln1g1k1nl/1r4g2/p2pppspp/2ps2p2/1p5P1/2P2SP2/PPSPPP2P/2GK3R1/LN3G1NL b Bb 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 140
+    },
+    {
+      "game": 12,
+      "opening_index": 5,
+      "sfen": "ln1g1k1nl/1r4g2/p2pppspp/2ps2p2/1p5P1/2P2SP2/PPSPPP2P/2GK3R1/LN3G1NL b Bb 1",
+      "engine1_color": "white",
+      "engine1_result": "draw",
+      "moves": 27
+    },
+    {
+      "game": 13,
+      "opening_index": 6,
+      "sfen": "ln3k2l/1r3gg2/p1p2p1pp/1sbpp4/3Ps2RP/2P2PP2/PPNGGS3/1S3K3/L7L b B2P2n2p 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 102
+    },
+    {
+      "game": 14,
+      "opening_index": 6,
+      "sfen": "ln3k2l/1r3gg2/p1p2p1pp/1sbpp4/3Ps2RP/2P2PP2/PPNGGS3/1S3K3/L7L b B2P2n2p 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 90
+    },
+    {
+      "game": 15,
+      "opening_index": 7,
+      "sfen": "ln6l/1rg1k1g2/2ppssnpb/1P3pp1p/p1BSp4/5P3/P1GP1SP1P/2K1G2R1/LN5NL b P3p 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 73
+    },
+    {
+      "game": 16,
+      "opening_index": 7,
+      "sfen": "ln6l/1rg1k1g2/2ppssnpb/1P3pp1p/p1BSp4/5P3/P1GP1SP1P/2K1G2R1/LN5NL b P3p 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 102
+    },
+    {
+      "game": 17,
+      "opening_index": 8,
+      "sfen": "l6+Rl/+P3gkg2/p2s1psp1/2p1p4/2b2Sp1p/P1sb1P3/2NgPKN1P/2P2G3/L4N1RL w N3P2p 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 59
+    },
+    {
+      "game": 18,
+      "opening_index": 8,
+      "sfen": "l6+Rl/+P3gkg2/p2s1psp1/2p1p4/2b2Sp1p/P1sb1P3/2NgPKN1P/2P2G3/L4N1RL w N3P2p 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 60
+    },
+    {
+      "game": 19,
+      "opening_index": 9,
+      "sfen": "ln1g3nl/2k1g2r1/1ps1bs2p/p2pp1p2/5p1P1/P1pPP1SpP/1P1G1P3/1KSB3R1/LN1G3NL b Pp 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 92
+    },
+    {
+      "game": 20,
+      "opening_index": 9,
+      "sfen": "ln1g3nl/2k1g2r1/1ps1bs2p/p2pp1p2/5p1P1/P1pPP1SpP/1P1G1P3/1KSB3R1/LN1G3NL b Pp 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 90
+    },
+    {
+      "game": 21,
+      "opening_index": 10,
+      "sfen": "7n1/1kgg3rl/1p2p4/n1p1sbppp/pP3p3/2PPP3P/1SGGBPN2/7R1/1K6L w SNL4Psl 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 52
+    },
+    {
+      "game": 22,
+      "opening_index": 10,
+      "sfen": "7n1/1kgg3rl/1p2p4/n1p1sbppp/pP3p3/2PPP3P/1SGGBPN2/7R1/1K6L w SNL4Psl 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 103
+    },
+    {
+      "game": 23,
+      "opening_index": 11,
+      "sfen": "lnsg3nl/1p3kg2/pP1pppsPp/2p6/9/5B3/P2PPPP1P/2G6/LNS1KGSNL w RPrb2p 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 106
+    },
+    {
+      "game": 24,
+      "opening_index": 11,
+      "sfen": "lnsg3nl/1p3kg2/pP1pppsPp/2p6/9/5B3/P2PPPP1P/2G6/LNS1KGSNL w RPrb2p 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 112
+    },
+    {
+      "game": 25,
+      "opening_index": 12,
+      "sfen": "1n1g4l/3k1bg2/2pp1sn1p/1r2pppP1/S6p1/lpPPP1P2/2S2PN1P/1KSBG2R1/1N1G4L w Pl2p 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 94
+    },
+    {
+      "game": 26,
+      "opening_index": 12,
+      "sfen": "1n1g4l/3k1bg2/2pp1sn1p/1r2pppP1/S6p1/lpPPP1P2/2S2PN1P/1KSBG2R1/1N1G4L w Pl2p 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 115
+    },
+    {
+      "game": 27,
+      "opening_index": 13,
+      "sfen": "lns1b2nl/1r2g1k2/p2pp1gpp/2p2ps2/7P1/1pPPPBS2/P2S1P2P/1PG1G2R1/LN1K3NL w Pp 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 102
+    },
+    {
+      "game": 28,
+      "opening_index": 13,
+      "sfen": "lns1b2nl/1r2g1k2/p2pp1gpp/2p2ps2/7P1/1pPPPBS2/P2S1P2P/1PG1G2R1/LN1K3NL w Pp 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 106
+    },
+    {
+      "game": 29,
+      "opening_index": 14,
+      "sfen": "ln5nl/1r3kg2/p1g1p1sp1/2p1bpp1p/1p4PP1/2PP1B3/PPSG1P2P/2G4R1/LNK4NL w SPsp 1",
+      "engine1_color": "black",
+      "engine1_result": "draw",
+      "moves": 39
+    },
+    {
+      "game": 30,
+      "opening_index": 14,
+      "sfen": "ln5nl/1r3kg2/p1g1p1sp1/2p1bpp1p/1p4PP1/2PP1B3/PPSG1P2P/2G4R1/LNK4NL w SPsp 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 124
+    },
+    {
+      "game": 31,
+      "opening_index": 15,
+      "sfen": "lr6l/3gk1B2/p1n1s1ng1/2p1pbspp/Pp1p1p3/2P5P/1PS1PSN2/2G2G1R1/LNK5L b 4Pp 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 80
+    },
+    {
+      "game": 32,
+      "opening_index": 15,
+      "sfen": "lr6l/3gk1B2/p1n1s1ng1/2p1pbspp/Pp1p1p3/2P5P/1PS1PSN2/2G2G1R1/LNK5L b 4Pp 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 102
+    },
+    {
+      "game": 33,
+      "opening_index": 16,
+      "sfen": "ln4knl/3rg1g2/p1b1ppsp1/2p1s1p2/1p5PL/2PP1PPB1/PPS1PSN2/2GRG4/LNK6 w P2p 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 114
+    },
+    {
+      "game": 34,
+      "opening_index": 16,
+      "sfen": "ln4knl/3rg1g2/p1b1ppsp1/2p1s1p2/1p5PL/2PP1PPB1/PPS1PSN2/2GRG4/LNK6 w P2p 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 147
+    },
+    {
+      "game": 35,
+      "opening_index": 17,
+      "sfen": "lnsg1g1nl/1p1k3r1/p1pppsb2/5pp1p/1P2P4/3SR4/P1NP1PPGP/2G3K2/L5SNL w B2Pp 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 147
+    },
+    {
+      "game": 36,
+      "opening_index": 17,
+      "sfen": "lnsg1g1nl/1p1k3r1/p1pppsb2/5pp1p/1P2P4/3SR4/P1NP1PPGP/2G3K2/L5SNL w B2Pp 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 119
+    },
+    {
+      "game": 37,
+      "opening_index": 18,
+      "sfen": "l2g2gnl/1ps3ks1/p1np1p1pp/4P1p2/1Pp3B1P/P1P1p1S2/2NPGPP2/1S7/L2K3NL w 2RBPg 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 56
+    },
+    {
+      "game": 38,
+      "opening_index": 18,
+      "sfen": "l2g2gnl/1ps3ks1/p1np1p1pp/4P1p2/1Pp3B1P/P1P1p1S2/2NPGPP2/1S7/L2K3NL w 2RBPg 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 101
+    },
+    {
+      "game": 39,
+      "opening_index": 19,
+      "sfen": "ln3k1nl/1r2gbg2/p1sp1pspp/4p1p2/1pPP3P1/4SP3/PPBSP1P1P/2GKG2R1/LN5NL w P 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 97
+    },
+    {
+      "game": 40,
+      "opening_index": 19,
+      "sfen": "ln3k1nl/1r2gbg2/p1sp1pspp/4p1p2/1pPP3P1/4SP3/PPBSP1P1P/2GKG2R1/LN5NL w P 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 142
+    },
+    {
+      "game": 41,
+      "opening_index": 20,
+      "sfen": "lnsg2gnl/1p1k3+r1/p1pppp2p/3b1s3/P8/4+B1Pp1/2NPPP1PP/2G1K1GS1/L1S4NL b R2Pp 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 134
+    },
+    {
+      "game": 42,
+      "opening_index": 20,
+      "sfen": "lnsg2gnl/1p1k3+r1/p1pppp2p/3b1s3/P8/4+B1Pp1/2NPPP1PP/2G1K1GS1/L1S4NL b R2Pp 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 85
+    },
+    {
+      "game": 43,
+      "opening_index": 21,
+      "sfen": "l1r4nl/4gkg2/3p1s1p1/3spp2p/PpPn2P2/2NSPPpRP/1P1P5/1SKGG1b2/L6NL w B3P 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 114
+    },
+    {
+      "game": 44,
+      "opening_index": 21,
+      "sfen": "l1r4nl/4gkg2/3p1s1p1/3spp2p/PpPn2P2/2NSPPpRP/1P1P5/1SKGG1b2/L6NL w B3P 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 103
+    },
+    {
+      "game": 45,
+      "opening_index": 22,
+      "sfen": "lr5nl/4s1gk1/2np1gsp1/p1pbppp1p/1p5P1/P1PPPPP1P/1PSG1SN2/1KGB5/LN5RL b - 1",
+      "engine1_color": "black",
+      "engine1_result": "draw",
+      "moves": 8
+    },
+    {
+      "game": 46,
+      "opening_index": 22,
+      "sfen": "lr5nl/4s1gk1/2np1gsp1/p1pbppp1p/1p5P1/P1PPPPP1P/1PSG1SN2/1KGB5/LN5RL b - 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 98
+    },
+    {
+      "game": 47,
+      "opening_index": 23,
+      "sfen": "ln2g3l/1r1P1k1g1/p2pppP2/5b1pp/1p2SNs2/2s1GP3/PP2P3P/2GK3R1/LN5NL b Bs4p 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 33
+    },
+    {
+      "game": 48,
+      "opening_index": 23,
+      "sfen": "ln2g3l/1r1P1k1g1/p2pppP2/5b1pp/1p2SNs2/2s1GP3/PP2P3P/2GK3R1/LN5NL b Bs4p 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 71
+    },
+    {
+      "game": 49,
+      "opening_index": 24,
+      "sfen": "lnsg3+Pl/1p2ksg2/p1ppppn1p/1R7/2r1b4/6P2/PGNPPP2P/1B2K2P1/L1S2GSNL w P2p 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 149
+    },
+    {
+      "game": 50,
+      "opening_index": 24,
+      "sfen": "lnsg3+Pl/1p2ksg2/p1ppppn1p/1R7/2r1b4/6P2/PGNPPP2P/1B2K2P1/L1S2GSNL w P2p 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 213
+    },
+    {
+      "game": 51,
+      "opening_index": 25,
+      "sfen": "ln6l/3r1sgk1/p1pppbnp1/5pg1p/1p2P2s1/2P5P/PPN1SPPP1/2G1SGK2/L2R3NL b BPp 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 90
+    },
+    {
+      "game": 52,
+      "opening_index": 25,
+      "sfen": "ln6l/3r1sgk1/p1pppbnp1/5pg1p/1p2P2s1/2P5P/PPN1SPPP1/2G1SGK2/L2R3NL b BPp 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 100
+    },
+    {
+      "game": 53,
+      "opening_index": 26,
+      "sfen": "+Nn1g4+S/3k1r3/3pp1+rpp/p4p3/1p5s1/P4S3/1PKPP3P/2G1G4/LN2L3L w BSL5Pbgnp 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 78
+    },
+    {
+      "game": 54,
+      "opening_index": 26,
+      "sfen": "+Nn1g4+S/3k1r3/3pp1+rpp/p4p3/1p5s1/P4S3/1PKPP3P/2G1G4/LN2L3L w BSL5Pbgnp 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 51
+    },
+    {
+      "game": 55,
+      "opening_index": 27,
+      "sfen": "ln3gsnl/5gk2/p2p1p1p1/3sp1p2/1p1P4p/2S1P2P1/PPN2PPSP/4G1GK1/L6NL w RB2Prb 1",
+      "engine1_color": "black",
+      "engine1_result": "draw",
+      "moves": 61
+    },
+    {
+      "game": 56,
+      "opening_index": 27,
+      "sfen": "ln3gsnl/5gk2/p2p1p1p1/3sp1p2/1p1P4p/2S1P2P1/PPN2PPSP/4G1GK1/L6NL w RB2Prb 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 69
+    },
+    {
+      "game": 57,
+      "opening_index": 28,
+      "sfen": "l6nl/5sgk1/2np5/p1rbpsgPp/1p3Np2/P2PPS3/1PSG4P/2KBG2p1/LN4R1L b P4p 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 83
+    },
+    {
+      "game": 58,
+      "opening_index": 28,
+      "sfen": "l6nl/5sgk1/2np5/p1rbpsgPp/1p3Np2/P2PPS3/1PSG4P/2KBG2p1/LN4R1L b P4p 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 78
+    },
+    {
+      "game": 59,
+      "opening_index": 29,
+      "sfen": "l6rl/5k2g/6pP1/pG1ppp1pp/2P3s2/P2PP1P1P/2G5+n/5G3/LNK2R3 b BSLPb2s2n3p 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 55
+    },
+    {
+      "game": 60,
+      "opening_index": 29,
+      "sfen": "l6rl/5k2g/6pP1/pG1ppp1pp/2P3s2/P2PP1P1P/2G5+n/5G3/LNK2R3 b BSLPb2s2n3p 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 103
+    },
+    {
+      "game": 61,
+      "opening_index": 30,
+      "sfen": "lr6l/3gk2+N1/2nsppn+B1/p1pp3p1/8p/P1P2P1P1/1PS2+b1+s1/2GS5/LNK2G2L b G2Pr4p 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 63
+    },
+    {
+      "game": 62,
+      "opening_index": 30,
+      "sfen": "lr6l/3gk2+N1/2nsppn+B1/p1pp3p1/8p/P1P2P1P1/1PS2+b1+s1/2GS5/LNK2G2L b G2Pr4p 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 85
+    },
+    {
+      "game": 63,
+      "opening_index": 31,
+      "sfen": "l2g4l/2s1k1g2/2npppns1/r3b2pp/P1B4P1/p1P1R3P/1PNPPPP1N/2G1KS1G1/L3S3L w P2p 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 59
+    },
+    {
+      "game": 64,
+      "opening_index": 31,
+      "sfen": "l2g4l/2s1k1g2/2npppns1/r3b2pp/P1B4P1/p1P1R3P/1PNPPPP1N/2G1KS1G1/L3S3L w P2p 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 61
+    },
+    {
+      "game": 65,
+      "opening_index": 32,
+      "sfen": "l3g2nl/3s1skp1/p1npp3p/2pn1p3/6P2/P1P2B3/1PSPPP1+rP/2GK1S3/LN2G1G1L b B3Pr 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 71
+    },
+    {
+      "game": 66,
+      "opening_index": 32,
+      "sfen": "l3g2nl/3s1skp1/p1npp3p/2pn1p3/6P2/P1P2B3/1PSPPP1+rP/2GK1S3/LN2G1G1L b B3Pr 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 72
+    },
+    {
+      "game": 67,
+      "opening_index": 33,
+      "sfen": "l1+Rl2s1l/3g1kg2/p1nppp1Pp/3+b3p1/5nN2/2P3P2/P2PPP2P/3GKGS2/LNS6 b R3Pbsp 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 81
+    },
+    {
+      "game": 68,
+      "opening_index": 33,
+      "sfen": "l1+Rl2s1l/3g1kg2/p1nppp1Pp/3+b3p1/5nN2/2P3P2/P2PPP2P/3GKGS2/LNS6 b R3Pbsp 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 71
+    },
+    {
+      "game": 69,
+      "opening_index": 34,
+      "sfen": "l2r3n1/4sk3/2n1gg1ps/1+bpPppp2/Pp1p4p/2P1SBPP1/1PSG1P3/1KG3R2/LN6L b Ln3p 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 66
+    },
+    {
+      "game": 70,
+      "opening_index": 34,
+      "sfen": "l2r3n1/4sk3/2n1gg1ps/1+bpPppp2/Pp1p4p/2P1SBPP1/1PSG1P3/1KG3R2/LN6L b Ln3p 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 95
+    },
+    {
+      "game": 71,
+      "opening_index": 35,
+      "sfen": "l1s1g4/1p1kr4/p2g2p2/2pp1p3/4P4/3P2P+R1/P+b1G1PNpP/+b1+lSGK1+l1/5S2L b S3N4Pp 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 89
+    },
+    {
+      "game": 72,
+      "opening_index": 35,
+      "sfen": "l1s1g4/1p1kr4/p2g2p2/2pp1p3/4P4/3P2P+R1/P+b1G1PNpP/+b1+lSGK1+l1/5S2L b S3N4Pp 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 76
+    },
+    {
+      "game": 73,
+      "opening_index": 36,
+      "sfen": "ln1g1gsnl/1r1s2kb1/pppppp1pp/6p2/2P6/3P5/PP2PPPPP/1BRS5/LN1GKGSNL w - 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 175
+    },
+    {
+      "game": 74,
+      "opening_index": 36,
+      "sfen": "ln1g1gsnl/1r1s2kb1/pppppp1pp/6p2/2P6/3P5/PP2PPPPP/1BRS5/LN1GKGSNL w - 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 103
+    },
+    {
+      "game": 75,
+      "opening_index": 37,
+      "sfen": "ln3g1nl/1r1sgks2/p1ppp2p1/5pp1p/9/2P1P3P/PP1P1PPP1/1G1S1SK2/LN2RG1NL b Bbp 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 96
+    },
+    {
+      "game": 76,
+      "opening_index": 37,
+      "sfen": "ln3g1nl/1r1sgks2/p1ppp2p1/5pp1p/9/2P1P3P/PP1P1PPP1/1G1S1SK2/LN2RG1NL b Bbp 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 91
+    },
+    {
+      "game": 77,
+      "opening_index": 38,
+      "sfen": "l6nl/2skgr3/2nbp1sp1/1p1p2p1p/P1p1P2P1/3P1PP2/1PS2S2P/1KG1G2R1/LN5NL w B2Pgp 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 79
+    },
+    {
+      "game": 78,
+      "opening_index": 38,
+      "sfen": "l6nl/2skgr3/2nbp1sp1/1p1p2p1p/P1p1P2P1/3P1PP2/1PS2S2P/1KG1G2R1/LN5NL w B2Pgp 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 75
+    },
+    {
+      "game": 79,
+      "opening_index": 39,
+      "sfen": "lnbl5/2g6/ksp3+P2/Np4Prp/P4p1p1/2P3p1P/LPSG1P1R1/1KG1s4/1N2B3L b SN4Pgp 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 83
+    },
+    {
+      "game": 80,
+      "opening_index": 39,
+      "sfen": "lnbl5/2g6/ksp3+P2/Np4Prp/P4p1p1/2P3p1P/LPSG1P1R1/1KG1s4/1N2B3L b SN4Pgp 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 75
+    },
+    {
+      "game": 81,
+      "opening_index": 40,
+      "sfen": "l7l/1rs1gkg2/p1nppsnp1/2p2pp1p/1p7/2P1PP2P/PPNP1SPP1/3S2GK1/LR1G3NL w Bb 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 117
+    },
+    {
+      "game": 82,
+      "opening_index": 40,
+      "sfen": "l7l/1rs1gkg2/p1nppsnp1/2p2pp1p/1p7/2P1PP2P/PPNP1SPP1/3S2GK1/LR1G3NL w Bb 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 127
+    },
+    {
+      "game": 83,
+      "opening_index": 41,
+      "sfen": "l2g4l/1s2k1gs1/n1pppp+P1p/1Pb4p1/2B4+r1/p1S1PP3/2NP2K1P/2G3S2/L4G2L w RNPn4p 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 62
+    },
+    {
+      "game": 84,
+      "opening_index": 41,
+      "sfen": "l2g4l/1s2k1gs1/n1pppp+P1p/1Pb4p1/2B4+r1/p1S1PP3/2NP2K1P/2G3S2/L4G2L w RNPn4p 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 103
+    },
+    {
+      "game": 85,
+      "opening_index": 42,
+      "sfen": "ln3kgnl/1rgs1s1b1/p1p1pp1p1/1p1p2p1p/2P6/3P4P/PPB1PPPP1/2RS2S2/LN1G1GKNL b - 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 170
+    },
+    {
+      "game": 86,
+      "opening_index": 42,
+      "sfen": "ln3kgnl/1rgs1s1b1/p1p1pp1p1/1p1p2p1p/2P6/3P4P/PPB1PPPP1/2RS2S2/LN1G1GKNL b - 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 117
+    },
+    {
+      "game": 87,
+      "opening_index": 43,
+      "sfen": "ln1g4l/1ks2s1g1/pppp1p2p/4p1pp1/P6n1/2P2PP2/1P1PPS2P/1SK1G2R1/LN1G3NL b R2bp 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 159
+    },
+    {
+      "game": 88,
+      "opening_index": 43,
+      "sfen": "ln1g4l/1ks2s1g1/pppp1p2p/4p1pp1/P6n1/2P2PP2/1P1PPS2P/1SK1G2R1/LN1G3NL b R2bp 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 110
+    },
+    {
+      "game": 89,
+      "opening_index": 44,
+      "sfen": "lnsgk2nl/1r4gb1/p1pp1s2p/4ppp2/1p7/2P6/PPBPPPP1P/1SG4R1/LN1K1GSNL w Pp 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 137
+    },
+    {
+      "game": 90,
+      "opening_index": 44,
+      "sfen": "lnsgk2nl/1r4gb1/p1pp1s2p/4ppp2/1p7/2P6/PPBPPPP1P/1SG4R1/LN1K1GSNL w Pp 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 100
+    },
+    {
+      "game": 91,
+      "opening_index": 45,
+      "sfen": "l2r3nl/3g1kgs1/4pp1p1/p1p1s1P1p/1P4S2/P1Pp1PB2/1S2P3P/2G1G2R1/LNK2b1+pL b N3Pn 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 73
+    },
+    {
+      "game": 92,
+      "opening_index": 45,
+      "sfen": "l2r3nl/3g1kgs1/4pp1p1/p1p1s1P1p/1P4S2/P1Pp1PB2/1S2P3P/2G1G2R1/LNK2b1+pL b N3Pn 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 95
+    },
+    {
+      "game": 93,
+      "opening_index": 46,
+      "sfen": "l3k2nl/1r1sg1g2/2nppsbp1/p1p2pp1p/1p5P1/2PP1PP1P/PPBSP4/2GKGS1R1/LN5NL b - 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 110
+    },
+    {
+      "game": 94,
+      "opening_index": 46,
+      "sfen": "l3k2nl/1r1sg1g2/2nppsbp1/p1p2pp1p/1p5P1/2PP1PP1P/PPBSP4/2GKGS1R1/LN5NL b - 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 142
+    },
+    {
+      "game": 95,
+      "opening_index": 47,
+      "sfen": "l2g3nl/2s1k1g2/2nppp2p/pr5P1/2P2s3/P3B1P1P/1P1PPP3/1SG1KSp2/LN3G1NL b B2Prp 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 121
+    },
+    {
+      "game": 96,
+      "opening_index": 47,
+      "sfen": "l2g3nl/2s1k1g2/2nppp2p/pr5P1/2P2s3/P3B1P1P/1P1PPP3/1SG1KSp2/LN3G1NL b B2Prp 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 104
+    },
+    {
+      "game": 97,
+      "opening_index": 48,
+      "sfen": "ln1gk2nl/1r4g2/p1p1p1spp/3pspp2/1p5P1/2P3PS1/PPSPPP2P/2GKG2R1/LN5NL w Bb 1",
+      "engine1_color": "black",
+      "engine1_result": "loss",
+      "moves": 143
+    },
+    {
+      "game": 98,
+      "opening_index": 48,
+      "sfen": "ln1gk2nl/1r4g2/p1p1p1spp/3pspp2/1p5P1/2P3PS1/PPSPPP2P/2GKG2R1/LN5NL w Bb 1",
+      "engine1_color": "white",
+      "engine1_result": "win",
+      "moves": 73
+    },
+    {
+      "game": 99,
+      "opening_index": 49,
+      "sfen": "ln1gk2nl/1rs2sgb1/p1pppp1pp/6pR1/1p7/2P6/PPBPPPP1P/2GS5/LN2KGSNL b P 1",
+      "engine1_color": "black",
+      "engine1_result": "win",
+      "moves": 123
+    },
+    {
+      "game": 100,
+      "opening_index": 49,
+      "sfen": "ln1gk2nl/1rs2sgb1/p1pppp1pp/6pR1/1p7/2P6/PPBPPPP1P/2GS5/LN2KGSNL b P 1",
+      "engine1_color": "white",
+      "engine1_result": "loss",
+      "moves": 117
+    }
+  ]
+}
