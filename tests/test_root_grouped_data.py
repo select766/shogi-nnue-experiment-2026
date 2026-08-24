@@ -6,6 +6,7 @@ import numpy as np
 import cshogi
 
 from scripts.collect_search_leaf_groups import endpoint_record, record_to_sfen
+from scripts.relabel_root_grouped_search import parse_score_and_pv
 from scripts.filter_root_grouped_validation import root_sfens
 from scripts.split_grouped_paired_bin import packed_game_ply
 
@@ -44,6 +45,22 @@ class RootGroupedDataTest(unittest.TestCase):
         ply = int.from_bytes(record[36:38], "little")
         self.assertEqual(score, -250)
         self.assertEqual(ply, 2)
+
+    def test_parses_search_cp_score_and_pv(self):
+        self.assertEqual(
+            parse_score_and_pv("info depth 4 score cp -123 nodes 10 pv 7g7f 3c3d"),
+            (-123, ["7g7f", "3c3d"]),
+        )
+
+    def test_parses_search_mate_score(self):
+        score, pv = parse_score_and_pv("info score mate -3 pv 7g7f")
+        self.assertEqual(score, -31997)
+        self.assertEqual(pv, ["7g7f"])
+
+    def test_preserves_negative_zero_mate_score(self):
+        score, pv = parse_score_and_pv("info depth 0 score mate -0")
+        self.assertEqual(score, -32000)
+        self.assertEqual(pv, [])
 
 
 if __name__ == "__main__":

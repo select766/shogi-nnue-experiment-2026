@@ -214,3 +214,22 @@ root-grouped task-only学習では固定root gateの有効性が確認された�
 - **中止**: validation loss改善が自己対局へ一貫して転換せず、信頼区間上も実用差がない場合。
 
 16 experts化や新backboneの大規模学習は、この8-expert診断が終わるまで優先しない。
+
+## Search-aware objective / on-policy検証 (2026-08-25)
+
+DNNをrootで1回だけ実行しblendを探索終了まで固定する配備前提を維持し、探索policyとleaf教師を
+2×2で検証した。baseline/on-policy間は同じroot recordを使ったが、同一root内leaf集合の平均
+Jaccardは0.0462で、探索policyによる分布差は十分に生じた。
+
+10,000-node教師は自身のdeep validation lossを大きく改善した一方、固定validation 10,000局面の
+bestmove一致をbaseline policyで62.35%から60.73% (`p=0.000372`)、on-policyで62.31%から
+61.17% (`p=0.0126`)へ悪化させた。深いleaf scoreをroot指し手目的のproxyにするH1は棄却した。
+
+on-policy/qsearchは100,000 root pilotでqsearch lossを僅かに改善したが、bestmoveは62.35%対
+62.31% (`p=0.942`)だった。499,840 root×5 epochへscaleするとM0よりbaseline/on-policy lossが
+約7--9e-6改善したが、bestmoveはM0 61.91%対scale 61.89% (`p=0.981`)で転換しなかった。
+H2も飽和・打ち切りとし、testと自己対局は実施しなかった。
+
+詳細なデータ定義、教師視点補正、交差loss、対応あり比較は
+`docs/research/results/objective-onpolicy-20260825/README.md`に保存した。次候補はleaf score教師の
+深さ追加ではなく、rootで複数の固定blend候補を実探索して得たsearch utilityの直接蒸留である。

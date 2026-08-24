@@ -152,6 +152,10 @@ def write_metadata(
         "search_seed": args.seed,
         "search_engine": str(args.search_engine.resolve()),
         "search_eval_dir": str(args.search_eval_dir.resolve()),
+        "search_expert_blending_dir": (
+            str(args.search_expert_blending_dir.resolve())
+            if args.search_expert_blending_dir else None
+        ),
         "label_engine": str(args.label_engine.resolve()),
         "label_eval_dir": str(args.label_eval_dir.resolve()),
         "label": "exact qsearch score at sampled entry, sign-adjusted at qsearch PV endpoint",
@@ -176,6 +180,11 @@ def main():
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--search-engine", type=Path, required=True)
     parser.add_argument("--search-eval-dir", type=Path, required=True)
+    parser.add_argument(
+        "--search-expert-blending-dir",
+        type=Path,
+        help="Enable the exported router/experts while collecting search leaves",
+    )
     parser.add_argument("--label-engine", type=Path, required=True)
     parser.add_argument("--label-eval-dir", type=Path, required=True)
     parser.add_argument("--group-size", type=int, default=8)
@@ -233,16 +242,19 @@ def main():
     )
     searcher = EngineProcess([str(args.search_engine.resolve())], env=env)
     labeler = EngineProcess([str(args.label_engine.resolve())])
-    searcher.initialize(
-        [
+    search_options = [
             ("Threads", 1),
             ("USI_Hash", args.hash_mb),
             ("EvalDir", args.search_eval_dir.resolve()),
             ("USI_OwnBook", "false"),
             ("SearchLeafSamples", args.group_size),
             ("SearchLeafSeed", args.seed),
-        ]
-    )
+    ]
+    if args.search_expert_blending_dir:
+        search_options.append(
+            ("ExpertBlendingDir", args.search_expert_blending_dir.resolve())
+        )
+    searcher.initialize(search_options)
     labeler.initialize(
         [
             ("Threads", 1),

@@ -20,7 +20,8 @@ def main():
     keys = (
         "format", "group_size", "record_bytes", "leaf_distribution",
         "search_threads", "search_nodes", "search_seed", "search_engine",
-        "search_eval_dir", "label_engine", "label_eval_dir", "label",
+        "search_eval_dir", "search_expert_blending_dir", "label_engine",
+        "label_eval_dir", "label",
     )
     for path, item in zip(args.input_dir, metadata):
         if item.get("status") != "complete":
