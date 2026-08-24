@@ -23,6 +23,11 @@
   root bootstrap 95%区間は上端も0未満だった。2巡目は反転悪化し、700万rootで事前定義した
   飽和条件を満たした。次は棋譜先局面proxyではなく実探索qsearch leafをrootごとに収集する。
   詳細は`docs/research/results/root-grouped-router-scale-20260824/README.md`に記録した。
+- proxy gap追試では、固定探索器の実qsearch訪問から50万root x 8 leafを生成した。実探索leafモデルは
+  checkpoint 510比で独立A/Bを`-0.00494/-0.00530`改善した一方、従来棋譜proxy 500万rootモデルは
+  `+0.00116/+0.00107`悪化した。固定`nn.bin`で教師scoreを揃えた棋譜位置モデルとの直接比較でも、
+  実探索leafモデルがA/Bをさらに`-0.00168/-0.00171`改善し、局面分布としてのproxy gapを確認した。
+  詳細は`docs/research/results/proxy-gap-20260824/README.md`に記録した。
 - 最善手一致率は1万局面へ拡大し、対応あり比較を行う。現観測値から1.1ポイント差を検出する概算必要数は約10,833局面なので、まず10,000、確証が必要なら12,000以上を使う。
 
 ## 現状認識の根拠

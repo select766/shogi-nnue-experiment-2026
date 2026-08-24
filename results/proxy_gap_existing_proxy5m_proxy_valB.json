@@ -1,0 +1,21 @@
+{
+  "roots": 19968,
+  "control": {
+    "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/expert_blending_8experts_v4_paired_uniform50_noise0/checkpoints/510.ckpt",
+    "mean_group_loss": 0.0382569320499897
+  },
+  "candidates": [
+    {
+      "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/root_grouped_large5m_curve1m_allckpt_from510/checkpoints/4.ckpt",
+      "mean_group_loss": 0.03817304968833923,
+      "paired_loss_delta_vs_control": {
+        "mean": -8.388298010686412e-05,
+        "bootstrap_95_interval": [
+          -0.00022892144569945124,
+          5.789863299911446e-05
+        ],
+        "fraction_improved": 0.5836338141025641
+      }
+    }
+  ]
+}

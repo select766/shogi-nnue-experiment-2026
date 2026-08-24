@@ -1,0 +1,33 @@
+{
+  "roots": 19968,
+  "control": {
+    "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/expert_blending_8experts_v4_paired_uniform50_noise0/checkpoints/510.ckpt",
+    "mean_group_loss": 0.025165293365716934
+  },
+  "candidates": [
+    {
+      "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/proxy_gap_actual500k_curve_from510/checkpoints/4.ckpt",
+      "mean_group_loss": 0.01986503228545189,
+      "paired_loss_delta_vs_control": {
+        "mean": -0.005300261080265045,
+        "bootstrap_95_interval": [
+          -0.00569464415325116,
+          -0.004959209621344603
+        ],
+        "fraction_improved": 0.7185496794871795
+      }
+    },
+    {
+      "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/root_grouped_large5m_curve1m_allckpt_from510/checkpoints/4.ckpt",
+      "mean_group_loss": 0.02623218111693859,
+      "paired_loss_delta_vs_control": {
+        "mean": 0.0010668900795280933,
+        "bootstrap_95_interval": [
+          0.000938223713788711,
+          0.0011958119394928743
+        ],
+        "fraction_improved": 0.43664863782051283
+      }
+    }
+  ]
+}

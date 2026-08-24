@@ -32,7 +32,8 @@ def main() -> None:
         dtype=np.uint8,
         shape=(num_roots, group_size, RECORD_BYTES),
     )
-    offsets = np.load(source / "offsets.npy", mmap_mode="r")
+    offsets_path = source / "offsets.npy"
+    offsets = np.load(offsets_path, mmap_mode="r") if offsets_path.exists() else None
     roots = source / "roots.bin"
     for label, output_arg, leaf_slice in (
         ("A", args.output_a, slice(0, subgroup_size)),
@@ -52,7 +53,8 @@ def main() -> None:
             file.flush()
             os.fsync(file.fileno())
         os.replace(output / "leaves.bin.tmp", output / "leaves.bin")
-        np.save(output / "offsets.npy", np.asarray(offsets[:, leaf_slice]))
+        if offsets is not None:
+            np.save(output / "offsets.npy", np.asarray(offsets[:, leaf_slice]))
         subset_metadata = dict(metadata)
         subset_metadata["group_size"] = subgroup_size
         subset_metadata["validation_subset"] = label

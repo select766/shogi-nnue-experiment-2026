@@ -1,0 +1,57 @@
+{
+  "roots": 19968,
+  "control": {
+    "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/expert_blending_8experts_v4_paired_uniform50_noise0/checkpoints/510.ckpt",
+    "mean_group_loss": 0.020307423546910286
+  },
+  "candidates": [
+    {
+      "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/proxy_gap_actual500k_curve_from510/checkpoints/4.ckpt",
+      "mean_group_loss": 0.01537102647125721,
+      "paired_loss_delta_vs_control": {
+        "mean": -0.0049363961443305016,
+        "bootstrap_95_interval": [
+          -0.00531924919320391,
+          -0.00459621920581579
+        ],
+        "fraction_improved": 0.7429387019230769
+      }
+    },
+    {
+      "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/proxy_gap_proxy500k_curve_from510/checkpoints/0.ckpt",
+      "mean_group_loss": 0.020900964736938477,
+      "paired_loss_delta_vs_control": {
+        "mean": 0.0005935432272963226,
+        "bootstrap_95_interval": [
+          0.0005002882056991027,
+          0.0006886581898461381
+        ],
+        "fraction_improved": 0.458583733974359
+      }
+    },
+    {
+      "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/proxy_gap_proxy_relabel500k_curve_from510/checkpoints/0.ckpt",
+      "mean_group_loss": 0.017047515138983727,
+      "paired_loss_delta_vs_control": {
+        "mean": -0.003259907243773341,
+        "bootstrap_95_interval": [
+          -0.0035116951635335092,
+          -0.003026109618666638
+        ],
+        "fraction_improved": 0.711738782051282
+      }
+    },
+    {
+      "checkpoint": "/media/select766/HDCZ-UT/s7ubuntu/dev/train-nnue/logs/root_grouped_large5m_curve1m_allckpt_from510/checkpoints/4.ckpt",
+      "mean_group_loss": 0.021463369950652122,
+      "paired_loss_delta_vs_control": {
+        "mean": 0.001155948149971664,
+        "bootstrap_95_interval": [
+          0.0010269007583671957,
+          0.0012900410226056105
+        ],
+        "fraction_improved": 0.4309895833333333
+      }
+    }
+  ]
+}
