@@ -7,6 +7,10 @@ import cshogi
 
 from scripts.collect_search_leaf_groups import endpoint_record, record_to_sfen
 from scripts.relabel_root_grouped_search import parse_score_and_pv
+from scripts.collect_search_utility_teachers import (
+    parse_gate,
+    select_conservative_teacher,
+)
 from scripts.filter_root_grouped_validation import root_sfens
 from scripts.split_grouped_paired_bin import packed_game_ply
 
@@ -61,6 +65,31 @@ class RootGroupedDataTest(unittest.TestCase):
         score, pv = parse_score_and_pv("info depth 0 score mate -0")
         self.assertEqual(score, -32000)
         self.assertEqual(pv, [])
+
+    def test_parses_precise_blending_weights(self):
+        gate = parse_gate(
+            "info string blending_weight=[0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1]"
+        )
+        self.assertAlmostEqual(float(gate.sum()), 1.0)
+        self.assertIsNone(parse_gate("info string blending_weight=[0.5, 0.5]"))
+
+    def test_conservative_teacher_retains_base_below_margin(self):
+        gates = np.eye(3, dtype=np.float32)
+        teacher, selected, gain = select_conservative_teacher(
+            gates, [100, 109, 0], 10
+        )
+        np.testing.assert_array_equal(teacher, gates[0])
+        self.assertEqual(selected, 0)
+        self.assertEqual(gain, 9)
+
+    def test_conservative_teacher_averages_tied_winners(self):
+        gates = np.eye(3, dtype=np.float32)
+        teacher, selected, gain = select_conservative_teacher(
+            gates, [100, 120, 120], 10
+        )
+        np.testing.assert_array_equal(teacher, [0.0, 0.5, 0.5])
+        self.assertEqual(selected, 1)
+        self.assertEqual(gain, 20)
 
 
 if __name__ == "__main__":

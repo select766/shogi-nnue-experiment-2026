@@ -233,3 +233,14 @@ H2も飽和・打ち切りとし、testと自己対局は実施しなかった�
 詳細なデータ定義、教師視点補正、交差loss、対応あり比較は
 `docs/research/results/objective-onpolicy-20260825/README.md`に保存した。次候補はleaf score教師の
 深さ追加ではなく、rootで複数の固定blend候補を実探索して得たsearch utilityの直接蒸留である。
+
+## Search utility直接蒸留 pilot (2026-08-25)
+
+M0と各expert方向へのlogit +1候補をrootで実探索し、独立固定`nn.bin`の制限手探索scoreで選ぶ教師を
+実装した。DNNは候補rootで1回だけ実行し、各探索中のblendは固定した。2,000 rootでは候補bestmoveが
+平均2.45種類に分かれ、10cp以上のoracle gainによって教師が変わったrootは27.9%だった。
+
+1,600 train / 400 validationのadapter蒸留では教師cross entropyを僅かに改善したが、固定validation
+10,000局面の100万nodes bestmove一致はM0 61.91%に対しrouter-only 61.76% (`p=0.733`)、task併用
+61.41% (`p=0.238`)だった。事前規則に従いscale、固定test、自己対局は行わなかった。詳細は
+`docs/research/results/search-utility-distillation-20260825/README.md`に保存した。
