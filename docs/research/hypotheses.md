@@ -24,17 +24,8 @@
 
 ## 優先順位付き未完了仮説
 
-<!-- hypothesis id=H-EXPERT-DIVERSITY status=unverified priority=1 -->
-### 1. Expertの高相関がrouting効果を制限している
-
-- 状態: 未検証
-- 仮説: 異なる探索局面群や目的でexpertを分化させれば、rootごとのblend変更が探索結果へ与える効果が大きくなる。
-- 根拠: 現expertの同一局面出力相関は平均約0.966で、search utility pilotの教師gate変化も平均L1約0.05だった。
-- 次の実験: expert別データ分割または多様性制約で小規模な分化expert群を作り、相関、oracle gain、候補bestmove多様性を現行expert群と比較する。
-- 成功条件: validation lossを大きく悪化させずにexpert相関を下げ、未知rootでoracle gainと候補bestmove多様性を増やす。
-
-<!-- hypothesis id=H-SU-GEOMETRY status=unverified priority=2 -->
-### 2. Search utility候補の探索半径と形状が狭すぎる
+<!-- hypothesis id=H-SU-GEOMETRY status=unverified priority=1 -->
+### 1. Search utility候補の探索半径と形状が狭すぎる
 
 - 状態: 未検証
 - 仮説: expert logitへの単一`+1.0`摂動より、複数半径、expert対方向、疎な頂点を含む候補集合の方が、学習可能なutility差を作る。
@@ -42,8 +33,8 @@
 - 次の実験: H-SU-HORIZONの結果から候補選抜を100万nodesへ揃え、候補数を制御したまま複数の候補幾何を比較する。
 - 成功条件: 計算量当たりの独立utility gain、teacher変化量、held-out教師再現性が現行候補を上回る。
 
-<!-- hypothesis id=H-TAIL-OBJECTIVE status=unverified priority=3 -->
-### 3. 平均leaf lossが探索上重要な少数leafを希釈している
+<!-- hypothesis id=H-TAIL-OBJECTIVE status=unverified priority=2 -->
+### 2. 平均leaf lossが探索上重要な少数leafを希釈している
 
 - 状態: 未検証
 - 仮説: root内平均ではなく、上位分位、CVaR、最大loss、訪問回数重みなどのtail-sensitive目的が最善手・勝率へ転換しやすい。
@@ -51,8 +42,8 @@
 - 次の実験: 同じroot/leafと固定expertを使い、集約関数だけを変えた対応比較を行う。
 - 成功条件: 未使用rootでtail指標と平均lossの両方を監視し、固定bestmoveを事前基準以上改善する候補を得る。
 
-<!-- hypothesis id=H-ROOT-REPRESENTATION status=unverified priority=4 -->
-### 4. Rootだけから探索後の影響を予測する表現力が不足している
+<!-- hypothesis id=H-ROOT-REPRESENTATION status=unverified priority=3 -->
+### 3. Rootだけから探索後の影響を予測する表現力が不足している
 
 - 状態: 未検証
 - 仮説: DNNはrootで一度だけ実行する制約を保ったまま、root側の特徴またはadapter容量を増やせば、未知leaf集合に適した固定blendを予測できる。
@@ -60,14 +51,24 @@
 - 次の実験: 計算量上限を先に固定し、root-only特徴・adapter容量の小さなablationを行う。
 - 成功条件: ONNX Runtime CPUで許容レイテンシ内に収まり、独立rootのgroup lossと探索指標をともに改善する。
 
-<!-- hypothesis id=H-LEAF-LOSS-STRENGTH status=held priority=5 -->
-### 5. 実探索leaf loss改善は小さな棋力向上を生んでいる
+<!-- hypothesis id=H-LEAF-LOSS-STRENGTH status=held priority=4 -->
+### 4. 実探索leaf loss改善は小さな棋力向上を生んでいる
 
 - 状態: 保留
 - 仮説: 実探索leafモデルの自己対局`+13.0 Elo`は真の小効果であり、局数を増やせば0より上へ分離する。
 - 根拠: 400局の95%区間は`[-20.4,+46.5]`で、正負の双方を含む。
 - 次の実験: モデル変更ではなく測定精度の改善として、事前停止規則付きの追加自己対局を行う。
 - 成功条件: 事前に定めた最小効果と信頼区間を満たす。満たさなければ、leaf lossを棋力の選抜指標にしない。
+
+<!-- hypothesis id=H-TASK-ALIGNED-EXPERTS status=unverified priority=5 -->
+### 5. Rootから予測可能な役割でexpertを専門化すればrouting価値が増える
+
+- 状態: 未検証
+- 仮説: 現expert差の単純拡大ではなく、探索phaseやroot特徴に対応する役割を教師ありで割り当てれば、
+  各expertの品質を保ちながら候補utilityを増やせる。
+- 根拠: 放射状偏差2倍は相関を0.892まで下げたが、有効教師率と候補手多様度をともに悪化させた。
+- 次の実験: rootだけから再現できるclusterを事前定義し、各expertをcluster別目的へ学習する。
+- 成功条件: 単体expert lossを維持し、独立rootの100万nodes utilityと候補手多様度をM0より改善する。
 
 ## 判定済み仮説
 
@@ -76,6 +77,12 @@
 
 - 状態: 棄却。10k対1mの候補utility順位相関は平均0.087、95%区間`[-0.004,0.182]`で、
   事前閾値0.30を上端でも下回った。1mの有効教師率21.1%は残るため、候補選抜horizonを揃えて次へ進む。
+
+<!-- hypothesis id=H-EXPERT-DIVERSITY status=rejected -->
+### H-EXPERT-DIVERSITY: Expertの高相関がrouting効果を制限している
+
+- 状態: 棄却。偏差拡大で相関を0.892へ下げても、100万nodesの有効教師率、oracle gain、候補手多様度が
+  すべて悪化した。task-alignedな専門化は別仮説へ分離した。
 
 <!-- hypothesis id=H-RUNTIME-CPU status=measured -->
 ### H-RUNTIME-CPU: CPU ONNX Runtimeで実運用可能な固定blendを構成できる
@@ -160,4 +167,5 @@
 | [Search-aware / on-policy](results/objective-onpolicy-20260825/README.md) | H-DEEP-LEAF, H-ONPOLICY-QSEARCH | deep教師を棄却、on-policy qsearchを飽和判定 |
 | [Search utility pilot](results/search-utility-distillation-20260825/README.md) | H-SU-LOCAL, H-SU-HORIZON, H-SU-GEOMETRY | 局所候補条件を棄却し残る制約を分離 |
 | [Search utility探索量安定性](results/search-utility-horizon-20260825/README.md) | H-SU-HORIZON, H-SU-GEOMETRY | 10kから1mへの候補順位転移を棄却し配備horizon整合へ更新 |
+| [Expert多様性ボトルネック](results/expert-diversity-20260825/README.md) | H-EXPERT-DIVERSITY, H-TASK-ALIGNED-EXPERTS | 放射状多様化を棄却しtask-aligned専門化を分離 |
 <!-- result-ledger:end -->
