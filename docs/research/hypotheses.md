@@ -24,17 +24,8 @@
 
 ## 優先順位付き未完了仮説
 
-<!-- hypothesis id=H-ROOT-REPRESENTATION status=unverified priority=1 -->
-### 1. Rootだけから探索後の影響を予測する表現力が不足している
-
-- 状態: 未検証
-- 仮説: DNNはrootで一度だけ実行する制約を保ったまま、root側の特徴またはadapter容量を増やせば、未知leaf集合に適した固定blendを予測できる。
-- 根拠: 末端を見た共有teacherは転移するが、現adapterによるteacher追従やsearch utility蒸留の改善は小さい。
-- 次の実験: 計算量上限を先に固定し、root-only特徴・adapter容量の小さなablationを行う。
-- 成功条件: ONNX Runtime CPUで許容レイテンシ内に収まり、独立rootのgroup lossと探索指標をともに改善する。
-
-<!-- hypothesis id=H-LEAF-LOSS-STRENGTH status=held priority=2 -->
-### 2. 実探索leaf loss改善は小さな棋力向上を生んでいる
+<!-- hypothesis id=H-LEAF-LOSS-STRENGTH status=held priority=1 -->
+### 1. 実探索leaf loss改善は小さな棋力向上を生んでいる
 
 - 状態: 保留
 - 仮説: 実探索leafモデルの自己対局`+13.0 Elo`は真の小効果であり、局数を増やせば0より上へ分離する。
@@ -42,8 +33,8 @@
 - 次の実験: モデル変更ではなく測定精度の改善として、事前停止規則付きの追加自己対局を行う。
 - 成功条件: 事前に定めた最小効果と信頼区間を満たす。満たさなければ、leaf lossを棋力の選抜指標にしない。
 
-<!-- hypothesis id=H-TASK-ALIGNED-EXPERTS status=unverified priority=3 -->
-### 3. Rootから予測可能な役割でexpertを専門化すればrouting価値が増える
+<!-- hypothesis id=H-TASK-ALIGNED-EXPERTS status=unverified priority=2 -->
+### 2. Rootから予測可能な役割でexpertを専門化すればrouting価値が増える
 
 - 状態: 未検証
 - 仮説: 現expert差の単純拡大ではなく、探索phaseやroot特徴に対応する役割を教師ありで割り当てれば、
@@ -51,6 +42,16 @@
 - 根拠: 放射状偏差2倍は相関を0.892まで下げたが、有効教師率と候補手多様度をともに悪化させた。
 - 次の実験: rootだけから再現できるclusterを事前定義し、各expertをcluster別目的へ学習する。
 - 成功条件: 単体expert lossを維持し、独立rootの100万nodes utilityと候補手多様度をM0より改善する。
+
+<!-- hypothesis id=H-ROOT-FEATURES status=unverified priority=3 -->
+### 3. 現DNN出力にないroot情報が固定blend予測に必要である
+
+- 状態: 未検証
+- 仮説: adapter幅ではなく、rootの探索統計や手数・phaseなど、現backbone出力に明示されない低コスト特徴が
+  未知leaf集合に適した固定blendの予測を改善する。
+- 根拠: hidden幅256/512への拡大は独立rootのgroup lossを改善せず、単純な容量不足では説明できなかった。
+- 次の実験: rootで一度だけ計算できる少数特徴を事前選定し、同程度のadapter容量でablationする。
+- 成功条件: 独立rootのgroup lossを改善し、CPU追加時間10%以内で固定bestmoveも正方向にする。
 
 <!-- hypothesis id=H-SU-ADAPTIVE-RADIUS status=unverified priority=4 -->
 ### 4. Root別に候補半径を変えるとsearch utility信号を効率よく増やせる
@@ -63,6 +64,12 @@
 - 成功条件: held-out rootで固定半径より有効教師率と候補手多様度を改善する。
 
 ## 判定済み仮説
+
+<!-- hypothesis id=H-ROOT-REPRESENTATION status=rejected -->
+### H-ROOT-REPRESENTATION: Rootだけから探索後の影響を予測する表現力が不足している
+
+- 状態: 棄却。hidden 256はvalBで悪化し、512も未使用valAで平均group lossを改善しなかった。
+  配備制約を保った特徴追加は`H-ROOT-FEATURES`へ分離した。
 
 <!-- hypothesis id=H-TAIL-OBJECTIVE status=supported -->
 ### H-TAIL-OBJECTIVE: 平均leaf lossが探索上重要な少数leafを希釈している
@@ -174,4 +181,5 @@
 | [Expert多様性ボトルネック](results/expert-diversity-20260825/README.md) | H-EXPERT-DIVERSITY, H-TASK-ALIGNED-EXPERTS | 放射状多様化を棄却しtask-aligned専門化を分離 |
 | [Search utility候補幾何](results/search-utility-geometry-20260826/README.md) | H-SU-GEOMETRY, H-SU-ADAPTIVE-RADIUS | 一律の広い候補を棄却しroot別半径を分離 |
 | [Tail-sensitive group objective](results/tail-objective-20260826/README.md) | H-TAIL-OBJECTIVE | CVaRでtail lossを改善し固定bestmoveも小幅な正方向 |
+| [Root-only adapter容量](results/root-representation-capacity-20260826/README.md) | H-ROOT-REPRESENTATION, H-ROOT-FEATURES | 単純な幅拡大を棄却し入力特徴仮説を分離 |
 <!-- result-ledger:end -->
