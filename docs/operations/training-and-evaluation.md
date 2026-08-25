@@ -198,6 +198,21 @@ bash scripts/train_expert_blending.sh \
 1回、NNUEは`root batch x group_size`末端に実行され、同じgateがgroup内で共有される。結果は
 [root-grouped router実験](../research/results/root-grouped-router-20260823/README.md)を参照する。
 
+root内の平均以外を学習目的にする場合は`--group-loss-mode`を指定する。`cvar`は
+`--group-cvar-fraction`で指定したloss上位leafを平均し、`mixed`は従来平均とCVaRを
+`--group-cvar-weight`で混合する。これらは`--root-grouped`専用である。
+
+```bash
+# group size 8のうちloss上位2 leafを使うCVaR
+--group-loss-mode cvar --group-cvar-fraction 0.25
+
+# 従来平均とCVaRを1:1で混合
+--group-loss-mode mixed --group-cvar-fraction 0.25 --group-cvar-weight 0.5
+```
+
+checkpointのmean group lossと同じtop-fraction lossを対応比較する場合は、
+`compare_root_grouped_checkpoints`へ`--tail-fraction 0.25`を渡す。
+
 学習曲線のJSON化と、root単位の対応ありcheckpoint比較は次を使う。比較はGPU必須であり、
 sandbox外で実行して標準出力を`/tmp/*.log`へ保存する。shared-teacher指標が不要なら
 `--teacher`は省略できる。

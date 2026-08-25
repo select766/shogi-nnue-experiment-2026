@@ -8,6 +8,7 @@ try:
     from train_nnue.expert_blending_model import NNUEExperts, transform_gate_logits
     from train_nnue.train_expert_blending import (
         CheckpointEveryNEpochs,
+        aggregate_group_loss,
         compute_gate_statistics,
         compute_router_statistics,
         router_teacher_distribution,
@@ -18,12 +19,26 @@ except ModuleNotFoundError:
     transform_gate_logits = None
     compute_gate_statistics = None
     CheckpointEveryNEpochs = None
+    aggregate_group_loss = None
     compute_router_statistics = None
     router_teacher_distribution = None
 
 
 @unittest.skipIf(torch is None, "requires the nnue PyTorch environment")
 class ForwardExpertTest(unittest.TestCase):
+    def test_group_cvar_and_mixed_aggregation(self):
+        losses = torch.tensor([1.0, 2.0, 3.0, 4.0, 2.0, 4.0, 6.0, 8.0])
+        cvar, mean, tail = aggregate_group_loss(
+            losses, 4, mode="cvar", cvar_fraction=0.5
+        )
+        self.assertAlmostEqual(3.75, float(mean))
+        self.assertAlmostEqual(5.25, float(tail))
+        self.assertAlmostEqual(5.25, float(cvar))
+        mixed, _, _ = aggregate_group_loss(
+            losses, 4, mode="mixed", cvar_fraction=0.5, cvar_weight=0.5
+        )
+        self.assertAlmostEqual(4.5, float(mixed))
+
     def test_periodic_checkpoint_includes_epoch_zero(self):
         class Trainer:
             current_epoch = 0

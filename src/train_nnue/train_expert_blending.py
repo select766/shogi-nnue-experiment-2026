@@ -14,6 +14,7 @@ Usage:
 """
 
 import argparse
+import math
 import os
 import sys
 
@@ -103,6 +104,32 @@ def compute_router_statistics(gate_weights, expert_losses, teacher_weights):
     }
 
 
+def aggregate_group_loss(
+    position_loss,
+    root_group_size,
+    mode="mean",
+    cvar_fraction=0.25,
+    cvar_weight=0.5,
+):
+    if root_group_size <= 0 or position_loss.numel() % root_group_size:
+        raise ValueError("position loss does not align to root groups")
+    if not 0.0 < cvar_fraction <= 1.0 or not 0.0 <= cvar_weight <= 1.0:
+        raise ValueError("invalid CVaR fraction or weight")
+    grouped = position_loss.reshape(-1, root_group_size)
+    mean_loss = grouped.mean(dim=1)
+    tail_count = max(1, int(math.ceil(root_group_size * cvar_fraction)))
+    cvar_loss = grouped.topk(tail_count, dim=1).values.mean(dim=1)
+    if mode == "mean":
+        selected = mean_loss
+    elif mode == "cvar":
+        selected = cvar_loss
+    elif mode == "mixed":
+        selected = (1.0 - cvar_weight) * mean_loss + cvar_weight * cvar_loss
+    else:
+        raise ValueError(f"unknown group loss mode: {mode}")
+    return selected.mean(), mean_loss.mean(), cvar_loss.mean()
+
+
 class ExpertBlendingLightningModule(pl.LightningModule):
     """Expert Blending モデルの学習モジュール。
 
@@ -131,6 +158,9 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         lambda_router=0.0,
         task_loss_weight=1.0,
         root_group_size=1,
+        group_loss_mode="mean",
+        group_cvar_fraction=0.25,
+        group_cvar_weight=0.5,
     ):
         super().__init__()
         self.model = model
@@ -152,6 +182,9 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         self.lambda_router = lambda_router
         self.task_loss_weight = task_loss_weight
         self.root_group_size = int(root_group_size)
+        self.group_loss_mode = group_loss_mode
+        self.group_cvar_fraction = float(group_cvar_fraction)
+        self.group_cvar_weight = float(group_cvar_weight)
         if self.root_group_size <= 0:
             raise ValueError("root_group_size must be positive")
 
@@ -221,7 +254,21 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         lambda_ = self.lambda_
         result = lambda_ * teacher_loss + (1.0 - lambda_) * outcome_loss
         entropy = lambda_ * teacher_entropy + (1.0 - lambda_) * outcome_entropy
-        task_loss = result.mean() - entropy.mean()
+        position_loss = result - entropy
+        mean_group_loss = position_loss.mean()
+        cvar_group_loss = position_loss.mean()
+        if self.root_group_size > 1:
+            task_loss, mean_group_loss, cvar_group_loss = aggregate_group_loss(
+                position_loss,
+                self.root_group_size,
+                self.group_loss_mode,
+                self.group_cvar_fraction,
+                self.group_cvar_weight,
+            )
+        else:
+            if self.group_loss_mode != "mean":
+                raise RuntimeError("tail group objectives require root-grouped data")
+            task_loss = position_loss.mean()
         gate_statistics = compute_gate_statistics(gate_weights)
         gate_entropy = gate_statistics["entropy"]
         balance_kl = gate_statistics["balance_kl"]
@@ -283,6 +330,10 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         else:
             self.log("val_loss", task_loss, on_step=False, on_epoch=True,
                      prog_bar=True, batch_size=batch_size)
+            self.log("val_mean_group_loss", mean_group_loss, on_step=False,
+                     on_epoch=True, prog_bar=False, batch_size=batch_size)
+            self.log("val_cvar_group_loss", cvar_group_loss, on_step=False,
+                     on_epoch=True, prog_bar=False, batch_size=batch_size)
             self.log("val_regularized_loss", loss, on_step=False, on_epoch=True,
                      prog_bar=False, batch_size=batch_size)
             self.log("val_gate_entropy", gate_entropy, on_step=False, on_epoch=True,
@@ -545,6 +596,13 @@ def main():
     parser.add_argument("--router-teacher-temperature", type=float, default=0.005)
     parser.add_argument("--lambda-router", type=float, default=0.0)
     parser.add_argument("--task-loss-weight", type=float, default=1.0)
+    parser.add_argument(
+        "--group-loss-mode",
+        choices=["mean", "cvar", "mixed"],
+        default="mean",
+    )
+    parser.add_argument("--group-cvar-fraction", type=float, default=0.25)
+    parser.add_argument("--group-cvar-weight", type=float, default=0.5)
     parser.add_argument("--freeze-experts", action="store_true")
     parser.add_argument("--max-val-positions", type=int, default=100000,
                         help="Max validation positions per epoch")
@@ -576,6 +634,8 @@ def main():
         or args.lambda_balance < 0.0
         or args.lambda_router < 0.0
         or args.task_loss_weight < 0.0
+        or not 0.0 < args.group_cvar_fraction <= 1.0
+        or not 0.0 <= args.group_cvar_weight <= 1.0
     ):
         parser.error("loss coefficients must be non-negative")
     if args.router_teacher_temperature <= 0.0:
@@ -659,6 +719,9 @@ def main():
         lambda_router=args.lambda_router,
         task_loss_weight=args.task_loss_weight,
         root_group_size=root_group_size,
+        group_loss_mode=args.group_loss_mode,
+        group_cvar_fraction=args.group_cvar_fraction,
+        group_cvar_weight=args.group_cvar_weight,
     )
 
     # --- Load weights only (for fine-tuning) ---

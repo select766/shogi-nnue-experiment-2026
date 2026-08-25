@@ -46,6 +46,7 @@ def evaluate(path, args, teacher_weights=None):
         args.data, "HalfKP", args.root_batch_size, device=args.device
     )
     losses = []
+    tail_losses = []
     teacher_matches = []
     teacher_cross_entropies = []
     processed = 0
@@ -62,15 +63,19 @@ def evaluate(path, args, teacher_weights=None):
                 white,
                 black,
             )
-            group_loss = per_record_loss(
+            per_leaf_loss = per_record_loss(
                 raw,
                 score,
                 outcome,
                 float(hparams.get("score_scaling", 361.0)),
                 float(hparams.get("lambda_", 1.0)),
                 float(hparams.get("label_smoothing_eps", 0.0)),
-            ).reshape(int(x1.shape[0]), dataset.group_size).mean(dim=1)
+            ).reshape(int(x1.shape[0]), dataset.group_size)
+            group_loss = per_leaf_loss.mean(dim=1)
+            tail_count = max(1, int(np.ceil(dataset.group_size * args.tail_fraction)))
+            tail_loss = per_leaf_loss.topk(tail_count, dim=1).values.mean(dim=1)
             losses.append(group_loss[:take].cpu().numpy())
+            tail_losses.append(tail_loss[:take].cpu().numpy())
             if teacher_weights is not None:
                 target = torch.from_numpy(
                     teacher_weights[processed : processed + take].copy()
@@ -88,7 +93,10 @@ def evaluate(path, args, teacher_weights=None):
             processed += take
     del model
     torch.cuda.empty_cache()
-    result = {"losses": np.concatenate(losses)}
+    result = {
+        "losses": np.concatenate(losses),
+        "tail_losses": np.concatenate(tail_losses),
+    }
     if teacher_weights is not None:
         result["teacher_matches"] = np.concatenate(teacher_matches)
         result["teacher_cross_entropies"] = np.concatenate(
@@ -114,11 +122,14 @@ def main() -> None:
     parser.add_argument("--max-roots", type=int, required=True)
     parser.add_argument("--root-batch-size", type=int, default=256)
     parser.add_argument("--bootstrap-seed", type=int, default=424204)
+    parser.add_argument("--tail-fraction", type=float, default=0.25)
     parser.add_argument("--output", required=True)
     parser.add_argument("--device", default="cuda:0")
     args = parser.parse_args()
     if not torch.cuda.is_available() or not args.device.startswith("cuda"):
         raise RuntimeError("checkpoint comparison requires CUDA")
+    if not 0.0 < args.tail_fraction <= 1.0:
+        parser.error("--tail-fraction must be in (0, 1]")
     teacher_weights = None
     if args.teacher:
         teacher = np.load(args.teacher, mmap_mode="r")
@@ -131,6 +142,7 @@ def main() -> None:
         "control": {
             "checkpoint": str(Path(args.control).resolve()),
             "mean_group_loss": float(control["losses"].mean()),
+            "mean_tail_loss": float(control["tail_losses"].mean()),
         },
         "candidates": [],
     }
@@ -148,6 +160,7 @@ def main() -> None:
     for path in args.candidate:
         candidate = evaluate(path, args, teacher_weights)
         delta = candidate["losses"] - control["losses"]
+        tail_delta = candidate["tail_losses"] - control["tail_losses"]
         candidate_output = {
             "checkpoint": str(Path(path).resolve()),
             "mean_group_loss": float(candidate["losses"].mean()),
@@ -157,6 +170,14 @@ def main() -> None:
                     delta, args.bootstrap_seed
                 ),
                 "fraction_improved": float((delta < 0.0).mean()),
+            },
+            "mean_tail_loss": float(candidate["tail_losses"].mean()),
+            "paired_tail_loss_delta_vs_control": {
+                "mean": float(tail_delta.mean()),
+                "bootstrap_95_interval": bootstrap_interval(
+                    tail_delta, args.bootstrap_seed
+                ),
+                "fraction_improved": float((tail_delta < 0.0).mean()),
             },
         }
         if teacher_weights is not None:

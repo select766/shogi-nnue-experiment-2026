@@ -1,6 +1,6 @@
 # 研究仮説レジストリ
 
-更新日: 2026-08-25
+更新日: 2026-08-26
 
 このファイルを、未検証仮説の優先順位と過去の判定を管理する唯一の台帳とする。
 実験計画や結果文書は詳しい条件と証跡を保持し、この台帳は「次に何を、なぜ検証するか」を保持する。
@@ -24,17 +24,8 @@
 
 ## 優先順位付き未完了仮説
 
-<!-- hypothesis id=H-TAIL-OBJECTIVE status=unverified priority=1 -->
-### 1. 平均leaf lossが探索上重要な少数leafを希釈している
-
-- 状態: 未検証
-- 仮説: root内平均ではなく、上位分位、CVaR、最大loss、訪問回数重みなどのtail-sensitive目的が最善手・勝率へ転換しやすい。
-- 根拠: root-grouped平均lossは大きく改善した一方、固定bestmoveでは改善せず、自己対局も不確定だった。
-- 次の実験: 同じroot/leafと固定expertを使い、集約関数だけを変えた対応比較を行う。
-- 成功条件: 未使用rootでtail指標と平均lossの両方を監視し、固定bestmoveを事前基準以上改善する候補を得る。
-
-<!-- hypothesis id=H-ROOT-REPRESENTATION status=unverified priority=2 -->
-### 2. Rootだけから探索後の影響を予測する表現力が不足している
+<!-- hypothesis id=H-ROOT-REPRESENTATION status=unverified priority=1 -->
+### 1. Rootだけから探索後の影響を予測する表現力が不足している
 
 - 状態: 未検証
 - 仮説: DNNはrootで一度だけ実行する制約を保ったまま、root側の特徴またはadapter容量を増やせば、未知leaf集合に適した固定blendを予測できる。
@@ -42,8 +33,8 @@
 - 次の実験: 計算量上限を先に固定し、root-only特徴・adapter容量の小さなablationを行う。
 - 成功条件: ONNX Runtime CPUで許容レイテンシ内に収まり、独立rootのgroup lossと探索指標をともに改善する。
 
-<!-- hypothesis id=H-LEAF-LOSS-STRENGTH status=held priority=3 -->
-### 3. 実探索leaf loss改善は小さな棋力向上を生んでいる
+<!-- hypothesis id=H-LEAF-LOSS-STRENGTH status=held priority=2 -->
+### 2. 実探索leaf loss改善は小さな棋力向上を生んでいる
 
 - 状態: 保留
 - 仮説: 実探索leafモデルの自己対局`+13.0 Elo`は真の小効果であり、局数を増やせば0より上へ分離する。
@@ -51,8 +42,8 @@
 - 次の実験: モデル変更ではなく測定精度の改善として、事前停止規則付きの追加自己対局を行う。
 - 成功条件: 事前に定めた最小効果と信頼区間を満たす。満たさなければ、leaf lossを棋力の選抜指標にしない。
 
-<!-- hypothesis id=H-TASK-ALIGNED-EXPERTS status=unverified priority=4 -->
-### 4. Rootから予測可能な役割でexpertを専門化すればrouting価値が増える
+<!-- hypothesis id=H-TASK-ALIGNED-EXPERTS status=unverified priority=3 -->
+### 3. Rootから予測可能な役割でexpertを専門化すればrouting価値が増える
 
 - 状態: 未検証
 - 仮説: 現expert差の単純拡大ではなく、探索phaseやroot特徴に対応する役割を教師ありで割り当てれば、
@@ -61,8 +52,8 @@
 - 次の実験: rootだけから再現できるclusterを事前定義し、各expertをcluster別目的へ学習する。
 - 成功条件: 単体expert lossを維持し、独立rootの100万nodes utilityと候補手多様度をM0より改善する。
 
-<!-- hypothesis id=H-SU-ADAPTIVE-RADIUS status=unverified priority=5 -->
-### 5. Root別に候補半径を変えるとsearch utility信号を効率よく増やせる
+<!-- hypothesis id=H-SU-ADAPTIVE-RADIUS status=unverified priority=4 -->
+### 4. Root別に候補半径を変えるとsearch utility信号を効率よく増やせる
 
 - 状態: 未検証
 - 仮説: 全root一律の広い候補ではなく、root特徴から必要なlogit半径を予測すれば、候補数を増やさず
@@ -72,6 +63,12 @@
 - 成功条件: held-out rootで固定半径より有効教師率と候補手多様度を改善する。
 
 ## 判定済み仮説
+
+<!-- hypothesis id=H-TAIL-OBJECTIVE status=supported -->
+### H-TAIL-OBJECTIVE: 平均leaf lossが探索上重要な少数leafを希釈している
+
+- 状態: 支持。上位2/8 leafのCVaR学習は独立rootでtail lossと平均lossを改善し、固定10,000局面の
+  bestmove一致率をmean対照比`+0.21`ポイントとした。ただし`p=0.6325`で効果量は未確定である。
 
 <!-- hypothesis id=H-SU-HORIZON status=rejected -->
 ### H-SU-HORIZON: Search utility教師は探索量をまたいで安定する
@@ -176,4 +173,5 @@
 | [Search utility探索量安定性](results/search-utility-horizon-20260825/README.md) | H-SU-HORIZON, H-SU-GEOMETRY | 10kから1mへの候補順位転移を棄却し配備horizon整合へ更新 |
 | [Expert多様性ボトルネック](results/expert-diversity-20260825/README.md) | H-EXPERT-DIVERSITY, H-TASK-ALIGNED-EXPERTS | 放射状多様化を棄却しtask-aligned専門化を分離 |
 | [Search utility候補幾何](results/search-utility-geometry-20260826/README.md) | H-SU-GEOMETRY, H-SU-ADAPTIVE-RADIUS | 一律の広い候補を棄却しroot別半径を分離 |
+| [Tail-sensitive group objective](results/tail-objective-20260826/README.md) | H-TAIL-OBJECTIVE | CVaRでtail lossを改善し固定bestmoveも小幅な正方向 |
 <!-- result-ledger:end -->
