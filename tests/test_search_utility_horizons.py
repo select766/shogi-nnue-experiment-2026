@@ -17,6 +17,7 @@ from diagnose_search_utility_horizons import (  # noqa: E402
     wilson_interval,
 )
 from collect_search_utility_teachers import (  # noqa: E402
+    build_candidate_biases,
     onnxruntime_library_dir,
     search_candidate,
 )
@@ -69,6 +70,14 @@ class SearchUtilityHorizonStatisticsTest(unittest.TestCase):
         self.assertEqual("7g7f", move)
         np.testing.assert_allclose([0.1] * 6 + [0.2, 0.2], gate)
         self.assertEqual("isready", engine.commands[-1])
+
+    def test_candidate_bias_geometries_have_equal_count(self):
+        axis = build_candidate_biases(4, "positive-axis", 2.0)
+        contrast = build_candidate_biases(4, "cyclic-contrast", 2.0)
+        self.assertEqual(5, len(axis))
+        self.assertEqual(5, len(contrast))
+        np.testing.assert_array_equal([2, -2, 0, 0], contrast[1])
+        np.testing.assert_array_equal([0, 0, 0, 0], contrast[0])
 
     def test_wilson_interval_contains_observed_fraction(self):
         low, high = wilson_interval(60, 100)

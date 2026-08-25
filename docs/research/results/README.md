@@ -8,6 +8,7 @@
 - [Search utility直接蒸留pilot](search-utility-distillation-20260825/README.md)
 - [Search utility探索量安定性](search-utility-horizon-20260825/README.md)
 - [Expert多様性ボトルネック](expert-diversity-20260825/README.md)
+- [Search utility候補幾何](search-utility-geometry-20260826/README.md)
 
 - [固定10,000局面の最善手一致率](accuracy-eval-10k-current/README.md)
 - [Checkpoint 180のgate・oracle診断](gate-diagnostics-lambda05-180/README.md)

@@ -37,6 +37,21 @@ def onnxruntime_library_dir(candidate_engine):
     return library_dir.resolve()
 
 
+def build_candidate_biases(n_experts, geometry, scale):
+    if n_experts <= 1 or not 0.0 < scale <= 20.0:
+        raise ValueError("invalid expert count or bias scale")
+    biases = [np.zeros(n_experts, dtype=np.float32)]
+    for expert in range(n_experts):
+        bias = np.zeros(n_experts, dtype=np.float32)
+        bias[expert] = scale
+        if geometry == "cyclic-contrast":
+            bias[(expert + 1) % n_experts] = -scale
+        elif geometry != "positive-axis":
+            raise ValueError(f"unknown candidate geometry: {geometry}")
+        biases.append(bias)
+    return biases
+
+
 def parse_gate(line, n_experts=8):
     match = GATE_RE.match(line)
     if not match:
@@ -138,6 +153,11 @@ def main():
     parser.add_argument("--candidate-nodes", type=int, required=True)
     parser.add_argument("--reference-nodes", type=int, required=True)
     parser.add_argument("--logit-bias", type=float, default=1.0)
+    parser.add_argument(
+        "--candidate-geometry",
+        choices=["positive-axis", "cyclic-contrast"],
+        default="positive-axis",
+    )
     parser.add_argument("--minimum-improvement-cp", type=float, default=10.0)
     parser.add_argument("--start-root", type=int, default=0)
     parser.add_argument("--max-roots", type=int, required=True)
@@ -155,11 +175,7 @@ def main():
     if args.roots_file.stat().st_size % RECORD_BYTES or stop > root_count:
         parser.error("requested root range is outside an aligned roots file")
 
-    biases = [np.zeros(8, dtype=np.float32)]
-    for expert in range(8):
-        bias = np.zeros(8, dtype=np.float32)
-        bias[expert] = args.logit_bias
-        biases.append(bias)
+    biases = build_candidate_biases(8, args.candidate_geometry, args.logit_bias)
 
     records = []
     with args.roots_file.open("rb") as source:
@@ -268,7 +284,10 @@ def main():
         "start_root": args.start_root, "candidate_nodes": args.candidate_nodes,
         "reference_nodes": args.reference_nodes, "logit_bias": args.logit_bias,
         "minimum_improvement_cp": args.minimum_improvement_cp,
-        "candidate_definition": "current gate plus +logit_bias toward each of 8 experts",
+        "candidate_geometry": args.candidate_geometry,
+        "candidate_definition": (
+            "current gate plus one candidate per expert using the recorded geometry"
+        ),
         "teacher_definition": "retain current gate unless independent restricted-move oracle improves by threshold; otherwise mean gate of tied best candidates",
         "teacher_changed_fraction": float(changed.mean()),
         "oracle_gain_cp_mean": float(gains.mean()),
