@@ -29,6 +29,14 @@ except ModuleNotFoundError:
 GATE_RE = re.compile(r"^info string blending_weight=\[([^]]+)\]$")
 
 
+def onnxruntime_library_dir(candidate_engine):
+    repo_root = Path(candidate_engine).resolve().parent.parent
+    library_dir = repo_root / "YaneuraOu/extra/onnxruntime/linux/current/lib"
+    if not library_dir.is_dir():
+        raise FileNotFoundError(f"ONNX Runtime library directory not found: {library_dir}")
+    return library_dir.resolve()
+
+
 def parse_gate(line, n_experts=8):
     match = GATE_RE.match(line)
     if not match:
@@ -58,7 +66,7 @@ def select_conservative_teacher(gates, utilities, minimum_improvement):
     return teacher, int(winners[0]), best - base
 
 
-def search_candidate(engine, sfen, nodes, bias):
+def search_candidate(engine, sfen, nodes, bias, require_gate=True):
     encoded = ",".join(f"{value:.8g}" for value in bias)
     engine.send(f"setoption name ExpertBlendingGateLogitBias value {encoded}")
     engine.send(f"position sfen {sfen}")
@@ -73,8 +81,22 @@ def search_candidate(engine, sfen, nodes, bias):
         if line.startswith("bestmove "):
             bestmove = line.split()[1]
             break
-    if gate is None:
-        raise ValueError("candidate search returned no blending_weight")
+    # The engine may emit blending_weight from its worker immediately after
+    # bestmove.  Use an isready barrier and drain through readyok so that the
+    # gate cannot be consumed by the following candidate search.
+    engine.send("isready")
+    while True:
+        line = engine.read_until(lambda _: True)
+        parsed_gate = parse_gate(line)
+        if parsed_gate is not None and gate is None:
+            gate = parsed_gate
+        if line == "readyok":
+            break
+    if gate is None and require_gate:
+        raise ValueError(
+            f"candidate search returned no blending_weight: nodes={nodes}, "
+            f"bias={encoded}, bestmove={bestmove}, sfen={sfen}"
+        )
     return bestmove, gate
 
 
@@ -153,10 +175,7 @@ def main():
     def process_chunk(chunk):
         nonlocal progress
         env = os.environ.copy()
-        ort_lib = (
-            args.candidate_engine.resolve().parent.parent
-            / "extra/onnxruntime/linux/current/lib"
-        )
+        ort_lib = onnxruntime_library_dir(args.candidate_engine)
         env["LD_LIBRARY_PATH"] = str(ort_lib) + (
             ":" + env["LD_LIBRARY_PATH"] if env.get("LD_LIBRARY_PATH") else ""
         )

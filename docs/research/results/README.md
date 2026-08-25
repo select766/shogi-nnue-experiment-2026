@@ -6,6 +6,7 @@
 - [実探索leaf routerの棋力・探索量転移](search-budget-and-strength-20260824/README.md)
 - [Search-aware objective / on-policy pilot](objective-onpolicy-20260825/README.md)
 - [Search utility直接蒸留pilot](search-utility-distillation-20260825/README.md)
+- [Search utility探索量安定性](search-utility-horizon-20260825/README.md)
 
 - [固定10,000局面の最善手一致率](accuracy-eval-10k-current/README.md)
 - [Checkpoint 180のgate・oracle診断](gate-diagnostics-lambda05-180/README.md)
