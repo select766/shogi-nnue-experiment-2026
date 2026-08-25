@@ -5,7 +5,7 @@
 1. `docs/README.md`
 2. `docs/operations/python-environments.md`
 3. `docs/operations/training-and-evaluation.md`
-4. 研究作業なら`docs/research/update-report-202608.md`
+4. 研究作業なら`docs/research/update-report-202608.md`と`docs/research/hypotheses.md`
 
 `docs/archive/`と`scripts/archive/`は参照専用であり、掲載コマンドを実行しない。
 
@@ -84,6 +84,15 @@ bash scripts/run_paired_shuffle.sh INPUT_DIR OUTPUT_DIR 8 0 50 \
 - `src/train_nnue/export_for_yaneuraou.py`: ONNX + head.bin export
 - `src/train_nnue/eval_accuracy.py`: 最善手一致率
 - `src/train_nnue/check_loss_per_gameply.py`: validation loss診断
+
+## 研究仮説の更新
+
+`docs/research/hypotheses.md`を仮説の状態と優先順位の唯一の台帳とする。実験終了時は、結果文書の追加、
+対象仮説の判定、未完了仮説の優先順位振り直し、結果から生じた新仮説の追加を同じ変更に含める。
+最後に`scripts/project_python.sh scripts/check_research_hypotheses.py`を実行する。結果文書が台帳に未登録、
+仮説IDが不正、または優先順位が連番でない状態では、研究作業を完了扱いにしない。検査通過後、
+実験の実装、結果文書、仮説レジストリをコミットするまでを実験完了条件とする。サブモジュールを
+変更した実験では、サブモジュール内のコミットを先に作り、その参照更新を親リポジトリの実験コミットに含める。
 
 ## shuffle_kifu
 

@@ -8,7 +8,8 @@
 1. [Python環境](operations/python-environments.md): 2つの環境の責務と再構築方法。
 2. [学習と評価](operations/training-and-evaluation.md): 現行データによる学習、変換、loss評価、最善手一致率評価。
 3. [データ](operations/data-preparation.md): 現行データの場所、形式、再生成方針。
-4. [2026年8月研究計画](research/update-report-202608.md): 現状の根拠と次の疎gate実験。
+4. [2026年8月研究報告](research/update-report-202608.md): これまでの根拠と実験判断。
+5. [研究仮説レジストリ](research/hypotheses.md): 未検証仮説の状態、優先順位、実験結果との対応。
 
 ## Operations
 
@@ -24,6 +25,7 @@
 
 - [2026年8月の依頼](research/update-plan-202608.md)
 - [調査報告と次期実験計画](research/update-report-202608.md)
+- [研究仮説レジストリ](research/hypotheses.md)
 - [実験結果索引](research/results/README.md)
 
 ## Archive

@@ -9,6 +9,7 @@ activateしたりしない。
 |---|---|
 | `setup_python_envs.sh` | ルート環境と学習環境を構築・更新 |
 | `check_environment.sh` | 依存関係、native loader、任意でCUDAを検査 |
+| `check_research_hypotheses.py` | 仮説ID、優先順位、全結果文書の台帳登録を検査 |
 | `project_python.sh` | データ処理・評価用Pythonの唯一の入口 |
 | `nnue_python.sh` | PyTorch学習・解析用Pythonの唯一の入口 |
 | `gpu_python.sh` | CUDA実演算を検査してGPU必須処理を起動 |
