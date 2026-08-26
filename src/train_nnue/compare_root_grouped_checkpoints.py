@@ -17,12 +17,16 @@ from train_nnue.root_grouped_dataset import RootGroupedDataset
 def load_model(path, backbone_weights, nnue_checkpoint, device):
     checkpoint = torch.load(path, map_location="cpu", weights_only=False)
     configuration = infer_model_configuration(checkpoint["state_dict"])
+    auxiliary_dim = int(
+        checkpoint["state_dict"]["model.adapter.fc1.weight"].shape[1] - 192
+    )
     model = create_expert_blending_model(
         backbone_weights_path=backbone_weights,
         nnue_ckpt_path=nnue_checkpoint,
         feature_set=nnue_features.get_feature_set_from_name("HalfKP"),
         n_experts=configuration["n_experts"],
         adapter_hidden=configuration["adapter_hidden"],
+        adapter_auxiliary_dim=auxiliary_dim,
         backbone_type=configuration["backbone_type"],
         blend_mode=configuration["blend_mode"],
         device="cpu",
@@ -35,15 +39,19 @@ def load_model(path, backbone_weights, nnue_checkpoint, device):
         }
     )
     model.to(device).eval().requires_grad_(False)
-    return model, checkpoint.get("hyper_parameters", {})
+    return model, checkpoint.get("hyper_parameters", {}), auxiliary_dim
 
 
 def evaluate(path, args, teacher_weights=None):
-    model, hparams = load_model(
+    model, hparams, auxiliary_dim = load_model(
         path, args.backbone_weights, args.nnue_checkpoint, args.device
     )
     dataset = RootGroupedDataset(
-        args.data, "HalfKP", args.root_batch_size, device=args.device
+        args.data,
+        "HalfKP",
+        args.root_batch_size,
+        device=args.device,
+        root_feature_cache_path=args.root_features,
     )
     losses = []
     tail_losses = []
@@ -53,9 +61,15 @@ def evaluate(path, args, teacher_weights=None):
     iterator = iter(dataset)
     with torch.inference_mode():
         while processed < args.max_roots:
-            x1, x2, us, them, white, black, outcome, score, _ = next(iterator)
+            batch = next(iterator)
+            x1, x2, us, them, white, black, outcome, score, _ = batch[:9]
+            auxiliary = batch[9] if len(batch) > 9 else None
             take = min(int(x1.shape[0]), args.max_roots - processed)
-            gate = model.adapter(model.backbone(x1, x2), training=False)
+            gate = model.adapter(
+                model.backbone(x1, x2),
+                auxiliary=auxiliary if auxiliary_dim else None,
+                training=False,
+            )
             raw = model.nnue_experts(
                 gate.repeat_interleave(dataset.group_size, dim=0),
                 us,
@@ -110,6 +124,7 @@ def main() -> None:
     parser.add_argument("--control", required=True)
     parser.add_argument("--candidate", action="append", required=True)
     parser.add_argument("--data", required=True)
+    parser.add_argument("--root-features")
     parser.add_argument(
         "--teacher",
         help=(

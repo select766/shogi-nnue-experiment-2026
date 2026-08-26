@@ -161,6 +161,8 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         group_loss_mode="mean",
         group_cvar_fraction=0.25,
         group_cvar_weight=0.5,
+        root_feature_dim=0,
+        lambda_role_expert=0.0,
     ):
         super().__init__()
         self.model = model
@@ -185,6 +187,8 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         self.group_loss_mode = group_loss_mode
         self.group_cvar_fraction = float(group_cvar_fraction)
         self.group_cvar_weight = float(group_cvar_weight)
+        self.root_feature_dim = int(root_feature_dim)
+        self.lambda_role_expert = float(lambda_role_expert)
         if self.root_group_size <= 0:
             raise ValueError("root_group_size must be positive")
 
@@ -205,9 +209,18 @@ class ExpertBlendingLightningModule(pl.LightningModule):
 
     def _compute_loss(self, batch, loss_type):
         base_batch_length = 11 if self.backbone_type == "nnue" else 9
-        teacher_losses = (
-            batch[base_batch_length] if len(batch) > base_batch_length else None
-        )
+        expert_roles = None
+        if self.lambda_role_expert:
+            expert_roles = batch[-1]
+            batch = batch[:-1]
+        extra_index = base_batch_length
+        root_auxiliary = None
+        if self.root_feature_dim:
+            if len(batch) <= extra_index:
+                raise RuntimeError("root auxiliary features are missing from the batch")
+            root_auxiliary = batch[extra_index]
+            extra_index += 1
+        teacher_losses = batch[extra_index] if len(batch) > extra_index else None
         batch = batch[:base_batch_length]
         if self.backbone_type == "nnue":
             us_bb, them_bb, white_bb, black_bb, us, them, white, black, outcome, score, ply = batch
@@ -227,7 +240,7 @@ class ExpertBlendingLightningModule(pl.LightningModule):
             x1, x2, us, them, white, black = model_inputs
             root_features = self.model.backbone(x1, x2)
             gate_weights = self.model.adapter(
-                root_features, training=self.training
+                root_features, auxiliary=root_auxiliary, training=self.training
             )
             expanded_gate = gate_weights.repeat_interleave(
                 self.root_group_size, dim=0
@@ -237,6 +250,19 @@ class ExpertBlendingLightningModule(pl.LightningModule):
             raw_value = self.model.nnue_experts(
                 expanded_gate, us, them, white, black
             )
+            role_raw_value = None
+            if expert_roles is not None:
+                if expert_roles.shape != (batch_size,):
+                    raise ValueError("expert roles must have one index per root")
+                if int(expert_roles.min()) < 0 or int(expert_roles.max()) >= gate_weights.shape[1]:
+                    raise ValueError("expert role index is out of range")
+                role_gate = F.one_hot(
+                    expert_roles, num_classes=gate_weights.shape[1]
+                ).to(dtype=gate_weights.dtype)
+                role_raw_value = self.model.nnue_experts(
+                    role_gate.repeat_interleave(self.root_group_size, dim=0),
+                    us, them, white, black,
+                )
         else:
             raw_value, gate_weights = self(
                 *model_inputs, training=self.training, return_gate=True
@@ -255,6 +281,23 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         result = lambda_ * teacher_loss + (1.0 - lambda_) * outcome_loss
         entropy = lambda_ * teacher_entropy + (1.0 - lambda_) * outcome_entropy
         position_loss = result - entropy
+        role_expert_loss = position_loss.new_zeros(())
+        if expert_roles is not None:
+            role_q = role_raw_value * nnue2score / scaling
+            role_teacher_loss = -(
+                p * F.logsigmoid(role_q) + (1.0 - p) * F.logsigmoid(-role_q)
+            )
+            role_outcome_loss = -(
+                t * F.logsigmoid(role_q) + (1.0 - t) * F.logsigmoid(-role_q)
+            )
+            role_position_loss = (
+                lambda_ * role_teacher_loss
+                + (1.0 - lambda_) * role_outcome_loss
+                - entropy
+            )
+            role_expert_loss, _, _ = aggregate_group_loss(
+                role_position_loss, self.root_group_size, mode="mean"
+            )
         mean_group_loss = position_loss.mean()
         cvar_group_loss = position_loss.mean()
         if self.root_group_size > 1:
@@ -307,6 +350,7 @@ class ExpertBlendingLightningModule(pl.LightningModule):
         loss = (
             self.task_loss_weight * task_loss
             + self.lambda_router * router_loss
+            + self.lambda_role_expert * role_expert_loss
             + regularization
         )
         effective_experts = gate_statistics["effective_experts"]
@@ -319,6 +363,9 @@ class ExpertBlendingLightningModule(pl.LightningModule):
             self.log("train_loss", loss, on_step=False, on_epoch=True, prog_bar=True, batch_size=batch_size)
             self.log("train_task_loss", task_loss, on_step=False, on_epoch=True,
                      prog_bar=False, batch_size=batch_size)
+            if expert_roles is not None:
+                self.log("train_role_expert_loss", role_expert_loss, on_step=False,
+                         on_epoch=True, prog_bar=False, batch_size=batch_size)
             self.log("train_gate_entropy", gate_entropy, on_step=False, on_epoch=True,
                      prog_bar=False, batch_size=batch_size)
             self.log("train_balance_kl", balance_kl, on_step=False, on_epoch=True,
@@ -346,6 +393,9 @@ class ExpertBlendingLightningModule(pl.LightningModule):
                      prog_bar=False, batch_size=batch_size)
             self.log("val_balance_kl", balance_kl, on_step=False, on_epoch=True,
                      prog_bar=False, batch_size=batch_size)
+            if expert_roles is not None:
+                self.log("val_role_expert_loss", role_expert_loss, on_step=False,
+                         on_epoch=True, prog_bar=False, batch_size=batch_size)
             if router_statistics is not None:
                 self._log_router_statistics("val", router_statistics, batch_size)
         return loss
@@ -415,7 +465,10 @@ class ExpertBlendingLightningModule(pl.LightningModule):
             else:
                 x1, x2 = batch[0], batch[1]
                 feat = self.model.backbone(x1, x2)
-                gate_weights = self.model.adapter(feat, training=False)
+                auxiliary = batch[9] if self.root_feature_dim else None
+                gate_weights = self.model.adapter(
+                    feat, auxiliary=auxiliary, training=False
+                )
             # 各 expert の平均重み
             mean_weights = gate_weights.mean(dim=0)
             for i in range(mean_weights.shape[0]):
@@ -550,6 +603,11 @@ def main():
         help="NNUE expert blending mode",
     )
     parser.add_argument("--adapter-hidden", type=int, default=128, help="Adapter hidden dim")
+    parser.add_argument("--root-feature-dim", type=int, default=0)
+    parser.add_argument("--train-root-features")
+    parser.add_argument("--val-root-features")
+    parser.add_argument("--train-expert-roles")
+    parser.add_argument("--val-expert-roles")
     parser.add_argument(
         "--adapter-noise-scale",
         type=float,
@@ -596,6 +654,7 @@ def main():
     parser.add_argument("--router-teacher-temperature", type=float, default=0.005)
     parser.add_argument("--lambda-router", type=float, default=0.0)
     parser.add_argument("--task-loss-weight", type=float, default=1.0)
+    parser.add_argument("--lambda-role-expert", type=float, default=0.0)
     parser.add_argument(
         "--group-loss-mode",
         choices=["mean", "cvar", "mixed"],
@@ -604,6 +663,7 @@ def main():
     parser.add_argument("--group-cvar-fraction", type=float, default=0.25)
     parser.add_argument("--group-cvar-weight", type=float, default=0.5)
     parser.add_argument("--freeze-experts", action="store_true")
+    parser.add_argument("--freeze-adapter", action="store_true")
     parser.add_argument("--max-val-positions", type=int, default=100000,
                         help="Max validation positions per epoch")
     parser.add_argument("--val-start-position", type=int, default=0)
@@ -634,6 +694,7 @@ def main():
         or args.lambda_balance < 0.0
         or args.lambda_router < 0.0
         or args.task_loss_weight < 0.0
+        or args.lambda_role_expert < 0.0
         or not 0.0 < args.group_cvar_fraction <= 1.0
         or not 0.0 <= args.group_cvar_weight <= 1.0
     ):
@@ -646,6 +707,24 @@ def main():
         parser.error(
             "router distillation requires both train and validation teacher caches"
         )
+    if args.root_feature_dim < 0:
+        parser.error("--root-feature-dim must be non-negative")
+    if args.root_feature_dim and (
+        not args.root_grouped
+        or not args.train_root_features
+        or not args.val_root_features
+    ):
+        parser.error("root features require root-grouped data and both feature caches")
+    if not args.root_feature_dim and (
+        args.train_root_features or args.val_root_features
+    ):
+        parser.error("feature cache paths require --root-feature-dim")
+    if args.lambda_role_expert and (
+        not args.root_grouped
+        or not args.train_expert_roles
+        or not args.val_expert_roles
+    ):
+        parser.error("role expert loss requires root-grouped data and both role caches")
 
     root_group_size = 1
     if args.root_grouped:
@@ -688,6 +767,7 @@ def main():
         feature_set=feature_set,
         n_experts=args.n_experts,
         adapter_hidden=args.adapter_hidden,
+        adapter_auxiliary_dim=args.root_feature_dim,
         adapter_noise_scale=args.adapter_noise_scale,
         backbone_type=args.backbone_type,
         blend_mode=args.blend_mode,
@@ -722,6 +802,8 @@ def main():
         group_loss_mode=args.group_loss_mode,
         group_cvar_fraction=args.group_cvar_fraction,
         group_cvar_weight=args.group_cvar_weight,
+        root_feature_dim=args.root_feature_dim,
+        lambda_role_expert=args.lambda_role_expert,
     )
 
     # --- Load weights only (for fine-tuning) ---
@@ -735,6 +817,11 @@ def main():
     if args.freeze_experts:
         model.nnue_experts.requires_grad_(False)
         print("NNUE experts frozen; training router parameters only.")
+    if args.freeze_adapter:
+        if model.adapter is None:
+            parser.error("--freeze-adapter requires DNN adapter")
+        model.adapter.requires_grad_(False)
+        print("DNN adapter frozen; training expert parameters only.")
 
     # --- Data ---
     print(f"Training: {args.train}")
@@ -754,6 +841,10 @@ def main():
             seed=args.seed,
             train_teacher_cache=args.train_teacher_cache,
             val_teacher_cache=args.val_teacher_cache,
+            train_root_features=args.train_root_features,
+            val_root_features=args.val_root_features,
+            train_expert_roles=args.train_expert_roles,
+            val_expert_roles=args.val_expert_roles,
         )
         if loaded_group_size != root_group_size:
             raise RuntimeError("root group size changed while constructing loaders")

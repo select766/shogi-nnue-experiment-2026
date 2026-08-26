@@ -8,6 +8,7 @@ Expert Blending checkpoint → やねうら王ロード形式 への変換ツー
       入力:
           input1: float32 (N, FEATURES1_NUM, 9, 9)
           input2: float32 (N, FEATURES2_NUM, 9, 9)
+          auxiliary: float32 (N, auxiliary_dim)  # root feature 使用時のみ
       出力:
           gate:   float32 (N, n_experts)   # softmax 済み
 
@@ -122,9 +123,9 @@ class GatingNetwork(nn.Module):
         self.backbone = backbone
         self.adapter = adapter
 
-    def forward(self, x1, x2):
+    def forward(self, x1, x2, auxiliary=None):
         feat = self.backbone(x1, x2)
-        gate = self.adapter(feat, training=False)
+        gate = self.adapter(feat, auxiliary=auxiliary, training=False)
         return gate
 
 
@@ -248,7 +249,7 @@ def _per_expert_byte_breakdown(num_features: int) -> dict:
 
 
 def _load_checkpoint(checkpoint_path, n_experts):
-    """checkpoint から (experts, adapter, blend_mode, num_features, hidden_dim) を返す。"""
+    """checkpoint から expert / adapter と構成情報を返す。"""
     ckpt = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     state_dict = ckpt["state_dict"]
     blend_mode = detect_blend_mode_from_state_dict(state_dict)
@@ -273,12 +274,19 @@ def _load_checkpoint(checkpoint_path, n_experts):
 
     adapter_fc1_weight = state_dict["model.adapter.fc1.weight"]
     hidden_dim = adapter_fc1_weight.shape[0]
-    in_channels = adapter_fc1_weight.shape[1]
+    backbone_channels = 192
+    auxiliary_dim = adapter_fc1_weight.shape[1] - backbone_channels
+    if auxiliary_dim < 0:
+        raise ValueError(
+            f"adapter input dimension {adapter_fc1_weight.shape[1]} is smaller than "
+            f"backbone channels {backbone_channels}"
+        )
     gate_transform = ckpt.get("hyper_parameters", {}).get(
         "gate_transform", "softmax"
     )
     adapter = DNNAdapter(
-        in_channels=in_channels,
+        in_channels=backbone_channels,
+        auxiliary_dim=auxiliary_dim,
         hidden_dim=hidden_dim,
         n_experts=n_experts,
         gate_transform=gate_transform,
@@ -291,7 +299,10 @@ def _load_checkpoint(checkpoint_path, n_experts):
     adapter.load_state_dict(adapter_state)
     adapter.eval()
 
-    return experts, adapter, blend_mode, num_features, hidden_dim, gate_transform
+    return (
+        experts, adapter, blend_mode, num_features, hidden_dim, gate_transform,
+        auxiliary_dim,
+    )
 
 
 def export_backbone_onnx(
@@ -308,18 +319,28 @@ def export_backbone_onnx(
 
     dummy_x1 = torch.zeros(1, features1_num, 9, 9, dtype=torch.float32)
     dummy_x2 = torch.zeros(1, features2_num, 9, 9, dtype=torch.float32)
+    export_inputs = (dummy_x1, dummy_x2)
+    input_names = ["input1", "input2"]
+    dynamic_axes = {
+        "input1": {0: "batch_size"},
+        "input2": {0: "batch_size"},
+        "gate": {0: "batch_size"},
+    }
+    if adapter.auxiliary_dim:
+        dummy_auxiliary = torch.zeros(
+            1, adapter.auxiliary_dim, dtype=torch.float32
+        )
+        export_inputs = (*export_inputs, dummy_auxiliary)
+        input_names.append("auxiliary")
+        dynamic_axes["auxiliary"] = {0: "batch_size"}
 
     torch.onnx.export(
         model,
-        (dummy_x1, dummy_x2),
+        export_inputs,
         str(output_path),
-        input_names=["input1", "input2"],
+        input_names=input_names,
         output_names=["gate"],
-        dynamic_axes={
-            "input1": {0: "batch_size"},
-            "input2": {0: "batch_size"},
-            "gate": {0: "batch_size"},
-        },
+        dynamic_axes=dynamic_axes,
         opset_version=17,
         do_constant_folding=True,
     )
@@ -366,6 +387,7 @@ def write_head_json(
     features1_num: int,
     features2_num: int,
     adapter_hidden_dim: int,
+    adapter_auxiliary_dim: int,
     gate_transform: str,
     backbone_weights_basename: str,
 ):
@@ -384,6 +406,7 @@ def write_head_json(
         "input_features1_channels": features1_num,
         "input_features2_channels": features2_num,
         "adapter_hidden_dim": adapter_hidden_dim,
+        "adapter_auxiliary_dim": adapter_auxiliary_dim,
         "gate_transform": gate_transform,
         "backbone_onnx": "backbone.onnx",
         "head_bin": "head.bin",
@@ -444,6 +467,7 @@ def main():
         num_features_ckpt,
         hidden_dim,
         gate_transform,
+        auxiliary_dim,
     ) = _load_checkpoint(args.checkpoint, args.n_experts)
     if num_features_ckpt != num_features_real:
         raise ValueError(
@@ -452,7 +476,7 @@ def main():
         )
     print(
         f"  blend_mode={blend_mode} hidden_dim={hidden_dim} "
-        f"gate_transform={gate_transform}"
+        f"gate_transform={gate_transform} auxiliary_dim={auxiliary_dim}"
     )
 
     # backbone
@@ -493,6 +517,7 @@ def main():
         features1_num=features1_num,
         features2_num=features2_num,
         adapter_hidden_dim=hidden_dim,
+        adapter_auxiliary_dim=auxiliary_dim,
         gate_transform=gate_transform,
         backbone_weights_basename=Path(args.backbone_weights).name,
     )

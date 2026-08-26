@@ -34,7 +34,14 @@ def main() -> None:
     accumulator.Reload()
     metrics = {
         tag: scalar_events(accumulator, tag)
-        for tag in ("val_loss", "train_loss_epoch", "train_loss", "lr")
+        for tag in (
+            "val_loss",
+            "val_mean_group_loss",
+            "val_router_loss",
+            "train_loss_epoch",
+            "train_loss",
+            "lr",
+        )
     }
     validation = metrics["val_loss"]
     best_index = None

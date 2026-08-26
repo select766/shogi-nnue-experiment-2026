@@ -30,6 +30,8 @@ class RootGroupedDataset(IterableDataset):
         *,
         device="cpu",
         teacher_cache_path=None,
+        root_feature_cache_path=None,
+        expert_role_cache_path=None,
         start_root=0,
     ):
         super().__init__()
@@ -66,6 +68,22 @@ class RootGroupedDataset(IterableDataset):
                 or self.teacher_cache.shape[0] <= self.start_root
             ):
                 raise ValueError("teacher cache does not cover start_root")
+        self.root_feature_cache = None
+        if root_feature_cache_path:
+            self.root_feature_cache = np.load(root_feature_cache_path, mmap_mode="r")
+            if (
+                self.root_feature_cache.ndim != 2
+                or self.root_feature_cache.shape[0] <= self.start_root
+            ):
+                raise ValueError("root feature cache does not cover start_root")
+        self.expert_role_cache = None
+        if expert_role_cache_path:
+            self.expert_role_cache = np.load(expert_role_cache_path, mmap_mode="r")
+            if (
+                self.expert_role_cache.ndim != 1
+                or self.expert_role_cache.shape[0] <= self.start_root
+            ):
+                raise ValueError("expert role cache does not cover start_root")
 
     def __iter__(self):
         return _RootGroupedIterator(self)
@@ -80,6 +98,8 @@ class _RootGroupedIterator:
         self.device = dataset.device
         self.root_position = dataset.start_root
         self.teacher_cache = dataset.teacher_cache
+        self.root_feature_cache = dataset.root_feature_cache
+        self.expert_role_cache = dataset.expert_role_cache
         self.leaf_provider = _create_sparse_batch_provider(
             dataset.feature_set_name,
             dataset.leaves_path,
@@ -139,17 +159,37 @@ class _RootGroupedIterator:
         x1 = torch.from_numpy(features1).to(self.device)
         x2 = torch.from_numpy(features2).to(self.device)
         teacher = None
+        root_features = None
+        expert_roles = None
+        if self.root_feature_cache is not None:
+            if int(root_indices.max()) >= self.root_feature_cache.shape[0]:
+                raise IndexError("root feature cache exhausted for the requested root batch")
+            root_features = torch.from_numpy(
+                np.asarray(self.root_feature_cache[root_indices], dtype=np.float32).copy()
+            ).to(self.device)
         if self.teacher_cache is not None:
             if int(root_indices.max()) >= self.teacher_cache.shape[0]:
                 raise IndexError("teacher cache exhausted for the requested root batch")
             teacher = torch.from_numpy(
                 np.asarray(self.teacher_cache[root_indices], dtype=np.float32).copy()
             ).to(self.device)
+        if self.expert_role_cache is not None:
+            if int(root_indices.max()) >= self.expert_role_cache.shape[0]:
+                raise IndexError("expert role cache exhausted for the requested root batch")
+            expert_roles = torch.from_numpy(
+                np.asarray(self.expert_role_cache[root_indices], dtype=np.int64).copy()
+            ).to(self.device)
         self.root_position = (
             self.root_position + self.root_batch_size
         ) % self.num_roots
         batch = (x1, x2, us, them, white, black, outcome, score, ply)
-        return batch + ((teacher,) if teacher is not None else ())
+        if root_features is not None:
+            batch += (root_features,)
+        if teacher is not None:
+            batch += (teacher,)
+        if expert_roles is not None:
+            batch += (expert_roles,)
+        return batch
 
     def __del__(self):
         if getattr(self, "root_mmap", None) is not None:
@@ -173,6 +213,10 @@ def create_root_grouped_loaders(
     seed=42,
     train_teacher_cache=None,
     val_teacher_cache=None,
+    train_root_features=None,
+    val_root_features=None,
+    train_expert_roles=None,
+    val_expert_roles=None,
 ):
     train = RootGroupedDataset(
         train_directory,
@@ -180,6 +224,8 @@ def create_root_grouped_loaders(
         root_batch_size,
         device=device,
         teacher_cache_path=train_teacher_cache,
+        root_feature_cache_path=train_root_features,
+        expert_role_cache_path=train_expert_roles,
     )
     val = RootGroupedDataset(
         val_directory,
@@ -187,6 +233,8 @@ def create_root_grouped_loaders(
         root_batch_size,
         device=device,
         teacher_cache_path=val_teacher_cache,
+        root_feature_cache_path=val_root_features,
+        expert_role_cache_path=val_expert_roles,
     )
     if train.group_size != val.group_size:
         raise ValueError("train and validation group sizes must match")

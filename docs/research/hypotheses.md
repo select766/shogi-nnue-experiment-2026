@@ -24,48 +24,51 @@
 
 ## 優先順位付き未完了仮説
 
-<!-- hypothesis id=H-DECISION-ALIGNED-LOSS status=unverified priority=1 -->
-### 1. Rootの意思決定に整合した目的なら棋力へ転換できる
+<!-- hypothesis id=H-SU-DIVERSITY-OBJECTIVE status=unverified priority=1 -->
+### 1. 候補手のdisagreementを直接目的にすればutilityと多様度を両立できる
 
 - 状態: 未検証
-- 仮説: leaf平均KLではなく、root候補手の相対順位・margin・探索visit utilityへ直接整合した目的なら、
-  固定blend routerの改善をbestmoveと自己対局棋力へ転換できる。
-- 根拠: 実探索leaf lossは100万nodesでも明瞭に改善した一方、4,000局の棋力差は`+2.69 Elo`、
-  95%区間`[-7.90,+13.28]`で0から分離しなかった。
-- 次の実験: 同じroot、expert、データ量でleaf KL対照とdecision-aligned目的を比較する。
-- 成功条件: 独立rootの固定bestmoveを正方向へ改善し、事前固定対局のElo区間下端を0より上にする。
+- 仮説: score gainだけで半径やexpert役割を選ぶのではなく、候補bestmoveの非一致も直接最適化すれば、
+  有効教師率・utility gainと候補手多様度を同時に改善できる。
+- 根拠: phase専門化とroot別半径はどちらも有効教師率またはgainを増やしたが、候補手多様度を低下させた。
+- 次の実験: gainとbestmove coverageの多目的候補選択を固定半径と比較する。
+- 成功条件: 同じ候補数・100万nodesで有効教師率と候補手多様度をともに改善する。
 
-<!-- hypothesis id=H-TASK-ALIGNED-EXPERTS status=unverified priority=2 -->
-### 2. Rootから予測可能な役割でexpertを専門化すればrouting価値が増える
-
-- 状態: 未検証
-- 仮説: 現expert差の単純拡大ではなく、探索phaseやroot特徴に対応する役割を教師ありで割り当てれば、
-  各expertの品質を保ちながら候補utilityを増やせる。
-- 根拠: 放射状偏差2倍は相関を0.892まで下げたが、有効教師率と候補手多様度をともに悪化させた。
-- 次の実験: rootだけから再現できるclusterを事前定義し、各expertをcluster別目的へ学習する。
-- 成功条件: 単体expert lossを維持し、独立rootの100万nodes utilityと候補手多様度をM0より改善する。
-
-<!-- hypothesis id=H-ROOT-FEATURES status=unverified priority=3 -->
-### 3. 現DNN出力にないroot情報が固定blend予測に必要である
+<!-- hypothesis id=H-ROOT-SEARCH-STATS status=unverified priority=2 -->
+### 2. 浅いroot探索統計が固定blendの予測に必要である
 
 - 状態: 未検証
-- 仮説: adapter幅ではなく、rootの探索統計や手数・phaseなど、現backbone出力に明示されない低コスト特徴が
-  未知leaf集合に適した固定blendの予測を改善する。
-- 根拠: hidden幅256/512への拡大は独立rootのgroup lossを改善せず、単純な容量不足では説明できなかった。
-- 次の実験: rootで一度だけ計算できる少数特徴を事前選定し、同程度のadapter容量でablationする。
-- 成功条件: 独立rootのgroup lossを改善し、CPU追加時間10%以内で固定bestmoveも正方向にする。
-
-<!-- hypothesis id=H-SU-ADAPTIVE-RADIUS status=unverified priority=4 -->
-### 4. Root別に候補半径を変えるとsearch utility信号を効率よく増やせる
-
-- 状態: 未検証
-- 仮説: 全root一律の広い候補ではなく、root特徴から必要なlogit半径を予測すれば、候補数を増やさず
-  informative rootとutility gainを増やせる。
-- 根拠: axis-2はgain p90を35.5cpから48.4cpへ増やしたが、有効教師率と候補手多様度の増加は小さかった。
-- 次の実験: 小標本で複数半径をoracle診断し、最良半径とroot特徴の予測可能性を測る。
-- 成功条件: held-out rootで固定半径より有効教師率と候補手多様度を改善する。
+- 仮説: 低nodesのMultiPV幅・score margin・visit分布などの浅いroot探索統計なら、
+  未知leaf集合に適した固定blendを予測できる。
+- 根拠: 手数・駒数・成駒・合法手などの7静的特徴はlossを改善したが、固定bestmoveは`-0.05`ptだった。
+- 次の実験: 数百〜数千nodesのroot診断を事前選定し、静的combined対照と比較する。
+- 成功条件: CPU追加時間10%以内で独立root lossと固定bestmoveを改善する。
 
 ## 判定済み仮説
+
+<!-- hypothesis id=H-DECISION-ALIGNED-LOSS status=measured -->
+### H-DECISION-ALIGNED-LOSS: Rootの意思決定に整合した目的なら棋力へ転換できる
+
+- 状態: 測定完了。utility勝者軸の分類目的は独立validation/testの固定bestmoveを`+0.13`/`+0.11`pt、
+  4,000局を`+7.30 Elo`としたが、対局95%区間`[-3.31,+17.90]`が0を跨いだ。
+
+<!-- hypothesis id=H-TASK-ALIGNED-EXPERTS status=rejected -->
+### H-TASK-ALIGNED-EXPERTS: Rootから予測可能な役割でexpertを専門化すればrouting価値が増える
+
+- 状態: 棄却。32手幅phase専門化は担当expert lossとoracle gainを改善したが、独立64 rootの
+  候補手多様度が`1.828`から`1.766`へ低下し、事前の同時改善条件を満たさなかった。
+
+<!-- hypothesis id=H-ROOT-FEATURES status=rejected -->
+### H-ROOT-FEATURES: 現DNN出力にないroot情報が固定blend予測に必要である
+
+- 状態: 棄却。静的7特徴は独立root lossを改善し、CPU追加時間も増やさなかったが、
+  固定bestmoveは62.00%から61.95%へ低下した。浅い探索統計は`H-ROOT-SEARCH-STATS`へ分離した。
+
+<!-- hypothesis id=H-SU-ADAPTIVE-RADIUS status=rejected -->
+### H-SU-ADAPTIVE-RADIUS: Root別に候補半径を変えるとsearch utility信号を効率よく増やせる
+
+- 状態: 棄却。適応半径はheld-outの有効教師率を`+5.21`pt改善したが、候補手多様度を
+  `-0.3125`、95%区間`[-0.5000,-0.1354]`悪化させた。
 
 <!-- hypothesis id=H-LEAF-LOSS-STRENGTH status=measured -->
 ### H-LEAF-LOSS-STRENGTH: 実探索leaf loss改善は小さな棋力向上を生んでいる
@@ -192,4 +195,8 @@
 | [Tail-sensitive group objective](results/tail-objective-20260826/README.md) | H-TAIL-OBJECTIVE | CVaRでtail lossを改善し固定bestmoveも小幅な正方向 |
 | [Root-only adapter容量](results/root-representation-capacity-20260826/README.md) | H-ROOT-REPRESENTATION, H-ROOT-FEATURES | 単純な幅拡大を棄却し入力特徴仮説を分離 |
 | [実探索leaf lossの棋力追試](results/leaf-loss-strength-20260826/README.md) | H-LEAF-LOSS-STRENGTH, H-DECISION-ALIGNED-LOSS | 4,000局で小効果を精密化しdecision-aligned目的を分離 |
+| [Root decision-aligned目的](results/decision-aligned-loss-20260826/README.md) | H-DECISION-ALIGNED-LOSS | 固定bestmoveとEloは正方向だが4,000局区間が0を跨いだ |
+| [Root別search utility候補半径](results/adaptive-radius-20260826/README.md) | H-SU-ADAPTIVE-RADIUS, H-SU-DIVERSITY-OBJECTIVE | 有効教師率は増えたが候補手多様度が悪化 |
+| [Root予測可能なexpert専門化](results/task-aligned-experts-20260826/README.md) | H-TASK-ALIGNED-EXPERTS, H-SU-DIVERSITY-OBJECTIVE | phase専門化は成立したがsearch候補手多様度は悪化 |
+| [明示root特徴ablation](results/root-features-20260826/README.md) | H-ROOT-FEATURES, H-ROOT-SEARCH-STATS | 静的7特徴はlossのみ改善し浅い探索統計を分離 |
 <!-- result-ledger:end -->

@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 try:
     import torch
 
-    from train_nnue.expert_blending_model import NNUEExperts, transform_gate_logits
+    from train_nnue.expert_blending_model import DNNAdapter, NNUEExperts, transform_gate_logits
     from train_nnue.train_expert_blending import (
         CheckpointEveryNEpochs,
         aggregate_group_loss,
@@ -16,6 +16,7 @@ try:
 except ModuleNotFoundError:
     torch = None
     NNUEExperts = None
+    DNNAdapter = None
     transform_gate_logits = None
     compute_gate_statistics = None
     CheckpointEveryNEpochs = None
@@ -26,6 +27,15 @@ except ModuleNotFoundError:
 
 @unittest.skipIf(torch is None, "requires the nnue PyTorch environment")
 class ForwardExpertTest(unittest.TestCase):
+    def test_adapter_auxiliary_features_are_explicit(self):
+        adapter = DNNAdapter(in_channels=3, auxiliary_dim=2, hidden_dim=4, n_experts=2)
+        features = torch.randn(5, 3, 2, 2)
+        auxiliary = torch.randn(5, 2)
+        output = adapter(features, auxiliary=auxiliary, training=False)
+        torch.testing.assert_close(output.sum(dim=1), torch.ones(5))
+        with self.assertRaises(ValueError):
+            adapter(features, training=False)
+
     def test_group_cvar_and_mixed_aggregation(self):
         losses = torch.tensor([1.0, 2.0, 3.0, 4.0, 2.0, 4.0, 6.0, 8.0])
         cvar, mean, tail = aggregate_group_loss(

@@ -1,5 +1,9 @@
 # 実験結果
 
+- [Root decision-aligned目的](decision-aligned-loss-20260826/README.md)
+- [Root別search utility候補半径](adaptive-radius-20260826/README.md)
+- [Root予測可能なexpert専門化](task-aligned-experts-20260826/README.md)
+- [明示root特徴ablation](root-features-20260826/README.md)
 - [Root-grouped router実験](root-grouped-router-20260823/README.md)
 - [Root-grouped router大規模追試](root-grouped-router-scale-20260824/README.md)
 - [Proxy gap検証](proxy-gap-20260824/README.md)

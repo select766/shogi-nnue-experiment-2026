@@ -118,6 +118,7 @@ class DNNAdapter(nn.Module):
     def __init__(
         self,
         in_channels=192,
+        auxiliary_dim=0,
         hidden_dim=128,
         n_experts=4,
         noise_scale=1.0,
@@ -125,12 +126,15 @@ class DNNAdapter(nn.Module):
     ):
         super().__init__()
         self.n_experts = n_experts
+        self.auxiliary_dim = int(auxiliary_dim)
+        if self.auxiliary_dim < 0:
+            raise ValueError("auxiliary_dim must be non-negative")
         self.noise_scale = noise_scale
         self.gate_transform = gate_transform
-        self.fc1 = nn.Linear(in_channels, hidden_dim)
+        self.fc1 = nn.Linear(in_channels + self.auxiliary_dim, hidden_dim)
         self.fc2 = nn.Linear(hidden_dim, n_experts)
 
-    def forward(self, feat, training=True):
+    def forward(self, feat, auxiliary=None, training=True):
         """
         Args:
             feat: (batch, C, H, W) backbone特徴マップ
@@ -140,6 +144,21 @@ class DNNAdapter(nn.Module):
         """
         # Global Average Pooling: (batch, C, H, W) -> (batch, C)
         x = feat.mean(dim=[2, 3])
+        if self.auxiliary_dim:
+            if auxiliary is None:
+                raise ValueError(
+                    f"auxiliary features are required with dimension {self.auxiliary_dim}"
+                )
+            if (
+                not torch.jit.is_tracing()
+                and auxiliary.shape != (x.shape[0], self.auxiliary_dim)
+            ):
+                raise ValueError(
+                    f"auxiliary features must have shape {(x.shape[0], self.auxiliary_dim)}"
+                )
+            x = torch.cat([x, auxiliary.to(dtype=x.dtype)], dim=1)
+        elif auxiliary is not None:
+            raise ValueError("adapter was created without auxiliary features")
         x = F.relu(self.fc1(x))
         logits = self.fc2(x)
         if training and self.noise_scale > 0.0:
@@ -619,6 +638,7 @@ def create_expert_blending_model(
     feature_set=None,
     n_experts=4,
     adapter_hidden=128,
+    adapter_auxiliary_dim=0,
     adapter_noise_scale=1.0,
     backbone_type="dnn",
     blend_mode="weighted",
@@ -649,6 +669,7 @@ def create_expert_blending_model(
         backbone = load_backbone(backbone_weights_path, device)
         adapter = DNNAdapter(
             in_channels=192,
+            auxiliary_dim=adapter_auxiliary_dim,
             hidden_dim=adapter_hidden,
             n_experts=n_experts,
             noise_scale=adapter_noise_scale,

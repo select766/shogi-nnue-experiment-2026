@@ -2,6 +2,10 @@
 
 ## 結論
 
+- 2026-08-26の4仮説追試のうち、phase expert専門化、静的root特徴、root別候補半径は棄却した。
+  いずれも中間loss・有効教師率・gainの一部は改善したが、bestmoveまたは候補手多様度へ
+  同時転換しなかった。次はscore gainだけでなくbestmove disagreementを直接目的にする。
+
 - 2026-08-23の固定test 10,000局面による追試では、ベースライン62.87%に対して現在の
   採用候補は63.32%で、差は+0.45ポイントだった。対応ありの正確McNemar検定は
   `p=0.314924`であり、正方向だが優位性は確認できない。詳細は
@@ -248,3 +252,28 @@ M0と各expert方向へのlogit +1候補をrootで実探索し、独立固定`nn
 10,000局面の100万nodes bestmove一致はM0 61.91%に対しrouter-only 61.76% (`p=0.733`)、task併用
 61.41% (`p=0.238`)だった。事前規則に従いscale、固定test、自己対局は行わなかった。詳細は
 `docs/research/results/search-utility-distillation-20260825/README.md`に保存した。
+
+## 後続4仮説の検証 (2026-08-26)
+
+rootの意思決定目的、phase expert専門化、明示root特徴、root別search utility候補半径を
+事前分岐付きで検証した。意思決定目的は固定validation/testでそれぞれ`+0.13`、`+0.11`ポイント、
+固定10万nodesの4,000局で1,982勝1,898敗120分、`+7.30 Elo`となった。しかし95%区間
+`[-3.31,+17.90]`が0を跨いだため、`H-DECISION-ALIGNED-LOSS`は事前規則どおり測定完了とした。
+
+phase role補助loss 0.05は、未使用valAでmatched control比blended lossを`-0.00001440`、
+担当phase expert lossを`-0.002834`改善した。8 expert平均lossもM0比`-0.001696`で、
+静的な専門化は成立した。しかし64 root・100万nodesでは有効教師率が14.06%から
+15.63%、oracle gain平均が12.83cpから474.58cpへ増えた一方、候補手多様度は1.828から
+1.766へ低下した。`H-TASK-ALIGNED-EXPERTS`は事前の同時改善条件で棄却した。
+
+手数・駒数・成駒・合法手・玉間距離などの7 root特徴は、valA group lossを
+`-0.000001144`、95% bootstrap区間`[-0.000001413,-0.000000914]`改善した。C++配備の
+1000 nodes速度もcontrol 150.1ms、候補149.0msだった。しかし固定10,000局面のbestmoveは
+62.00%から61.95% (`p=0.922468`)へ低下し、`H-ROOT-FEATURES`は棄却した。未検証の
+浅いroot探索統計は別仮説とした。
+
+半径`0.5,1,2,4`を同じ192 rootで比較し、深さ1のgate entropy分岐を選んだ。held-outで
+有効教師率は固定半径4の16.67%から21.88%へ増えたが、候補手多様度は2.135から
+1.823へ低下した。差`-0.3125`の95%区間は`[-0.5000,-0.1354]`で、
+`H-SU-ADAPTIVE-RADIUS`も棄却した。両実験の共通制約から、bestmove disagreementを
+直接保つ多目的候補設計を`H-SU-DIVERSITY-OBJECTIVE`として最優先で残した。
