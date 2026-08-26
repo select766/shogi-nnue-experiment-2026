@@ -24,14 +24,16 @@
 
 ## 優先順位付き未完了仮説
 
-<!-- hypothesis id=H-LEAF-LOSS-STRENGTH status=held priority=1 -->
-### 1. 実探索leaf loss改善は小さな棋力向上を生んでいる
+<!-- hypothesis id=H-DECISION-ALIGNED-LOSS status=unverified priority=1 -->
+### 1. Rootの意思決定に整合した目的なら棋力へ転換できる
 
-- 状態: 保留
-- 仮説: 実探索leafモデルの自己対局`+13.0 Elo`は真の小効果であり、局数を増やせば0より上へ分離する。
-- 根拠: 400局の95%区間は`[-20.4,+46.5]`で、正負の双方を含む。
-- 次の実験: モデル変更ではなく測定精度の改善として、事前停止規則付きの追加自己対局を行う。
-- 成功条件: 事前に定めた最小効果と信頼区間を満たす。満たさなければ、leaf lossを棋力の選抜指標にしない。
+- 状態: 未検証
+- 仮説: leaf平均KLではなく、root候補手の相対順位・margin・探索visit utilityへ直接整合した目的なら、
+  固定blend routerの改善をbestmoveと自己対局棋力へ転換できる。
+- 根拠: 実探索leaf lossは100万nodesでも明瞭に改善した一方、4,000局の棋力差は`+2.69 Elo`、
+  95%区間`[-7.90,+13.28]`で0から分離しなかった。
+- 次の実験: 同じroot、expert、データ量でleaf KL対照とdecision-aligned目的を比較する。
+- 成功条件: 独立rootの固定bestmoveを正方向へ改善し、事前固定対局のElo区間下端を0より上にする。
 
 <!-- hypothesis id=H-TASK-ALIGNED-EXPERTS status=unverified priority=2 -->
 ### 2. Rootから予測可能な役割でexpertを専門化すればrouting価値が増える
@@ -64,6 +66,12 @@
 - 成功条件: held-out rootで固定半径より有効教師率と候補手多様度を改善する。
 
 ## 判定済み仮説
+
+<!-- hypothesis id=H-LEAF-LOSS-STRENGTH status=measured -->
+### H-LEAF-LOSS-STRENGTH: 実探索leaf loss改善は小さな棋力向上を生んでいる
+
+- 状態: 測定完了。固定10万nodesの4,000局は1,950勝1,919敗131分、`+2.69 Elo`、95%区間
+  `[-7.90,+13.28]`で0を跨いだ。局数を10倍にしても正方向へ分離せず、leaf loss単独では選抜しない。
 
 <!-- hypothesis id=H-ROOT-REPRESENTATION status=rejected -->
 ### H-ROOT-REPRESENTATION: Rootだけから探索後の影響を予測する表現力が不足している
@@ -138,7 +146,8 @@
 <!-- hypothesis id=H-BUDGET-TRANSFER status=supported -->
 ### H-BUDGET-TRANSFER: 低nodesで学習したrouterのleaf loss改善は探索量をまたいで残る
 
-- 状態: 支持。250から100万nodesまで改善した。ただし棋力への転換はH-LEAF-LOSS-STRENGTHとして未確定である。
+- 状態: 支持。250から100万nodesまで改善した。ただし棋力への転換は`H-LEAF-LOSS-STRENGTH`の4,000局でも
+  0から分離せず、decision-aligned目的を別仮説とした。
 
 <!-- hypothesis id=H-DEEP-LEAF status=rejected -->
 ### H-DEEP-LEAF: より深いleaf score教師がbestmoveを改善する
@@ -182,4 +191,5 @@
 | [Search utility候補幾何](results/search-utility-geometry-20260826/README.md) | H-SU-GEOMETRY, H-SU-ADAPTIVE-RADIUS | 一律の広い候補を棄却しroot別半径を分離 |
 | [Tail-sensitive group objective](results/tail-objective-20260826/README.md) | H-TAIL-OBJECTIVE | CVaRでtail lossを改善し固定bestmoveも小幅な正方向 |
 | [Root-only adapter容量](results/root-representation-capacity-20260826/README.md) | H-ROOT-REPRESENTATION, H-ROOT-FEATURES | 単純な幅拡大を棄却し入力特徴仮説を分離 |
+| [実探索leaf lossの棋力追試](results/leaf-loss-strength-20260826/README.md) | H-LEAF-LOSS-STRENGTH, H-DECISION-ALIGNED-LOSS | 4,000局で小効果を精密化しdecision-aligned目的を分離 |
 <!-- result-ledger:end -->

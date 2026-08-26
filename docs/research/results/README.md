@@ -11,6 +11,7 @@
 - [Search utility候補幾何](search-utility-geometry-20260826/README.md)
 - [Tail-sensitive group objective](tail-objective-20260826/README.md)
 - [Root-only adapter容量](root-representation-capacity-20260826/README.md)
+- [実探索leaf lossの棋力追試](leaf-loss-strength-20260826/README.md)
 
 - [固定10,000局面の最善手一致率](accuracy-eval-10k-current/README.md)
 - [Checkpoint 180のgate・oracle診断](gate-diagnostics-lambda05-180/README.md)
