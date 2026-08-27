@@ -17,10 +17,77 @@ import time
 import cshogi
 from cshogi.usi import Engine
 
+try:
+    from scripts.collect_search_leaf_groups import EngineProcess
+except ModuleNotFoundError as error:
+    if error.name != "scripts":
+        raise
+    # merge_match_results.py imports this module while its own scripts/
+    # directory, rather than the repository root, is first on sys.path.
+    from collect_search_leaf_groups import EngineProcess
 from train_nnue.eval_accuracy import resolve_engine_option_paths, resolve_path
+from train_nnue.root_search_statistics import shallow_multipv_features
 
 
-def play_game(engine1, engine2, go_params, start_sfen=cshogi.STARTING_SFEN, max_moves=512):
+class RootStatisticsEngine:
+    """Candidate engine whose per-move gate receives a fixed shallow search."""
+
+    def __init__(self, candidate, shallow, nodes=1024, multipv=4):
+        self.candidate = candidate
+        self.shallow = shallow
+        self.nodes = nodes
+        self.multipv = multipv
+        self.sfen = None
+        self.shallow_seconds = 0.0
+        self.main_seconds = 0.0
+        self.searches = 0
+
+    def setoption(self, name, value):
+        self.candidate.setoption(name, value)
+
+    def position(self, *, sfen):
+        prefix = "sfen "
+        if not sfen.startswith(prefix):
+            raise ValueError("RootStatisticsEngine requires an explicit SFEN")
+        self.sfen = sfen[len(prefix):]
+        self.candidate.position(sfen=sfen)
+
+    def go(self, **go_params):
+        if self.sfen is None:
+            raise RuntimeError("position must be set before go")
+        started = time.monotonic()
+        features = shallow_multipv_features(
+            self.shallow, self.sfen, nodes=self.nodes, multipv=self.multipv
+        )
+        self.shallow_seconds += time.monotonic() - started
+        encoded = ",".join(f"{float(value):.8g}" for value in features)
+        self.candidate.setoption("ExpertBlendingRootSearchStatistics", encoded)
+        started = time.monotonic()
+        result = self.candidate.go(**go_params)
+        self.main_seconds += time.monotonic() - started
+        self.searches += 1
+        return result
+
+    def quit(self):
+        self.shallow.close()
+        self.candidate.quit()
+
+    def timing(self):
+        return {
+            "searches": self.searches,
+            "shallow_seconds": self.shallow_seconds,
+            "main_seconds": self.main_seconds,
+            "added_time_fraction": (
+                self.shallow_seconds / self.main_seconds
+                if self.main_seconds > 0 else None
+            ),
+        }
+
+
+def play_game(
+    engine1, engine2, go_params, start_sfen=cshogi.STARTING_SFEN,
+    max_moves=512, clear_hash_each_move=False,
+):
     """1局対局する。
 
     Args:
@@ -52,6 +119,8 @@ def play_game(engine1, engine2, go_params, start_sfen=cshogi.STARTING_SFEN, max_
             engine.position(sfen=f"sfen {board.sfen()}")
 
         # Go
+        if clear_hash_each_move:
+            engine.setoption("Clear Hash", "")
         bestmove, _ = engine.go(**go_params)
 
         if bestmove is None or bestmove == 'resign':
@@ -165,6 +234,11 @@ def main():
         help="JSONL start positions; each is played twice with colors reversed",
     )
     parser.add_argument("--max-moves", type=int, default=512, help="Max moves per game")
+    parser.add_argument("--clear-hash-each-move", action="store_true")
+    parser.add_argument("--engine1-root-stats-engine")
+    parser.add_argument("--engine1-root-stats-options", default="")
+    parser.add_argument("--root-stats-nodes", type=int, default=1024)
+    parser.add_argument("--root-stats-multipv", type=int, default=4)
     parser.add_argument("--output", help="Write aggregate and per-game results as JSON")
     args = parser.parse_args()
 
@@ -189,6 +263,15 @@ def main():
     engine2_path = resolve_path(args.engine2, project_root)
     engine1_opts = resolve_engine_option_paths(engine1_opts, project_root)
     engine2_opts = resolve_engine_option_paths(engine2_opts, project_root)
+    shallow_path = None
+    shallow_opts = {}
+    if args.engine1_root_stats_engine:
+        shallow_path = resolve_path(args.engine1_root_stats_engine, project_root)
+        shallow_opts = resolve_engine_option_paths(
+            parse_options(args.engine1_root_stats_options), project_root
+        )
+        if args.root_stats_nodes <= 0 or not 1 <= args.root_stats_multipv <= 4:
+            parser.error("invalid root-statistics search parameters")
 
     print(f"Engine 1: {engine1_path}")
     print(f"Engine 1 options: {engine1_opts}")
@@ -196,6 +279,12 @@ def main():
     print(f"Engine 2 options: {engine2_opts}")
     print(f"Games: {games}, Search: {go_params}")
     print(f"Openings: {len(openings)}")
+    print(f"Clear hash each move: {args.clear_hash_each_move}")
+    if shallow_path:
+        print(
+            f"Engine 1 root statistics: {shallow_path}, {shallow_opts}, "
+            f"nodes={args.root_stats_nodes}, multipv={args.root_stats_multipv}"
+        )
     print()
 
     # Initialize engines
@@ -209,6 +298,22 @@ def main():
 
     engine1.isready()
     engine2.isready()
+    root_statistics_config = None
+    if shallow_path:
+        shallow = EngineProcess([shallow_path])
+        options = list(shallow_opts.items())
+        options.append(("MultiPV", args.root_stats_multipv))
+        shallow.initialize(options)
+        engine1 = RootStatisticsEngine(
+            engine1, shallow, nodes=args.root_stats_nodes,
+            multipv=args.root_stats_multipv,
+        )
+        root_statistics_config = {
+            "engine_path": shallow_path,
+            "engine_options": shallow_opts,
+            "nodes": args.root_stats_nodes,
+            "multipv": args.root_stats_multipv,
+        }
 
     # Play games (alternate colors)
     e1_wins = 0
@@ -223,7 +328,8 @@ def main():
         if i % 2 == 0:
             # Engine1 = BLACK (先手), Engine2 = WHITE (後手)
             result, moves = play_game(
-                engine1, engine2, go_params, start_sfen, args.max_moves
+                engine1, engine2, go_params, start_sfen, args.max_moves,
+                args.clear_hash_each_move,
             )
             if result > 0:
                 e1_wins += 1
@@ -238,7 +344,8 @@ def main():
         else:
             # Engine1 = WHITE (後手), Engine2 = BLACK (先手)
             result, moves = play_game(
-                engine2, engine1, go_params, start_sfen, args.max_moves
+                engine2, engine1, go_params, start_sfen, args.max_moves,
+                args.clear_hash_each_move,
             )
             if result > 0:
                 e1_losses += 1
@@ -291,6 +398,11 @@ def main():
             "engine1": {"path": engine1_path, "options": engine1_opts},
             "engine2": {"path": engine2_path, "options": engine2_opts},
             "search": go_params,
+            "clear_hash_each_move": args.clear_hash_each_move,
+            "engine1_root_statistics": root_statistics_config,
+            "engine1_root_statistics_timing": (
+                engine1.timing() if isinstance(engine1, RootStatisticsEngine) else None
+            ),
             "openings_path": args.openings,
             "games": total,
             "wins": e1_wins,

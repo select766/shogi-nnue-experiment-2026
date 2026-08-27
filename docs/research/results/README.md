@@ -1,5 +1,6 @@
 # 実験結果
 
+- [浅いroot探索統計の棋力追試](root-search-stats-strength-20260828/README.md)
 - [Joint signed候補方向](joint-candidate-directions-20260828/README.md)
 - [浅いroot探索統計](root-search-stats-20260827/README.md)
 - [候補手disagreement直接目的](disagreement-objective-20260827/README.md)

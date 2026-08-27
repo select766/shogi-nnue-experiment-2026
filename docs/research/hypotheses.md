@@ -24,15 +24,15 @@
 
 ## 優先順位付き未完了仮説
 
-<!-- hypothesis id=H-ROOT-SEARCH-STATS-STRENGTH status=in_progress priority=1 -->
-### 1. 浅いroot探索統計の小さなbestmove改善は棋力へ転換する
+<!-- hypothesis id=H-DECISION-ALIGNED-LOSS status=in_progress priority=1 -->
+### 1. Rootの意思決定に整合した目的なら棋力へ転換できる
 
 - 状態: 検証中
-- 仮説: 1024-node MultiPV統計を使う固定blendは、静的特徴だけのmatched controlより自己対局棋力を改善する。
-- 根拠: 独立root lossは2 splitで改善し、固定validation bestmoveも`+0.09`ポイントだったが、
-  McNemar `p=0.846`、独立testは`-0.01`ポイントで効果量はまだ不確定である。
-- 次の実験: 同じ候補と静的combined対照を固定nodes・先後ペアの自己対局で比較する。
-- 成功条件: Elo推定を正方向へ改善し、95%区間下端が0を上回る。
+- 仮説: root候補手utilityの勝者expert軸を直接分類する目的は、leaf平均目的より自己対局棋力を改善する。
+- 根拠: 固定validation/test bestmoveが`+0.13/+0.11`pt、既存4,000局が`+7.30 Elo`と一貫して正だが、
+  対局95%区間`[-3.31,+17.90]`が0を跨いだ。
+- 次の実験: test由来の未使用4,000開始局面を先後反転し、追加8,000局、合計12,000局へ拡大する。
+- 成功条件: 合計Elo 95%区間下端が0を上回る。
 
 ## 判定済み仮説
 
@@ -42,6 +42,12 @@
 - 状態: 支持。1024-node MultiPV統計6特徴は静的7特徴対照よりvalB/valA lossを一貫して改善し、
   固定validation bestmoveも61.95%から62.04%へ改善した。CPU追加時間は本探索比0.127%だった。
   ただし独立testは62.09%対62.08%でbestmove効果量を再現しなかった。
+
+<!-- hypothesis id=H-ROOT-SEARCH-STATS-STRENGTH status=measured -->
+### H-ROOT-SEARCH-STATS-STRENGTH: 浅いroot探索統計の小さなbestmove改善は棋力へ転換する
+
+- 状態: 測定完了。固定10万nodesの4,000局は1,921勝1,942敗137分、`-1.82 Elo`、95%区間
+  `[-12.41,+8.76]`だった。点推定も負で、小さなbestmove改善の棋力転換は確認できなかった。
 
 <!-- hypothesis id=H-SU-DIVERSITY-OBJECTIVE status=rejected -->
 ### H-SU-DIVERSITY-OBJECTIVE: 候補手のdisagreementを直接目的にすればutilityと多様度を両立できる
@@ -54,12 +60,6 @@
 
 - 状態: 棄却。joint方向4本を含む9候補はselectionのutilityと多様度を改善したが、held-outでは
   有効教師率差`0`、gain差`-37.625cp`、候補手多様度差`-0.0052`となり、同時転移しなかった。
-
-<!-- hypothesis id=H-DECISION-ALIGNED-LOSS status=measured -->
-### H-DECISION-ALIGNED-LOSS: Rootの意思決定に整合した目的なら棋力へ転換できる
-
-- 状態: 測定完了。utility勝者軸の分類目的は独立validation/testの固定bestmoveを`+0.13`/`+0.11`pt、
-  4,000局を`+7.30 Elo`としたが、対局95%区間`[-3.31,+17.90]`が0を跨いだ。
 
 <!-- hypothesis id=H-TASK-ALIGNED-EXPERTS status=rejected -->
 ### H-TASK-ALIGNED-EXPERTS: Rootから予測可能な役割でexpertを専門化すればrouting価値が増える
@@ -211,4 +211,5 @@
 | [候補手disagreement直接目的](results/disagreement-objective-20260827/README.md) | H-SU-DIVERSITY-OBJECTIVE, H-SU-JOINT-DIRECTIONS | expert別半径の直接多様度選定はheld-outへ転移せずjoint方向を分離 |
 | [浅いroot探索統計](results/root-search-stats-20260827/README.md) | H-ROOT-SEARCH-STATS, H-ROOT-SEARCH-STATS-STRENGTH | loss・固定bestmove・追加時間の3条件を満たし棋力追試を分離 |
 | [Joint signed候補方向](results/joint-candidate-directions-20260828/README.md) | H-SU-JOINT-DIRECTIONS | selection改善はheld-outへ転移せずutilityと多様度の同時改善を棄却 |
+| [浅いroot探索統計の棋力追試](results/root-search-stats-strength-20260828/README.md) | H-ROOT-SEARCH-STATS-STRENGTH, H-DECISION-ALIGNED-LOSS | 4,000局で棋力転換を確認できず過去の正方向仮説を深掘り |
 <!-- result-ledger:end -->

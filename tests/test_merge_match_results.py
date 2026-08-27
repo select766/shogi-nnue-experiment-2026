@@ -17,6 +17,19 @@ def make_run(details, wins=1, losses=1, draws=0):
 
 
 class ValidateMatchRunsTest(unittest.TestCase):
+    def test_rejects_different_root_statistics_protocols(self):
+        details = [
+            {"sfen": "position-a", "engine1_color": "black"},
+            {"sfen": "position-a", "engine1_color": "white"},
+        ]
+        first = make_run(details)
+        second = make_run(details)
+        first["engine1_root_statistics"] = {"nodes": 1024}
+        second["engine1_root_statistics"] = {"nodes": 2048}
+
+        with self.assertRaisesRegex(ValueError, "root_statistics"):
+            validate_runs([first, second])
+
     def test_accepts_disjoint_color_reversed_openings(self):
         details = [
             {"sfen": "position-a", "engine1_color": "black"},

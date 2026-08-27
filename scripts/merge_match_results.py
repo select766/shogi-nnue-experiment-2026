@@ -17,6 +17,9 @@ def validate_runs(runs, *, expected_games=None, require_color_pairs=False):
         for key in ("engine1", "engine2", "search"):
             if run[key] != reference[key]:
                 raise ValueError(f"incompatible {key} across match results")
+        for key in ("clear_hash_each_move", "engine1_root_statistics"):
+            if run.get(key) != reference.get(key):
+                raise ValueError(f"incompatible {key} across match results")
         counted_games = run["wins"] + run["losses"] + run["draws"]
         if run["games"] != counted_games:
             raise ValueError(f"chunk {chunk_index}: games does not match W/L/D")
@@ -73,6 +76,8 @@ def main():
         "engine1": reference["engine1"],
         "engine2": reference["engine2"],
         "search": reference["search"],
+        "clear_hash_each_move": reference.get("clear_hash_each_move", False),
+        "engine1_root_statistics": reference.get("engine1_root_statistics"),
         "source_results": [str(path) for path in args.input],
         "games": games,
         "wins": wins,
@@ -87,6 +92,21 @@ def main():
         },
         "details": details,
     }
+    timings = [
+        run.get("engine1_root_statistics_timing") for run in runs
+        if run.get("engine1_root_statistics_timing") is not None
+    ]
+    if timings:
+        shallow_seconds = sum(item["shallow_seconds"] for item in timings)
+        main_seconds = sum(item["main_seconds"] for item in timings)
+        output["engine1_root_statistics_timing"] = {
+            "searches": sum(item["searches"] for item in timings),
+            "shallow_seconds": shallow_seconds,
+            "main_seconds": main_seconds,
+            "added_time_fraction": (
+                shallow_seconds / main_seconds if main_seconds > 0 else None
+            ),
+        }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(output, indent=2, ensure_ascii=False) + "\n")
     print(json.dumps({k: output[k] for k in (

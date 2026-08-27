@@ -1,5 +1,6 @@
 import os
 import unittest
+from unittest.mock import patch
 
 import cshogi
 
@@ -11,7 +12,7 @@ from train_nnue.accuracy_statistics import (
 )
 from train_nnue.compare_accuracy import compare_results
 from train_nnue.eval_accuracy import resolve_engine_option_paths
-from train_nnue.run_match import elo_diff, parse_options
+from train_nnue.run_match import RootStatisticsEngine, elo_diff, parse_options
 
 
 class ResolveEngineOptionPathsTest(unittest.TestCase):
@@ -172,6 +173,42 @@ class CompareAccuracyTest(unittest.TestCase):
 
 
 class MatchStatisticsTest(unittest.TestCase):
+    def test_root_statistics_engine_sets_features_before_go(self):
+        class Candidate:
+            def __init__(self):
+                self.options = []
+
+            def position(self, *, sfen):
+                self.sfen = sfen
+
+            def setoption(self, name, value):
+                self.options.append((name, value))
+
+            def go(self, **params):
+                return "7g7f", None
+
+            def quit(self):
+                pass
+
+        class Shallow:
+            def close(self):
+                pass
+
+        candidate = Candidate()
+        engine = RootStatisticsEngine(candidate, Shallow())
+        engine.position(sfen=f"sfen {cshogi.STARTING_SFEN}")
+        with patch(
+            "train_nnue.run_match.shallow_multipv_features",
+            return_value=[0.1, 0.2, 0.3, 0.4, 0.5, 1.0],
+        ):
+            self.assertEqual(engine.go(nodes=10), ("7g7f", None))
+
+        self.assertEqual(
+            candidate.options[-1],
+            ("ExpertBlendingRootSearchStatistics", "0.1,0.2,0.3,0.4,0.5,1"),
+        )
+        self.assertEqual(engine.timing()["searches"], 1)
+
     def test_elo_is_zero_for_equal_score(self):
         elo, standard_error = elo_diff(40, 40, 20)
 
