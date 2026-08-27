@@ -52,6 +52,32 @@ def build_candidate_biases(n_experts, geometry, scale):
     return biases
 
 
+def load_candidate_biases(path, n_experts):
+    """Load named, explicitly specified directions and prepend the zero bias."""
+    payload = json.loads(Path(path).read_text())
+    directions = payload.get("directions")
+    if not isinstance(directions, list) or not directions:
+        raise ValueError("bias file must contain a non-empty directions list")
+    names = ["base"]
+    biases = [np.zeros(n_experts, dtype=np.float32)]
+    for item in directions:
+        if not isinstance(item, dict) or not isinstance(item.get("name"), str):
+            raise ValueError("each bias direction needs a string name")
+        name = item["name"]
+        bias = np.asarray(item.get("bias"), dtype=np.float32)
+        if (
+            not name
+            or name in names
+            or bias.shape != (n_experts,)
+            or not np.all(np.isfinite(bias))
+            or np.any(np.abs(bias) > 20.0)
+        ):
+            raise ValueError(f"invalid candidate bias direction: {name!r}")
+        names.append(name)
+        biases.append(bias)
+    return names, biases
+
+
 def parse_gate(line, n_experts=8):
     match = GATE_RE.match(line)
     if not match:
@@ -154,6 +180,10 @@ def main():
     parser.add_argument("--reference-nodes", type=int, required=True)
     parser.add_argument("--logit-bias", type=float, default=1.0)
     parser.add_argument(
+        "--bias-file", type=Path,
+        help="JSON file with named explicit bias directions; overrides generated geometry",
+    )
+    parser.add_argument(
         "--candidate-geometry",
         choices=["positive-axis", "cyclic-contrast"],
         default="positive-axis",
@@ -175,7 +205,18 @@ def main():
     if args.roots_file.stat().st_size % RECORD_BYTES or stop > root_count:
         parser.error("requested root range is outside an aligned roots file")
 
-    biases = build_candidate_biases(8, args.candidate_geometry, args.logit_bias)
+    if args.bias_file is None:
+        biases = build_candidate_biases(8, args.candidate_geometry, args.logit_bias)
+        candidate_names = ["base"] + [f"axis_{expert}" for expert in range(8)]
+        candidate_definition = (
+            "current gate plus one candidate per expert using the recorded geometry"
+        )
+    else:
+        try:
+            candidate_names, biases = load_candidate_biases(args.bias_file, 8)
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as error:
+            parser.error(str(error))
+        candidate_definition = "current gate plus named explicit logit-bias directions"
 
     records = []
     with args.roots_file.open("rb") as source:
@@ -233,6 +274,7 @@ def main():
                     "source_root": source_index,
                     "sfen": sfen,
                     "moves": moves,
+                    "candidate_names": candidate_names,
                     "utilities_cp": utilities.astype(int).tolist(),
                     "unique_move_scores_cp": move_scores,
                     "gates": np.asarray(gates).tolist(),
@@ -285,9 +327,10 @@ def main():
         "reference_nodes": args.reference_nodes, "logit_bias": args.logit_bias,
         "minimum_improvement_cp": args.minimum_improvement_cp,
         "candidate_geometry": args.candidate_geometry,
-        "candidate_definition": (
-            "current gate plus one candidate per expert using the recorded geometry"
-        ),
+        "bias_file": str(args.bias_file.resolve()) if args.bias_file else None,
+        "candidate_names": candidate_names,
+        "candidate_biases": [bias.tolist() for bias in biases],
+        "candidate_definition": candidate_definition,
         "teacher_definition": "retain current gate unless independent restricted-move oracle improves by threshold; otherwise mean gate of tied best candidates",
         "teacher_changed_fraction": float(changed.mean()),
         "oracle_gain_cp_mean": float(gains.mean()),

@@ -2,6 +2,10 @@
 
 ## 結論
 
+- 2026-08-28のjoint signed候補方向追試では、22方向から選んだ9候補がselectionでは固定axis候補を
+  上回ったが、held-out 384 rootで有効教師率差`0`、gain差`-37.625cp`、多様度差`-0.0052`へ
+  反転した。複数expertを同時に動かすだけではutilityと多様度を同時に転移できず、仮説を棄却した。
+
 - 2026-08-26の4仮説追試のうち、phase expert専門化、静的root特徴、root別候補半径は棄却した。
   いずれも中間loss・有効教師率・gainの一部は改善したが、bestmoveまたは候補手多様度へ
   同時転換しなかった。次はscore gainだけでなくbestmove disagreementを直接目的にする。

@@ -24,25 +24,15 @@
 
 ## 優先順位付き未完了仮説
 
-<!-- hypothesis id=H-ROOT-SEARCH-STATS-STRENGTH status=unverified priority=1 -->
+<!-- hypothesis id=H-ROOT-SEARCH-STATS-STRENGTH status=in_progress priority=1 -->
 ### 1. 浅いroot探索統計の小さなbestmove改善は棋力へ転換する
 
-- 状態: 未検証
+- 状態: 検証中
 - 仮説: 1024-node MultiPV統計を使う固定blendは、静的特徴だけのmatched controlより自己対局棋力を改善する。
 - 根拠: 独立root lossは2 splitで改善し、固定validation bestmoveも`+0.09`ポイントだったが、
   McNemar `p=0.846`、独立testは`-0.01`ポイントで効果量はまだ不確定である。
 - 次の実験: 同じ候補と静的combined対照を固定nodes・先後ペアの自己対局で比較する。
 - 成功条件: Elo推定を正方向へ改善し、95%区間下端が0を上回る。
-
-<!-- hypothesis id=H-SU-JOINT-DIRECTIONS status=unverified priority=2 -->
-### 2. 複数expertを同時に動かす候補方向ならutilityと多様度を両立できる
-
-- 状態: 未検証
-- 仮説: expert別positive-axisの半径選択ではなく、複数expert logitsを同時に増減するsigned方向を
-  候補手coverageのために選べば、同数候補でutilityと多様度をheld-outへ転移できる。
-- 根拠: expert別半径のdisagreement選定はselectionだけを改善し、held-outでは3指標すべて悪化した。
-- 次の実験: joint signed方向の候補poolをselectionで固定し、別rootの固定半径4と比較する。
-- 成功条件: 同じ9候補・100万nodesで有効教師率、gain、候補手多様度を同時に維持または改善する。
 
 ## 判定済み仮説
 
@@ -58,6 +48,12 @@
 
 - 状態: 棄却。selectionで多様度を直接最大化したexpert別半径は、held-outで有効教師率`-2.08`pt、
   gain`-3.66cp`、候補手多様度`-0.198`となり、固定半径4より3指標すべて悪化した。
+
+<!-- hypothesis id=H-SU-JOINT-DIRECTIONS status=rejected -->
+### H-SU-JOINT-DIRECTIONS: 複数expertを同時に動かす候補方向ならutilityと多様度を両立できる
+
+- 状態: 棄却。joint方向4本を含む9候補はselectionのutilityと多様度を改善したが、held-outでは
+  有効教師率差`0`、gain差`-37.625cp`、候補手多様度差`-0.0052`となり、同時転移しなかった。
 
 <!-- hypothesis id=H-DECISION-ALIGNED-LOSS status=measured -->
 ### H-DECISION-ALIGNED-LOSS: Rootの意思決定に整合した目的なら棋力へ転換できる
@@ -214,4 +210,5 @@
 | [明示root特徴ablation](results/root-features-20260826/README.md) | H-ROOT-FEATURES, H-ROOT-SEARCH-STATS | 静的7特徴はlossのみ改善し浅い探索統計を分離 |
 | [候補手disagreement直接目的](results/disagreement-objective-20260827/README.md) | H-SU-DIVERSITY-OBJECTIVE, H-SU-JOINT-DIRECTIONS | expert別半径の直接多様度選定はheld-outへ転移せずjoint方向を分離 |
 | [浅いroot探索統計](results/root-search-stats-20260827/README.md) | H-ROOT-SEARCH-STATS, H-ROOT-SEARCH-STATS-STRENGTH | loss・固定bestmove・追加時間の3条件を満たし棋力追試を分離 |
+| [Joint signed候補方向](results/joint-candidate-directions-20260828/README.md) | H-SU-JOINT-DIRECTIONS | selection改善はheld-outへ転移せずutilityと多様度の同時改善を棄却 |
 <!-- result-ledger:end -->

@@ -1,0 +1,27 @@
+{
+  "description": "Radius-4 positive axes and signed nonconstant Hadamard directions",
+  "directions": [
+    {"name": "axis_0", "bias": [4, 0, 0, 0, 0, 0, 0, 0]},
+    {"name": "axis_1", "bias": [0, 4, 0, 0, 0, 0, 0, 0]},
+    {"name": "axis_2", "bias": [0, 0, 4, 0, 0, 0, 0, 0]},
+    {"name": "axis_3", "bias": [0, 0, 0, 4, 0, 0, 0, 0]},
+    {"name": "axis_4", "bias": [0, 0, 0, 0, 4, 0, 0, 0]},
+    {"name": "axis_5", "bias": [0, 0, 0, 0, 0, 4, 0, 0]},
+    {"name": "axis_6", "bias": [0, 0, 0, 0, 0, 0, 4, 0]},
+    {"name": "axis_7", "bias": [0, 0, 0, 0, 0, 0, 0, 4]},
+    {"name": "hadamard_1_pos", "bias": [1, -1, 1, -1, 1, -1, 1, -1]},
+    {"name": "hadamard_1_neg", "bias": [-1, 1, -1, 1, -1, 1, -1, 1]},
+    {"name": "hadamard_2_pos", "bias": [1, 1, -1, -1, 1, 1, -1, -1]},
+    {"name": "hadamard_2_neg", "bias": [-1, -1, 1, 1, -1, -1, 1, 1]},
+    {"name": "hadamard_3_pos", "bias": [1, -1, -1, 1, 1, -1, -1, 1]},
+    {"name": "hadamard_3_neg", "bias": [-1, 1, 1, -1, -1, 1, 1, -1]},
+    {"name": "hadamard_4_pos", "bias": [1, 1, 1, 1, -1, -1, -1, -1]},
+    {"name": "hadamard_4_neg", "bias": [-1, -1, -1, -1, 1, 1, 1, 1]},
+    {"name": "hadamard_5_pos", "bias": [1, -1, 1, -1, -1, 1, -1, 1]},
+    {"name": "hadamard_5_neg", "bias": [-1, 1, -1, 1, 1, -1, 1, -1]},
+    {"name": "hadamard_6_pos", "bias": [1, 1, -1, -1, -1, -1, 1, 1]},
+    {"name": "hadamard_6_neg", "bias": [-1, -1, 1, 1, 1, 1, -1, -1]},
+    {"name": "hadamard_7_pos", "bias": [1, -1, -1, 1, -1, 1, 1, -1]},
+    {"name": "hadamard_7_neg", "bias": [-1, 1, 1, -1, 1, -1, -1, 1]}
+  ]
+}

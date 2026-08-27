@@ -18,6 +18,7 @@ from diagnose_search_utility_horizons import (  # noqa: E402
 )
 from collect_search_utility_teachers import (  # noqa: E402
     build_candidate_biases,
+    load_candidate_biases,
     onnxruntime_library_dir,
     search_candidate,
 )
@@ -78,6 +79,33 @@ class SearchUtilityHorizonStatisticsTest(unittest.TestCase):
         self.assertEqual(5, len(contrast))
         np.testing.assert_array_equal([2, -2, 0, 0], contrast[1])
         np.testing.assert_array_equal([0, 0, 0, 0], contrast[0])
+
+    def test_loads_named_candidate_biases_and_prepends_base(self):
+        import json
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "biases.json"
+            path.write_text(json.dumps({"directions": [
+                {"name": "joint", "bias": [1, 1, -1, -1]},
+            ]}))
+            names, biases = load_candidate_biases(path, 4)
+        self.assertEqual(["base", "joint"], names)
+        np.testing.assert_array_equal([0, 0, 0, 0], biases[0])
+        np.testing.assert_array_equal([1, 1, -1, -1], biases[1])
+
+    def test_rejects_duplicate_candidate_bias_names(self):
+        import json
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "biases.json"
+            path.write_text(json.dumps({"directions": [
+                {"name": "same", "bias": [1, 0]},
+                {"name": "same", "bias": [0, 1]},
+            ]}))
+            with self.assertRaisesRegex(ValueError, "invalid candidate"):
+                load_candidate_biases(path, 2)
 
     def test_wilson_interval_contains_observed_fraction(self):
         low, high = wilson_interval(60, 100)

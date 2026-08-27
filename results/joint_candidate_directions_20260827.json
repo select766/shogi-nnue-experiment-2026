@@ -1,0 +1,150 @@
+{
+  "format": "joint-candidate-directions-analysis-v1",
+  "selection_roots": 384,
+  "held_out_roots": 384,
+  "pool_direction_count": 22,
+  "fixed_directions": [
+    "axis_0",
+    "axis_1",
+    "axis_2",
+    "axis_3",
+    "axis_4",
+    "axis_5",
+    "axis_6",
+    "axis_7"
+  ],
+  "selected_directions": [
+    "axis_0",
+    "axis_2",
+    "axis_3",
+    "axis_6",
+    "hadamard_2_pos",
+    "hadamard_3_pos",
+    "hadamard_3_neg",
+    "hadamard_7_pos"
+  ],
+  "selected_biases": [
+    [
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      4,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      4,
+      0
+    ],
+    [
+      1,
+      1,
+      -1,
+      -1,
+      1,
+      1,
+      -1,
+      -1
+    ],
+    [
+      1,
+      -1,
+      -1,
+      1,
+      1,
+      -1,
+      -1,
+      1
+    ],
+    [
+      -1,
+      1,
+      1,
+      -1,
+      -1,
+      1,
+      1,
+      -1
+    ],
+    [
+      1,
+      -1,
+      -1,
+      1,
+      -1,
+      1,
+      1,
+      -1
+    ]
+  ],
+  "selection": {
+    "fixed": {
+      "teacher_changed_fraction": 0.16927083333333334,
+      "oracle_gain_cp_mean": 389.7213541666667,
+      "candidate_move_diversity_mean": 2.0390625
+    },
+    "selected": {
+      "teacher_changed_fraction": 0.17447916666666666,
+      "oracle_gain_cp_mean": 391.078125,
+      "candidate_move_diversity_mean": 2.0859375
+    }
+  },
+  "held_out": {
+    "fixed": {
+      "teacher_changed_fraction": 0.1796875,
+      "oracle_gain_cp_mean": 285.0442708333333,
+      "candidate_move_diversity_mean": 2.1302083333333335
+    },
+    "selected": {
+      "teacher_changed_fraction": 0.1796875,
+      "oracle_gain_cp_mean": 247.41927083333334,
+      "candidate_move_diversity_mean": 2.125
+    }
+  },
+  "selected_minus_fixed": {
+    "teacher_changed_fraction": {
+      "mean": 0.0,
+      "bootstrap_95": [
+        -0.018229166666666668,
+        0.018229166666666668
+      ]
+    },
+    "oracle_gain_cp_mean": -37.625,
+    "candidate_move_diversity": {
+      "mean": -0.005208333333333333,
+      "bootstrap_95": [
+        -0.059895833333333336,
+        0.046875
+      ]
+    }
+  },
+  "classification": "rejected"
+}
