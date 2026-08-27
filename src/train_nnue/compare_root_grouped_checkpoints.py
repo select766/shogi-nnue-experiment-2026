@@ -42,7 +42,7 @@ def load_model(path, backbone_weights, nnue_checkpoint, device):
     return model, checkpoint.get("hyper_parameters", {}), auxiliary_dim
 
 
-def evaluate(path, args, teacher_weights=None):
+def evaluate(path, args, teacher_weights=None, root_features=None):
     model, hparams, auxiliary_dim = load_model(
         path, args.backbone_weights, args.nnue_checkpoint, args.device
     )
@@ -51,7 +51,7 @@ def evaluate(path, args, teacher_weights=None):
         "HalfKP",
         args.root_batch_size,
         device=args.device,
-        root_feature_cache_path=args.root_features,
+        root_feature_cache_path=root_features,
     )
     losses = []
     tail_losses = []
@@ -126,6 +126,10 @@ def main() -> None:
     parser.add_argument("--data", required=True)
     parser.add_argument("--root-features")
     parser.add_argument(
+        "--control-root-features",
+        help="Optional feature cache used only by the control checkpoint",
+    )
+    parser.add_argument(
         "--teacher",
         help=(
             "Optional shared-teacher cache. Omit it when only paired task-loss "
@@ -151,7 +155,12 @@ def main() -> None:
         teacher_weights = np.asarray(
             teacher[: args.max_roots, teacher.shape[1] // 2 :]
         )
-    control = evaluate(args.control, args, teacher_weights)
+    control = evaluate(
+        args.control,
+        args,
+        teacher_weights,
+        root_features=args.control_root_features or args.root_features,
+    )
     output = {
         "roots": args.max_roots,
         "control": {
@@ -173,7 +182,9 @@ def main() -> None:
             }
         )
     for path in args.candidate:
-        candidate = evaluate(path, args, teacher_weights)
+        candidate = evaluate(
+            path, args, teacher_weights, root_features=args.root_features
+        )
         delta = candidate["losses"] - control["losses"]
         tail_delta = candidate["tail_losses"] - control["tail_losses"]
         candidate_output = {

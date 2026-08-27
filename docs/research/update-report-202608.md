@@ -277,3 +277,20 @@ phase role補助loss 0.05は、未使用valAでmatched control比blended lossを
 1.823へ低下した。差`-0.3125`の95%区間は`[-0.5000,-0.1354]`で、
 `H-SU-ADAPTIVE-RADIUS`も棄却した。両実験の共通制約から、bestmove disagreementを
 直接保つ多目的候補設計を`H-SU-DIVERSITY-OBJECTIVE`として最優先で残した。
+
+## Disagreement直接目的と浅いroot探索統計 (2026-08-27)
+
+fresh 192 rootを96/96へ固定分割し、4半径・8 expert方向の`4^8`候補集合を列挙した。
+selectionで固定半径4以上の有効教師率とgainを保ちながら候補bestmove種類数を最大化した半径は
+`[4,2,4,4,1,4,2,4]`だった。しかしheld-outでは有効教師率が23.96%から21.88%、gain平均が
+22.93cpから19.27cp、多様度が2.115から1.917へすべて悪化した。多様度差の95%区間も
+`[-0.3125,-0.09375]`だったため`H-SU-DIVERSITY-OBJECTIVE`を棄却した。expert別一軸半径ではなく、
+複数expertを同時に動かすsigned候補方向を次の仮説へ分離した。
+
+静的combined 7特徴へ、固定HalfKPの1024-node MultiPV scoreから作る6特徴を追加した。
+matched control比のroot-group loss差はvalBで`-0.000001729`、未使用valAで`-0.000001705`となり、
+両bootstrap区間が全域負だった。固定validation 10,000局面のbestmoveも61.95%から62.04%へ
+`+0.09`ポイント、浅い探索の追加時間は本探索比0.127%だった。差はMcNemar `p=0.846`と小さいが、
+事前のloss・有向bestmove・時間条件をすべて満たしたため`H-ROOT-SEARCH-STATS`を支持した。
+独立testは静的対照62.09%に対して候補62.08% (`p=1.0`)で効果量を再現しなかった。棋力への転換は
+`H-ROOT-SEARCH-STATS-STRENGTH`として別に判定する。

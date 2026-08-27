@@ -1,0 +1,21 @@
+{
+  "engine_path": "bin/YaneuraOu-expert-blending.sh",
+  "engine_options": {
+    "Threads": 1,
+    "EvalDir": "bin/eval",
+    "ExpertBlendingDir": "tmp/root_search_stats_release"
+  },
+  "shallow_engine_path": "bin/YaneuraOu-by-gcc",
+  "shallow_engine_options": {
+    "Threads": 1,
+    "USI_Hash": 16,
+    "EvalDir": "bin/eval",
+    "USI_OwnBook": "false"
+  },
+  "shallow_nodes": 1024,
+  "shallow_multipv": 4,
+  "go_params": {
+    "nodes": 1000000
+  },
+  "num_workers": 4
+}

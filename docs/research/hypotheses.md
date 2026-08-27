@@ -1,6 +1,6 @@
 # 研究仮説レジストリ
 
-更新日: 2026-08-26
+更新日: 2026-08-27
 
 このファイルを、未検証仮説の優先順位と過去の判定を管理する唯一の台帳とする。
 実験計画や結果文書は詳しい条件と証跡を保持し、この台帳は「次に何を、なぜ検証するか」を保持する。
@@ -24,27 +24,40 @@
 
 ## 優先順位付き未完了仮説
 
-<!-- hypothesis id=H-SU-DIVERSITY-OBJECTIVE status=unverified priority=1 -->
-### 1. 候補手のdisagreementを直接目的にすればutilityと多様度を両立できる
+<!-- hypothesis id=H-ROOT-SEARCH-STATS-STRENGTH status=unverified priority=1 -->
+### 1. 浅いroot探索統計の小さなbestmove改善は棋力へ転換する
 
 - 状態: 未検証
-- 仮説: score gainだけで半径やexpert役割を選ぶのではなく、候補bestmoveの非一致も直接最適化すれば、
-  有効教師率・utility gainと候補手多様度を同時に改善できる。
-- 根拠: phase専門化とroot別半径はどちらも有効教師率またはgainを増やしたが、候補手多様度を低下させた。
-- 次の実験: gainとbestmove coverageの多目的候補選択を固定半径と比較する。
-- 成功条件: 同じ候補数・100万nodesで有効教師率と候補手多様度をともに改善する。
+- 仮説: 1024-node MultiPV統計を使う固定blendは、静的特徴だけのmatched controlより自己対局棋力を改善する。
+- 根拠: 独立root lossは2 splitで改善し、固定validation bestmoveも`+0.09`ポイントだったが、
+  McNemar `p=0.846`、独立testは`-0.01`ポイントで効果量はまだ不確定である。
+- 次の実験: 同じ候補と静的combined対照を固定nodes・先後ペアの自己対局で比較する。
+- 成功条件: Elo推定を正方向へ改善し、95%区間下端が0を上回る。
 
-<!-- hypothesis id=H-ROOT-SEARCH-STATS status=unverified priority=2 -->
-### 2. 浅いroot探索統計が固定blendの予測に必要である
+<!-- hypothesis id=H-SU-JOINT-DIRECTIONS status=unverified priority=2 -->
+### 2. 複数expertを同時に動かす候補方向ならutilityと多様度を両立できる
 
 - 状態: 未検証
-- 仮説: 低nodesのMultiPV幅・score margin・visit分布などの浅いroot探索統計なら、
-  未知leaf集合に適した固定blendを予測できる。
-- 根拠: 手数・駒数・成駒・合法手などの7静的特徴はlossを改善したが、固定bestmoveは`-0.05`ptだった。
-- 次の実験: 数百〜数千nodesのroot診断を事前選定し、静的combined対照と比較する。
-- 成功条件: CPU追加時間10%以内で独立root lossと固定bestmoveを改善する。
+- 仮説: expert別positive-axisの半径選択ではなく、複数expert logitsを同時に増減するsigned方向を
+  候補手coverageのために選べば、同数候補でutilityと多様度をheld-outへ転移できる。
+- 根拠: expert別半径のdisagreement選定はselectionだけを改善し、held-outでは3指標すべて悪化した。
+- 次の実験: joint signed方向の候補poolをselectionで固定し、別rootの固定半径4と比較する。
+- 成功条件: 同じ9候補・100万nodesで有効教師率、gain、候補手多様度を同時に維持または改善する。
 
 ## 判定済み仮説
+
+<!-- hypothesis id=H-ROOT-SEARCH-STATS status=supported -->
+### H-ROOT-SEARCH-STATS: 浅いroot探索統計が固定blendの予測に必要である
+
+- 状態: 支持。1024-node MultiPV統計6特徴は静的7特徴対照よりvalB/valA lossを一貫して改善し、
+  固定validation bestmoveも61.95%から62.04%へ改善した。CPU追加時間は本探索比0.127%だった。
+  ただし独立testは62.09%対62.08%でbestmove効果量を再現しなかった。
+
+<!-- hypothesis id=H-SU-DIVERSITY-OBJECTIVE status=rejected -->
+### H-SU-DIVERSITY-OBJECTIVE: 候補手のdisagreementを直接目的にすればutilityと多様度を両立できる
+
+- 状態: 棄却。selectionで多様度を直接最大化したexpert別半径は、held-outで有効教師率`-2.08`pt、
+  gain`-3.66cp`、候補手多様度`-0.198`となり、固定半径4より3指標すべて悪化した。
 
 <!-- hypothesis id=H-DECISION-ALIGNED-LOSS status=measured -->
 ### H-DECISION-ALIGNED-LOSS: Rootの意思決定に整合した目的なら棋力へ転換できる
@@ -199,4 +212,6 @@
 | [Root別search utility候補半径](results/adaptive-radius-20260826/README.md) | H-SU-ADAPTIVE-RADIUS, H-SU-DIVERSITY-OBJECTIVE | 有効教師率は増えたが候補手多様度が悪化 |
 | [Root予測可能なexpert専門化](results/task-aligned-experts-20260826/README.md) | H-TASK-ALIGNED-EXPERTS, H-SU-DIVERSITY-OBJECTIVE | phase専門化は成立したがsearch候補手多様度は悪化 |
 | [明示root特徴ablation](results/root-features-20260826/README.md) | H-ROOT-FEATURES, H-ROOT-SEARCH-STATS | 静的7特徴はlossのみ改善し浅い探索統計を分離 |
+| [候補手disagreement直接目的](results/disagreement-objective-20260827/README.md) | H-SU-DIVERSITY-OBJECTIVE, H-SU-JOINT-DIRECTIONS | expert別半径の直接多様度選定はheld-outへ転移せずjoint方向を分離 |
+| [浅いroot探索統計](results/root-search-stats-20260827/README.md) | H-ROOT-SEARCH-STATS, H-ROOT-SEARCH-STATS-STRENGTH | loss・固定bestmove・追加時間の3条件を満たし棋力追試を分離 |
 <!-- result-ledger:end -->

@@ -1,5 +1,7 @@
 # 実験結果
 
+- [浅いroot探索統計](root-search-stats-20260827/README.md)
+- [候補手disagreement直接目的](disagreement-objective-20260827/README.md)
 - [Root decision-aligned目的](decision-aligned-loss-20260826/README.md)
 - [Root別search utility候補半径](adaptive-radius-20260826/README.md)
 - [Root予測可能なexpert専門化](task-aligned-experts-20260826/README.md)
