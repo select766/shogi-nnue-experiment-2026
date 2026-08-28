@@ -1,6 +1,6 @@
 # 研究仮説レジストリ
 
-更新日: 2026-08-27
+更新日: 2026-08-28
 
 このファイルを、未検証仮説の優先順位と過去の判定を管理する唯一の台帳とする。
 実験計画や結果文書は詳しい条件と証跡を保持し、この台帳は「次に何を、なぜ検証するか」を保持する。
@@ -24,30 +24,30 @@
 
 ## 優先順位付き未完了仮説
 
-<!-- hypothesis id=H-DECISION-ALIGNED-LOSS status=in_progress priority=1 -->
-### 1. Rootの意思決定に整合した目的なら棋力へ転換できる
-
-- 状態: 検証中
-- 仮説: root候補手utilityの勝者expert軸を直接分類する目的は、leaf平均目的より自己対局棋力を改善する。
-- 根拠: 固定validation/test bestmoveが`+0.13/+0.11`pt、既存4,000局が`+7.30 Elo`と一貫して正だが、
-  対局95%区間`[-3.31,+17.90]`が0を跨いだ。
-- 次の実験: test由来の未使用4,000開始局面を先後反転し、追加8,000局、合計12,000局へ拡大する。
-- 成功条件: 合計Elo 95%区間下端が0を上回る。
+なし。
 
 ## 判定済み仮説
 
-<!-- hypothesis id=H-ROOT-SEARCH-STATS status=supported -->
+<!-- hypothesis id=H-DECISION-ALIGNED-LOSS status=supported -->
+### H-DECISION-ALIGNED-LOSS: Rootの意思決定に整合した目的なら棋力へ転換できる
+
+- 状態: 支持。固定10万nodesの合計12,000局は5,917勝5,679敗404分、`+6.89 Elo`、
+  95%区間`[+0.78,+13.00]`だった。独立追加8,000局単独は`+6.69 Elo`、区間
+  `[-0.79,+14.17]`なので、固定条件での小効果を合算精度で支持する。
+
+<!-- hypothesis id=H-ROOT-SEARCH-STATS status=rejected -->
 ### H-ROOT-SEARCH-STATS: 浅いroot探索統計が固定blendの予測に必要である
 
-- 状態: 支持。1024-node MultiPV統計6特徴は静的7特徴対照よりvalB/valA lossを一貫して改善し、
-  固定validation bestmoveも61.95%から62.04%へ改善した。CPU追加時間は本探索比0.127%だった。
-  ただし独立testは62.09%対62.08%でbestmove効果量を再現しなかった。
+- 状態: 棄却。valB/valA lossと固定validation bestmoveは改善したが、独立10,000 testは
+  `-0.01`ポイント、重複なし1,000局面追加splitは`-2.70`ポイント、McNemar `p=0.038878`
+  だった。速度は本探索比約0.13%だが、固定bestmove改善が独立splitへ転移しなかった。
 
 <!-- hypothesis id=H-ROOT-SEARCH-STATS-STRENGTH status=measured -->
 ### H-ROOT-SEARCH-STATS-STRENGTH: 浅いroot探索統計の小さなbestmove改善は棋力へ転換する
 
 - 状態: 測定完了。固定10万nodesの4,000局は1,921勝1,942敗137分、`-1.82 Elo`、95%区間
-  `[-12.41,+8.76]`だった。点推定も負で、小さなbestmove改善の棋力転換は確認できなかった。
+  `[-12.41,+8.76]`だった。追加固定bestmove splitも`-2.70`ポイントだったため、
+  小さなvalidation改善の棋力転換は確認できなかった。
 
 <!-- hypothesis id=H-SU-DIVERSITY-OBJECTIVE status=rejected -->
 ### H-SU-DIVERSITY-OBJECTIVE: 候補手のdisagreementを直接目的にすればutilityと多様度を両立できる
@@ -212,4 +212,5 @@
 | [浅いroot探索統計](results/root-search-stats-20260827/README.md) | H-ROOT-SEARCH-STATS, H-ROOT-SEARCH-STATS-STRENGTH | loss・固定bestmove・追加時間の3条件を満たし棋力追試を分離 |
 | [Joint signed候補方向](results/joint-candidate-directions-20260828/README.md) | H-SU-JOINT-DIRECTIONS | selection改善はheld-outへ転移せずutilityと多様度の同時改善を棄却 |
 | [浅いroot探索統計の棋力追試](results/root-search-stats-strength-20260828/README.md) | H-ROOT-SEARCH-STATS-STRENGTH, H-DECISION-ALIGNED-LOSS | 4,000局で棋力転換を確認できず過去の正方向仮説を深掘り |
+| [24時間 深掘り検証](results/deep-validation-24h-20260828/README.md) | H-DECISION-ALIGNED-LOSS, H-ROOT-SEARCH-STATS | decision-alignedを12,000局で支持しroot統計の独立bestmove転移を棄却 |
 <!-- result-ledger:end -->

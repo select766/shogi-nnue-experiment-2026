@@ -17,9 +17,18 @@ def validate_runs(runs, *, expected_games=None, require_color_pairs=False):
         for key in ("engine1", "engine2", "search"):
             if run[key] != reference[key]:
                 raise ValueError(f"incompatible {key} across match results")
-        for key in ("clear_hash_each_move", "engine1_root_statistics"):
-            if run.get(key) != reference.get(key):
-                raise ValueError(f"incompatible {key} across match results")
+        if run.get("clear_hash_each_move", False) != reference.get(
+            "clear_hash_each_move", False
+        ):
+            raise ValueError(
+                "incompatible clear_hash_each_move across match results"
+            )
+        if run.get("engine1_root_statistics") != reference.get(
+            "engine1_root_statistics"
+        ):
+            raise ValueError(
+                "incompatible engine1_root_statistics across match results"
+            )
         counted_games = run["wins"] + run["losses"] + run["draws"]
         if run["games"] != counted_games:
             raise ValueError(f"chunk {chunk_index}: games does not match W/L/D")

@@ -17,6 +17,31 @@ def make_run(details, wins=1, losses=1, draws=0):
 
 
 class ValidateMatchRunsTest(unittest.TestCase):
+    def test_missing_clear_hash_matches_explicit_false(self):
+        details = [
+            {"sfen": "position-a", "engine1_color": "black"},
+            {"sfen": "position-a", "engine1_color": "white"},
+        ]
+        legacy = make_run(details)
+        current = make_run(details)
+        current["clear_hash_each_move"] = False
+
+        merged = validate_runs([legacy, current])
+
+        self.assertEqual(len(merged), 4)
+
+    def test_missing_clear_hash_does_not_match_true(self):
+        details = [
+            {"sfen": "position-a", "engine1_color": "black"},
+            {"sfen": "position-a", "engine1_color": "white"},
+        ]
+        legacy = make_run(details)
+        current = make_run(details)
+        current["clear_hash_each_move"] = True
+
+        with self.assertRaisesRegex(ValueError, "clear_hash_each_move"):
+            validate_runs([legacy, current])
+
     def test_rejects_different_root_statistics_protocols(self):
         details = [
             {"sfen": "position-a", "engine1_color": "black"},
