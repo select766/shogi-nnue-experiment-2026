@@ -24,16 +24,15 @@
 
 ## 優先順位付き未完了仮説
 
-なし。
+<!-- hypothesis id=H-DECISION-ALIGNED-LOSS status=in_progress priority=1 -->
+### 1. Rootの意思決定に整合した目的なら棋力へ転換できる
+
+- 状態: 検証中。事前登録12,000局の支持判定は固定済み。
+- 仮説: root候補手utilityの勝者expert軸を直接分類する目的は、leaf平均目的より自己対局棋力を改善する。
+- 次の実験: 24時間枠の残時間で未使用1,000開始局面・2,000局を追加し、14,000局で感度確認する。
+- 判定: 12,000局の支持は反転せず、追加単独と14,000局の効果量・区間を報告する。
 
 ## 判定済み仮説
-
-<!-- hypothesis id=H-DECISION-ALIGNED-LOSS status=supported -->
-### H-DECISION-ALIGNED-LOSS: Rootの意思決定に整合した目的なら棋力へ転換できる
-
-- 状態: 支持。固定10万nodesの合計12,000局は5,917勝5,679敗404分、`+6.89 Elo`、
-  95%区間`[+0.78,+13.00]`だった。独立追加8,000局単独は`+6.69 Elo`、区間
-  `[-0.79,+14.17]`なので、固定条件での小効果を合算精度で支持する。
 
 <!-- hypothesis id=H-ROOT-SEARCH-STATS status=rejected -->
 ### H-ROOT-SEARCH-STATS: 浅いroot探索統計が固定blendの予測に必要である
