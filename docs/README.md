@@ -15,6 +15,7 @@
 
 ## Operations
 
+- [研究ジョブキューと外部セッションからの操作](operations/research-loop.md)
 - [Python環境](operations/python-environments.md)
 - [学習と評価](operations/training-and-evaluation.md)
 - [データ準備](operations/data-preparation.md)

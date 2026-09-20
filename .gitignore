@@ -40,3 +40,6 @@ tmp/
 # project specific
 /dataset
 /results
+
+# Local research queue, handoffs and runtime process state
+/.research-loop/

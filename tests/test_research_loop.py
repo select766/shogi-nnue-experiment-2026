@@ -1,0 +1,243 @@
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+import unittest
+from unittest.mock import patch
+
+from train_nnue.research_loop import Store, Worker, add_jobs, choose, main, registry, write_json
+
+FIXTURE = Path(__file__).parent / "fixtures/research_fake_codex.py"
+
+
+class ResearchLoopTest(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        (self.root / "docs/research").mkdir(parents=True)
+        (self.root / "docs/research/hypotheses.md").write_text(
+            "<!-- hypothesis id=H-ONE status=unverified priority=2 -->\n"
+            "<!-- hypothesis id=H-TWO status=unverified priority=1 -->\n")
+        (self.root / ".gitignore").write_text(".research-loop/\n")
+        (self.root / "scripts").mkdir()
+        wrapper = self.root / "scripts/project_python.sh"
+        wrapper.write_text("#!/bin/sh\nexit 0\n")
+        wrapper.chmod(0o755)
+        for args in (["init", "-q"], ["config", "user.name", "Test"],
+                     ["config", "user.email", "test@example.invalid"],
+                     ["add", "."], ["commit", "-qm", "initial"]):
+            subprocess.run(["git", *args], cwd=self.root, check=True)
+        self.store = Store(self.root / ".research-loop")
+        write_json(self.store.directory / "state.json", {
+            "version": 1, "paused": False, "interrupt": False, "active": None, "jobs": []})
+        self.mode = self.store.directory / "mode"
+        self.mode.write_text("success")
+        self.config = {"codex_command": [sys.executable, str(FIXTURE)],
+                       "session_timeout_seconds": 10, "max_compute_seconds": 20,
+                       "poll_seconds": 0.01, "terminate_grace_seconds": 0.1}
+
+    def enqueue(self, key="first", hypothesis="H-ONE", dependencies=None):
+        with self.store.edit() as state:
+            add_jobs(state, [{"id": key, "hypothesis": hypothesis, "task": "Offline test",
+                              "depends_on": dependencies or []}], registry(self.root))
+
+    def run_worker(self, max_jobs=0):
+        return Worker(self.root, self.store, self.config).run(max_jobs)
+
+    def events(self):
+        path = self.store.directory / "invocations.jsonl"
+        return [json.loads(v) for v in path.read_text().splitlines()] if path.exists() else []
+
+    def test_full_cycle_fresh_sessions_and_no_codex_during_compute(self):
+        self.enqueue()
+        self.assertEqual(self.run_worker(), 0)
+        state = self.store.snapshot()
+        self.assertEqual(state["jobs"][0]["status"], "done")
+        events = self.events()
+        self.assertEqual([v["phase"] for v in events], ["prepare", "review"])
+        self.assertNotEqual(events[0]["pid"], events[1]["pid"])
+        self.assertNotIn("resume", events[1]["args"])
+        directory = Path(state["jobs"][0]["attempts"][0])
+        # Fixture run.sh exits 17 if the preparer process is still alive.
+        self.assertEqual(json.loads((directory / "execution.json").read_text())["exit_code"], 0)
+
+    def test_failed_compute_is_reviewed(self):
+        self.mode.write_text("compute_failure")
+        self.enqueue()
+        self.assertEqual(self.run_worker(), 0)
+        self.assertEqual([v["phase"] for v in self.events()], ["prepare", "review"])
+        directory = Path(self.store.snapshot()["jobs"][0]["attempts"][0])
+        self.assertEqual(json.loads((directory / "execution.json").read_text())["exit_code"], 19)
+
+    def test_bad_or_failed_preparation_never_executes(self):
+        for mode in ("prepare_failure", "malformed"):
+            with self.subTest(mode=mode):
+                self.mode.write_text(mode)
+                self.enqueue(key=mode)
+                with self.store.edit() as state:
+                    for job in state["jobs"][:-1]:
+                        job["status"] = "cancelled"
+                    state["paused"] = False
+                self.assertEqual(self.run_worker(), 2)
+                job = self.store.snapshot()["jobs"][-1]
+                self.assertEqual(job["status"], "blocked")
+                self.assertFalse((Path(job["attempts"][0]) / "execution.json").exists())
+
+    def test_queue_update_is_atomic_on_invalid_proposal(self):
+        self.mode.write_text("invalid_review")
+        self.enqueue()
+        self.assertEqual(self.run_worker(), 2)
+        state = self.store.snapshot()
+        self.assertEqual(len(state["jobs"]), 1)
+        self.assertEqual(state["jobs"][0]["status"], "blocked")
+
+    def test_followup_is_enqueued_without_running_when_limit_reached(self):
+        self.mode.write_text("next_job")
+        self.enqueue()
+        self.assertEqual(self.run_worker(max_jobs=1), 0)
+        state = self.store.snapshot()
+        self.assertEqual([j["status"] for j in state["jobs"]], ["done", "queued"])
+        self.assertEqual(choose(state, registry(self.root))["id"], "followup")
+
+    def test_priority_dependencies_and_cycles(self):
+        self.enqueue()
+        self.enqueue("dependent", "H-TWO", ["first"])
+        self.enqueue("independent", "H-TWO")
+        self.assertEqual(choose(self.store.snapshot(), registry(self.root))["id"], "independent")
+        with self.assertRaisesRegex(ValueError, "cycle"):
+            with self.store.edit() as state:
+                add_jobs(state, [
+                    {"id": "a", "hypothesis": "H-ONE", "task": "a", "depends_on": ["b"]},
+                    {"id": "b", "hypothesis": "H-ONE", "task": "b", "depends_on": ["a"]},
+                ], registry(self.root))
+        self.assertEqual(len(self.store.snapshot()["jobs"]), 3)
+
+    def test_pause_before_start_launches_nothing(self):
+        self.enqueue()
+        with self.store.edit() as state:
+            state["paused"] = True
+        self.assertEqual(self.run_worker(), 0)
+        self.assertEqual(self.events(), [])
+
+    def watch_and_pause(self, phase, immediate):
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            with self.store.edit() as state:
+                active = state["active"]
+                if active and active["phase"] == phase and active.get("pid"):
+                    state.update(paused=True, interrupt=immediate)
+                    return
+            time.sleep(0.005)
+        raise AssertionError("phase was not observed")
+
+    def test_boundary_pause_preserves_next_phase_then_resumes(self):
+        self.enqueue()
+        watcher = threading.Thread(target=self.watch_and_pause, args=("prepare", False))
+        watcher.start()
+        self.assertEqual(self.run_worker(), 0)
+        watcher.join(timeout=6)
+        state = self.store.snapshot()
+        self.assertEqual(state["jobs"][0]["phase"], "execute")
+        self.assertEqual(len(self.events()), 1)
+        with self.store.edit() as state:
+            state["paused"] = False
+        self.assertEqual(self.run_worker(), 0)
+        self.assertEqual(len(self.events()), 2)
+
+    def test_immediate_pause_terminates_compute_and_skips_review(self):
+        self.mode.write_text("long")
+        self.enqueue()
+        watcher = threading.Thread(target=self.watch_and_pause, args=("execute", True))
+        watcher.start()
+        self.assertEqual(self.run_worker(), 2)
+        watcher.join(timeout=6)
+        job = self.store.snapshot()["jobs"][0]
+        self.assertEqual(job["status"], "blocked")
+        self.assertEqual(len(self.events()), 1)
+        directory = Path(job["attempts"][0])
+        self.assertEqual(json.loads((directory / "execution.json").read_text())["reason"], "interrupted")
+
+    def test_timeout_goes_to_review(self):
+        self.mode.write_text("long")
+        self.enqueue()
+        self.assertEqual(self.run_worker(), 0)
+        directory = Path(self.store.snapshot()["jobs"][0]["attempts"][0])
+        self.assertEqual(json.loads((directory / "execution.json").read_text())["reason"], "timeout")
+        pid = int((directory / "child.pid").read_text())
+        stat = Path(f"/proc/{pid}/stat")
+        self.assertTrue(not stat.exists() or stat.read_text().split()[2] == "Z")
+
+    def test_stale_active_requires_recovery(self):
+        self.enqueue()
+        with self.store.edit() as state:
+            state["active"] = {"job": "first", "pid": None}
+        with self.assertRaisesRegex(ValueError, "recover"):
+            self.run_worker()
+
+    def test_dirty_workspace_does_not_start_model(self):
+        self.enqueue()
+        (self.root / "user-edit.txt").write_text("preserve me")
+        self.assertEqual(self.run_worker(), 2)
+        self.assertEqual(self.events(), [])
+        self.assertEqual((self.root / "user-edit.txt").read_text(), "preserve me")
+
+    def test_duplicate_worker_lock(self):
+        with self.store.worker_lock():
+            self.assertTrue(self.store.worker_present())
+            with self.assertRaisesRegex(ValueError, "another worker"):
+                self.run_worker()
+
+    def test_retry_review_uses_saved_compute_and_new_session(self):
+        self.mode.write_text("review_failure")
+        self.enqueue()
+        self.assertEqual(self.run_worker(), 2)
+        job = self.store.snapshot()["jobs"][0]
+        directory = Path(job["attempts"][0])
+        execution = (directory / "execution.json").read_bytes()
+        self.mode.write_text("success")
+        with patch("train_nnue.research_loop.ROOT", self.root):
+            self.assertEqual(main(["retry", "first", "--phase", "review"]), 0)
+            self.assertEqual(main(["resume"]), 0)
+        self.assertEqual(self.run_worker(), 0)
+        self.assertEqual((directory / "execution.json").read_bytes(), execution)
+        self.assertEqual([v["phase"] for v in self.events()], ["prepare", "review", "review"])
+
+    def test_prepared_script_tamper_blocks_execution(self):
+        self.enqueue()
+        watcher = threading.Thread(target=self.watch_and_pause, args=("prepare", False))
+        watcher.start()
+        self.assertEqual(self.run_worker(), 0)
+        watcher.join(timeout=6)
+        directory = Path(self.store.snapshot()["jobs"][0]["attempts"][0])
+        (directory / "run.sh").write_text("exit 0\n")
+        with self.store.edit() as state:
+            state["paused"] = False
+        self.assertEqual(self.run_worker(), 2)
+        self.assertFalse((directory / "execution.json").exists())
+
+    def test_status_snapshot_does_not_write_state(self):
+        self.enqueue()
+        path = self.store.directory / "state.json"
+        before = path.read_bytes()
+        self.store.snapshot()
+        self.assertEqual(path.read_bytes(), before)
+
+    def test_recovery_marks_unknown_completion_blocked(self):
+        self.enqueue()
+        with self.store.edit() as state:
+            state["active"] = {"job": "first", "pid": None}
+        with patch("train_nnue.research_loop.ROOT", self.root):
+            self.assertEqual(main(["recover"]), 0)
+        state = self.store.snapshot()
+        self.assertIsNone(state["active"])
+        self.assertTrue(state["paused"])
+        self.assertEqual(state["jobs"][0]["status"], "blocked")
+
+
+if __name__ == "__main__":
+    unittest.main()

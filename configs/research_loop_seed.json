@@ -1,0 +1,6 @@
+{
+  "id": "match-protocol-pilot",
+  "hypothesis": "H-MATCH-PROTOCOL",
+  "task": "docs/research/experiments/research-next-20260920.mdの第1段階を実施する。対局履歴・毎局reset・動的重み更新時のキャッシュ管理と記録を整備し、短期検証を行う。計算は最大1時間。正式20,000局追試は別ジョブとして提案する。実装、回帰検査、診断結果、仮説台帳更新、コミットまで完了する。棋力差の検出には標本が不足する点を明記する。",
+  "depends_on": []
+}

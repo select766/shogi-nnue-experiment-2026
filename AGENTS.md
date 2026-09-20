@@ -37,6 +37,18 @@ Pythonを手動でactivateしない。`python`、`uv run`、`PYTHONPATH=...`を�
   CUDA実演算preflightを必ず通し、CPU fallbackを許可しない。
 - sandbox内ではCUDAが見えずCPU fallbackや`nan`が起きる。データ破損を疑う前に実行環境を確認する。
 
+## 研究ループの運用
+
+- 5分を超える計算はCodexセッション内で起動・監視せず、研究ジョブキューへ渡す。
+  セッション内の短い検査には`timeout 300`を使う。
+- 管理入口は`bash scripts/research_loop.sh`。詳細は`docs/operations/research-loop.md`。
+  ユーザーがsandbox外で`run`を起動し、prepareとreviewは毎回新規Codexセッションで実施する。
+- 外部セッションは`status`、`pause`、`pause --now`、`enqueue`で確認・制御できる。
+  `pause`後はworker終了を確認してから実験コードを編集する。state.jsonを直接編集しない。
+- 仮説の優先順位は従来どおり`docs/research/hypotheses.md`を唯一の正本とする。
+  実行状態は`.research-loop/`、引継ぎは課題ごとのattemptフォルダに保存する。
+- 中断後の計算を自動再実行しない。成果物を確認して`retry --phase`を明示する。
+
 ## 現行データ
 
 - 主学習: `dataset/split_v1_paired_uniform_50/train/{dnn.bin,nnue.bin}`

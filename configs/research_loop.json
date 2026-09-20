@@ -1,0 +1,7 @@
+{
+  "codex_command": ["codex", "exec", "--approve-for-me", "--ephemeral", "--json"],
+  "session_timeout_seconds": 1800,
+  "max_compute_seconds": 86400,
+  "poll_seconds": 1,
+  "terminate_grace_seconds": 10
+}
