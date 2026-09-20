@@ -17,7 +17,8 @@ LLMへの問い合わせはない。全phaseは直列。新しい課題の優先
 
 約24時間ごとの[日次定点評価](daily-benchmark.md)は研究課題の間に優先して実行する。
 これはCodexを使わない組込み計算ジョブで、最良候補の正解率・勝率と成長グラフを更新する。
-日次評価が有効な通常runは、研究キューが空でもモデルを起動せず次の期限を待つ。
+通常runは日次評価の有効/無効によらず無期限に継続する。研究キューが空、または依存条件を
+満たす課題がない場合も、モデルを起動せず次の課題追加・日次期限・停止要求を待つ。
 
 ## 初回設定と起動
 
@@ -31,7 +32,7 @@ bash scripts/research_loop.sh init
 bash scripts/research_loop.sh enqueue configs/research_loop_seed.json
 bash scripts/research_loop.sh status
 
-# ユーザーのターミナル（sandbox外）で起動。日次評価が有効なら空キューでも待機
+# ユーザーのターミナル（sandbox外）で起動。空キューでも無期限待機
 bash scripts/research_loop.sh run
 
 # 最初の1課題だけ完了して終了する場合
@@ -81,6 +82,28 @@ summary/artifacts/logで確認する。
 計算の非zero終了・timeoutはexecution.jsonへ記録し、新規reviewへ渡す。
 Codexの失敗、不正な出力、検査不通過ではキュー全体をpaused、課題をblockedにする。
 自動再試行はしない。
+
+### 研究上の保留と実行エラーの区別
+
+prepareでデータ・出典など研究上の前提が不足する場合は、`status: deferred`を返す。
+管理側は計算を起動せず、`execution.json`へ`reason: preparation_deferred`・`exit_code: null`を記録し、
+新規reviewへ渡す。reviewで不足条件・未実行を結果文書に記録し、仮説をheldへ更新し、
+途中の実装も検査・コミットしてからジョブをdeferredにする。それまでは別課題を開始しない。
+保留課題を完了扱いしないので、これに依存するジョブは待機するが、独立課題と日次評価は継続する。
+同じ仮説の即時再提案は禁止。新しい入力が得られたら別IDで課題をenqueueする。
+
+認証・権限・ツール故障、安全上の問題は従来どおりblockedで全体停止する。
+保留review自体が失敗した場合も停止し、未コミット変更を放置して次課題へ進まない。
+
+旧版で研究上の入力不足をblockedにした場合だけ、ログを確認して次を使う。
+`defer`は正常終了したprepareがblockedを返した課題専用で、計算済み・失敗したセッションには使えない。
+途中変更・元回答を保存し、レビュー待ちへ変更する。停止要求は解除しない。
+
+```bash
+bash scripts/research_loop.sh defer JOB_ID
+bash scripts/research_loop.sh resume
+bash scripts/research_loop.sh run
+```
 
 ```bash
 # まず実験フォルダと終了理由・ログ・成果物を確認する
@@ -161,8 +184,8 @@ completeは記録完了の意味で、仮説の支持とは限らない。
 
 外部セッションはこのファイルを作り`enqueue PATH.json`で追加できる。reviewのnext_jobsも同じ形式。
 順位変更は仮説台帳で行い、state.jsonは直接編集しない。実験コードの編集前はpauseしworker終了を確認する。
-キュー操作とstatusは実行中も可能。実行可能課題がない場合、日次評価が無効ならworkerは終了する。
-日次評価が有効なら次の期限を待つ。max-jobs指定時は空キューで終了する。
+キュー操作とstatusは実行中も可能。実行可能課題がない場合も通常runは待機する。
+max-jobs指定時だけ実行可能課題がなければ終了する。上限にはレビュー済みの保留課題も数える。
 
 `configs/research_loop.json`の設定:
 

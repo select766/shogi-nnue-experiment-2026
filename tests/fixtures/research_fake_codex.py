@@ -33,6 +33,8 @@ if phase == "prepare":
         body += 'printf "completed offline computation\\n" > "$RUN_DIR/result-summary.md"\n'
     (directory / "run.sh").write_text(body)
     result = {"status": "ready", "summary": "prepared", "timeout_seconds": 1 if mode == "long" else 10}
+    if mode in {"deferred", "blocked"}:
+        result.update(status=mode, summary="Required provenance is missing")
 else:
     if mode == "review_failure":
         sys.exit(5)

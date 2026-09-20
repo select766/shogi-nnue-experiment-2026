@@ -80,7 +80,7 @@ def job_schema():
 
 
 def schema(phase):
-    properties = ({"status": {"type": "string", "enum": ["ready", "blocked"]},
+    properties = ({"status": {"type": "string", "enum": ["ready", "deferred", "blocked"]},
                    "summary": {"type": "string"}, "timeout_seconds": {"type": "integer"}}
                   if phase == "prepare" else
                   {"status": {"type": "string", "enum": ["complete", "blocked"]},
@@ -205,12 +205,18 @@ def prompt(phase, root, run_dir):
   retry時の挙動（checkpoint再開か最初からか）をhandoff.mdへ明記する。
 必要なrepoコードと5分以内の検査を実装し、対象仮説を検証中にする。新仮説は台帳に安定IDで登録する。
 run.shを自分で起動してはいけない。prepare後にあなたのプロセスが終了してから外側が実行する。
-最終JSONのstatusはreadyかblocked。timeout_secondsは本体の上限秒（job.jsonの設定上限以下）。
-blockedならsummaryに不足情報を明記し、長時間待たず終了する。
+最終JSONのstatusはready/deferred/blocked。timeout_secondsは本体の上限秒（job.jsonの設定上限以下）。
+データ・出典・科学的前提の不足で実験できない場合はdeferredとし、summaryとhandoff.mdに
+不足情報・再開条件・変更ファイルを記す。外側は計算をせず新規reviewで保留を記録して次課題へ進む。
+認証・権限・ツール故障、安全上の問題はblockedとし、全体を停止する。エラーをdeferredで隠さない。
 """
     return text + """
 このセッションの役割は結果解釈と研究判断。plan.md、handoff.md、execution.json、
 result-summary.md（存在すれば）、必要なartifactsだけを読み、ログはtail/rgで絞る。
+execution.jsonのreasonがpreparation_deferredなら実験本体は未実行。prepare.jsonと存在する引継ぎを読み、
+実験したと扱わず不足証跡・再開条件を結果文書に記録し、仮説をheldへ更新する。
+途中の実装も保存・検査・コミットし、clean worktreeにしてstatus completeを返す。
+同じ不足条件の課題を即時再提案しない。独立課題のdepends_onに保留中の今回IDを入れない。
 exit code 0だけで成功扱いしない。計画の標本数・完遂・データ分離を検査し、失敗/timeoutは
 未完了または保留とする。追加で5分超の計算が必要ならnext_jobsへ独立課題を追加して終了する。
 analysis.mdへ判断と次の課題を記録し、docs/research/results/へ恒久的な結果文書を作る。
@@ -246,6 +252,15 @@ def terminate_group(process, grace):
     except ProcessLookupError:
         pass
     process.wait()
+
+
+def defer_preparation(job, run_dir, summary):
+    """Record a non-execution, then require review before another workspace edit."""
+    if (run_dir / "execution.json").exists():
+        raise ValueError("execution record already exists; cannot defer preparation")
+    write_json(run_dir / "execution.json", {"phase": "execute", "exit_code": None,
+               "reason": "preparation_deferred", "summary": summary, "finished_at": now()})
+    job.update(status="queued", phase="review", message=summary, preparation_deferred=True)
 
 
 class Worker:
@@ -345,6 +360,7 @@ class Worker:
             with self.store.edit() as state:
                 saved = next(j for j in state["jobs"] if j["id"] == job_id)
                 saved["attempts"].append(str(run_dir))
+                saved.pop("preparation_deferred", None)
         else:
             run_dir = Path(job["attempts"][-1])
         with self.store.edit() as state:
@@ -384,6 +400,13 @@ class Worker:
             if set(result) != set(schema(phase)["required"]):
                 raise ValueError("unexpected structured response keys")
             if phase == "prepare":
+                if result["status"] == "deferred":
+                    with self.store.edit() as state:
+                        saved = next(j for j in state["jobs"] if j["id"] == job_id)
+                        defer_preparation(saved, run_dir, result["summary"])
+                        state["active"] = None
+                    print(f"Deferred preparation {job_id}: {result['summary']}", flush=True)
+                    return
                 if result["status"] != "ready":
                     raise ValueError(result["summary"])
                 seconds = result["timeout_seconds"]
@@ -400,10 +423,15 @@ class Worker:
                 next_phase = "execute"
             else:
                 self.validate_review(result, run_dir)
+                if job.get("preparation_deferred") and any(
+                    j["hypothesis"] == job["hypothesis"] for j in result["next_jobs"]
+                ):
+                    raise ValueError("deferred hypothesis needs new input, not an immediate replacement job")
                 with self.store.edit() as state:
                     add_jobs(state, result["next_jobs"], registry(self.root))
                     saved = next(j for j in state["jobs"] if j["id"] == job_id)
-                    saved.update(status="done", message=result["summary"], commit=result["commit"])
+                    saved.update(status="deferred" if job.get("preparation_deferred") else "done",
+                                 message=result["summary"], commit=result["commit"])
                     state["active"] = None
                 return
         else:
@@ -432,6 +460,7 @@ class Worker:
             if state["active"] is not None:
                 raise ValueError("unclean previous exit; use recover after checking recorded processes")
             completed = 0
+            idle_announced = False
             previous = {}
             for signum in (signal.SIGINT, signal.SIGTERM):
                 previous[signum] = signal.signal(signum, lambda *_: setattr(self, "stopping", True))
@@ -439,8 +468,10 @@ class Worker:
                 while not self.stopping:
                     state = self.store.snapshot()
                     if state["paused"]:
+                        print("Queue is paused; use resume then run to continue.", flush=True)
                         return 0
                     if any(j["status"] == "blocked" for j in state["jobs"]):
+                        print("Queue has blocked jobs; inspect status and resolve before continuing.", file=sys.stderr)
                         return 2
                     daily = self.config.get("daily_benchmark", {})
                     ongoing = any(j["status"] == "queued" and j["phase"] != "prepare" for j in state["jobs"])
@@ -456,10 +487,14 @@ class Worker:
                         state = self.store.snapshot()
                     job = choose(state, registry(self.root))
                     if job is None:
-                        if daily.get("enabled") and not max_jobs:
+                        if not max_jobs:
+                            if not idle_announced:
+                                print("No runnable research jobs; waiting for enqueue, daily benchmark, or pause (no Codex running).", flush=True)
+                                idle_announced = True
                             time.sleep(self.config["poll_seconds"])
                             continue
                         return 0
+                    idle_announced = False
                     try:
                         self.phase(job, lock)
                     except Exception as error:
@@ -467,7 +502,7 @@ class Worker:
                         print(f"Blocked {job['id']}: {error}", file=sys.stderr)
                         return 2
                     state = self.store.snapshot()
-                    if job.get("kind") != "daily_benchmark" and next(j for j in state["jobs"] if j["id"] == job["id"])["status"] == "done":
+                    if job.get("kind") != "daily_benchmark" and next(j for j in state["jobs"] if j["id"] == job["id"])["status"] in {"done", "deferred"}:
                         completed += 1
                     if max_jobs and completed >= max_jobs:
                         return 0
@@ -497,7 +532,7 @@ def main(argv=None):
     add = sub.add_parser("enqueue")
     add.add_argument("job_file", type=Path)
     run = sub.add_parser("run")
-    run.add_argument("--max-jobs", type=int, default=0, help="0: until queue empty or paused")
+    run.add_argument("--max-jobs", type=int, default=0, help="0: run indefinitely, including idle time, until paused or error")
     pause = sub.add_parser("pause")
     pause.add_argument("--now", action="store_true", help="terminate active process group")
     sub.add_parser("resume")
@@ -506,6 +541,8 @@ def main(argv=None):
     retry.add_argument("--phase", choices=["prepare", "execute", "review"], required=True)
     cancel = sub.add_parser("cancel")
     cancel.add_argument("job_id")
+    defer = sub.add_parser("defer", help="review a blocked preparation as a research deferral; no computation")
+    defer.add_argument("job_id")
     sub.add_parser("recover")
     sub.add_parser("benchmark-init")
     sub.add_parser("benchmark-enqueue")
@@ -548,7 +585,7 @@ def main(argv=None):
             with store.edit() as state:
                 state["paused"] = args.command == "pause"
                 state["interrupt"] = args.command == "pause" and args.now
-        elif args.command in {"retry", "recover", "cancel"}:
+        elif args.command in {"retry", "recover", "cancel", "defer"}:
             with store.worker_lock(), store.edit() as state:
                 if args.command == "recover":
                     active = state["active"]
@@ -570,6 +607,18 @@ def main(argv=None):
                     if job is None or job["status"] == "done":
                         raise ValueError("cancel requires an unfinished job")
                     job.update(status="cancelled", message="cancelled by operator; artifacts preserved")
+                elif args.command == "defer":
+                    if state["active"]:
+                        raise ValueError("recover the previous active phase first")
+                    job = next((j for j in state["jobs"] if j["id"] == args.job_id), None)
+                    if not job or job["status"] != "blocked" or job["phase"] != "prepare" or not job["attempts"]:
+                        raise ValueError("defer requires a blocked preparation with a completed session")
+                    directory = Path(job["attempts"][-1])
+                    process = read_json(directory / "prepare-process.json")
+                    result = read_json(directory / "prepare.json")
+                    if process["exit_code"] != 0 or process["reason"] != "exited" or result["status"] != "blocked":
+                        raise ValueError("defer requires a successful session reporting blocked; inspect real errors")
+                    defer_preparation(job, directory, result["summary"])
                 else:
                     if state["active"]:
                         raise ValueError("recover the previous active phase first")

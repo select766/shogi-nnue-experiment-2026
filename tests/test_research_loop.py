@@ -46,7 +46,7 @@ class ResearchLoopTest(unittest.TestCase):
             add_jobs(state, [{"id": key, "hypothesis": hypothesis, "task": "Offline test",
                               "depends_on": dependencies or []}], registry(self.root))
 
-    def run_worker(self, max_jobs=0):
+    def run_worker(self, max_jobs=1):
         return Worker(self.root, self.store, self.config).run(max_jobs)
 
     def events(self):
@@ -65,6 +65,82 @@ class ResearchLoopTest(unittest.TestCase):
         directory = Path(state["jobs"][0]["attempts"][0])
         # Fixture run.sh exits 17 if the preparer process is still alive.
         self.assertEqual(json.loads((directory / "execution.json").read_text())["exit_code"], 0)
+
+    def test_unlimited_idle_waits_without_daily_and_accepts_new_job(self):
+        sleeps = []
+
+        def idle(_):
+            sleeps.append(1)
+            if len(sleeps) == 1:
+                self.enqueue()
+            else:
+                with self.store.edit() as state:
+                    state["paused"] = True
+
+        def complete(worker, job, lock):
+            with self.store.edit() as state:
+                state["jobs"][0]["status"] = "done"
+
+        with patch("train_nnue.research_loop.time.sleep", side_effect=idle), patch.object(Worker, "phase", complete):
+            self.assertEqual(self.run_worker(max_jobs=0), 0)
+        self.assertEqual(len(sleeps), 2)
+        self.assertEqual(self.events(), [])
+        self.assertEqual(self.store.snapshot()["jobs"][0]["status"], "done")
+
+    def test_bounded_empty_queue_exits(self):
+        self.assertEqual(self.run_worker(max_jobs=1), 0)
+
+    def test_deferred_prepare_is_reviewed_without_compute_then_independent_job_runs(self):
+        self.mode.write_text("deferred")
+        self.enqueue("missing", "H-TWO")
+        self.enqueue("dependent", "H-ONE", ["missing"])
+        self.enqueue("independent", "H-ONE")
+        self.assertEqual(self.run_worker(max_jobs=2), 0)
+        state = self.store.snapshot()
+        self.assertEqual([j["status"] for j in state["jobs"]], ["deferred", "queued", "deferred"])
+        self.assertFalse(state["paused"])
+        self.assertEqual([v["phase"] for v in self.events()], ["prepare", "review", "prepare", "review"])
+        directory = Path(state["jobs"][0]["attempts"][0])
+        execution = json.loads((directory / "execution.json").read_text())
+        self.assertEqual(execution["reason"], "preparation_deferred")
+        self.assertIsNone(execution["exit_code"])
+        self.assertFalse((directory / "result-summary.md").exists())
+        self.assertIsNone(choose(state, registry(self.root)))
+
+    def test_legacy_blocked_preparation_can_be_explicitly_deferred(self):
+        self.mode.write_text("blocked")
+        self.enqueue()
+        self.assertEqual(self.run_worker(), 2)
+        with patch("train_nnue.research_loop.ROOT", self.root):
+            self.assertEqual(main(["defer", "first"]), 0)
+            self.assertTrue(self.store.snapshot()["paused"])
+            self.assertEqual(main(["resume"]), 0)
+        self.assertEqual(self.run_worker(), 0)
+        self.assertEqual(self.store.snapshot()["jobs"][0]["status"], "deferred")
+        self.assertEqual([v["phase"] for v in self.events()], ["prepare", "review"])
+
+    def test_failed_session_cannot_be_deferred(self):
+        self.mode.write_text("prepare_failure")
+        self.enqueue()
+        self.assertEqual(self.run_worker(), 2)
+        with patch("train_nnue.research_loop.ROOT", self.root):
+            self.assertEqual(main(["defer", "first"]), 2)
+        self.assertEqual(self.store.snapshot()["jobs"][0]["status"], "blocked")
+
+    def test_deferred_review_failure_stops_before_independent_work(self):
+        self.mode.write_text("blocked")
+        self.enqueue("missing", "H-TWO")
+        self.enqueue("independent")
+        self.assertEqual(self.run_worker(), 2)
+        with patch("train_nnue.research_loop.ROOT", self.root):
+            self.assertEqual(main(["defer", "missing"]), 0)
+            self.assertEqual(main(["resume"]), 0)
+        self.mode.write_text("review_failure")
+        self.assertEqual(self.run_worker(), 2)
+        state = self.store.snapshot()
+        self.assertTrue(state["paused"])
+        self.assertEqual([j["status"] for j in state["jobs"]], ["blocked", "queued"])
+        self.assertEqual([v["phase"] for v in self.events()], ["prepare", "review"])
 
     def test_failed_compute_is_reviewed(self):
         self.mode.write_text("compute_failure")

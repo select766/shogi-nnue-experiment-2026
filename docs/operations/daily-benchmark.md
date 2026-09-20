@@ -79,7 +79,7 @@ bash scripts/research_loop.sh pause --now
 ```
 
 設定はresearch_loop.jsonのdaily_benchmarkで、既定enabled=true、interval_seconds=86400、
-timeout_seconds=43200。通常のrunは研究キューが空でもプロセスを維持して次回を待つ。
+timeout_seconds=43200。通常のrunは研究キューが空でもプロセスを維持して次回を待つ（日次無効時も待機）。
 この待機中はCodexを起動しない。`run --max-jobs N`はN件の研究課題で終了し、定点評価はNに数えない。
 キューが空の場合はこの上限付きrunは定点評価後に終了する。workerが終了/停止中は評価しない。
 
