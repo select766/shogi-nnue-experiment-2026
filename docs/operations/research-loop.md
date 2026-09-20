@@ -85,14 +85,15 @@ Codexの失敗、不正な出力、検査不通過ではキュー全体をpaused
 
 ### 研究上の保留と実行エラーの区別
 
-prepareでデータ・出典など研究上の前提が不足する場合は、`status: deferred`を返す。
-管理側は計算を起動せず、`execution.json`へ`reason: preparation_deferred`・`exit_code: null`を記録し、
-新規reviewへ渡す。reviewで不足条件・未実行を結果文書に記録し、仮説をheldへ更新し、
-途中の実装も検査・コミットしてからジョブをdeferredにする。それまでは別課題を開始しない。
-保留課題を完了扱いしないので、これに依存するジョブは待機するが、独立課題と日次評価は継続する。
-同じ仮説の即時再提案は禁止。新しい入力が得られたら別IDで課題をenqueueする。
+現行規則は[自律研究方針](research-autonomy.md)。通常不足はprepareで`replan`を返し、
+計算せずreviewへ渡す。途中実装・結果・台帳を検査/コミット後、同一ジョブの新attemptへ
+再計画（同一仮説累計2回まで）または`abandoned`として手法を打ち切る。
+打切りは科学的棄却ではない。依存ジョブはcancelledとなり、独立課題・日次は続く。
+人間待ち`needs_human`は限定された承認/来歴質問だけ。`answer JOB_ID ANSWER_FILE`で回答を
+記録し新prepareへ渡す。詳細・resolution.json形式は上記方針を参照する。
+旧`deferred`入力と`reason: preparation_deferred`は互換用に残すが、人間待ちには変換しない。
 
-認証・権限・ツール故障、安全上の問題は従来どおりblockedで全体停止する。
+Codex認証・セッション故障・不正出力は従来どおりblockedで全体停止する。
 保留review自体が失敗した場合も停止し、未コミット変更を放置して次課題へ進まない。
 
 旧版で研究上の入力不足をblockedにした場合だけ、ログを確認して次を使う。

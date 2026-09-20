@@ -9,7 +9,7 @@ import time
 import unittest
 from unittest.mock import patch
 
-from train_nnue.research_loop import Store, Worker, add_jobs, choose, main, registry, write_json
+from train_nnue.research_loop import Store, Worker, add_jobs, choose, finish_review, main, registry, write_json
 
 FIXTURE = Path(__file__).parent / "fixtures/research_fake_codex.py"
 
@@ -97,7 +97,7 @@ class ResearchLoopTest(unittest.TestCase):
         self.enqueue("independent", "H-ONE")
         self.assertEqual(self.run_worker(max_jobs=2), 0)
         state = self.store.snapshot()
-        self.assertEqual([j["status"] for j in state["jobs"]], ["deferred", "queued", "deferred"])
+        self.assertEqual([j["status"] for j in state["jobs"]], ["abandoned", "cancelled", "abandoned"])
         self.assertFalse(state["paused"])
         self.assertEqual([v["phase"] for v in self.events()], ["prepare", "review", "prepare", "review"])
         directory = Path(state["jobs"][0]["attempts"][0])
@@ -116,7 +116,7 @@ class ResearchLoopTest(unittest.TestCase):
             self.assertTrue(self.store.snapshot()["paused"])
             self.assertEqual(main(["resume"]), 0)
         self.assertEqual(self.run_worker(), 0)
-        self.assertEqual(self.store.snapshot()["jobs"][0]["status"], "deferred")
+        self.assertEqual(self.store.snapshot()["jobs"][0]["status"], "abandoned")
         self.assertEqual([v["phase"] for v in self.events()], ["prepare", "review"])
 
     def test_failed_session_cannot_be_deferred(self):
@@ -126,6 +126,83 @@ class ResearchLoopTest(unittest.TestCase):
         with patch("train_nnue.research_loop.ROOT", self.root):
             self.assertEqual(main(["defer", "first"]), 2)
         self.assertEqual(self.store.snapshot()["jobs"][0]["status"], "blocked")
+
+    def test_replans_are_bounded_persisted_and_no_compute_runs(self):
+        self.mode.write_text("replan")
+        self.enqueue()
+        self.assertEqual(self.run_worker(), 0)
+        state = self.store.snapshot()
+        job = state["jobs"][0]
+        self.assertEqual(job["status"], "abandoned")
+        self.assertFalse(state["paused"])
+        self.assertEqual(len(job["attempts"]), 3)
+        self.assertEqual(len(job["replan_history"]), 2)
+        last = Path(job["attempts"][-1])
+        context = json.loads((last / "job.json").read_text())
+        self.assertEqual(context["replans_remaining"], 0)
+        self.assertEqual(len(context["replan_history"]), 2)
+        self.assertEqual(context["task"], "Use a recorded alternative")
+        self.assertEqual([e["phase"] for e in self.events()], ["prepare", "review"] * 3)
+        self.assertFalse((last / "result-summary.md").exists())
+
+    def test_replan_budget_is_shared_across_job_ids(self):
+        self.mode.write_text("replan")
+        self.enqueue()
+        self.assertEqual(self.run_worker(), 0)
+        self.enqueue("new-id")
+        self.assertEqual(self.run_worker(), 0)
+        job = self.store.snapshot()["jobs"][1]
+        self.assertEqual(job["status"], "abandoned")
+        self.assertEqual(len(job["attempts"]), 1)
+
+    def test_human_wait_does_not_stop_independent_work_and_answer_is_carried(self):
+        self.mode.write_text("needs_human")
+        self.enqueue("question", "H-TWO")
+        self.enqueue("dependent", "H-ONE", ["question"])
+        self.enqueue("independent", "H-ONE")
+        self.assertEqual(self.run_worker(max_jobs=2), 0)
+        state = self.store.snapshot()
+        self.assertEqual([j["status"] for j in state["jobs"]], ["needs_human", "queued", "needs_human"])
+        self.assertFalse(state["paused"])
+        answer = self.store.directory / "answer.txt"
+        answer.write_text("Do not use the unknown file; use the catalog corpus.")
+        with patch("train_nnue.research_loop.ROOT", self.root):
+            self.assertEqual(main(["answer", "question", str(answer)]), 0)
+        self.mode.write_text("success")
+        self.assertEqual(self.run_worker(), 0)
+        job = self.store.snapshot()["jobs"][0]
+        context = json.loads((Path(job["attempts"][-1]) / "job.json").read_text())
+        self.assertEqual(context["human_answers"][0]["answer"], answer.read_text())
+        self.assertEqual(job["status"], "done")
+        self.assertEqual(self.run_worker(), 0)  # dependent job sees the recorded answer too
+        dependent = self.store.snapshot()["jobs"][1]
+        inherited = json.loads((Path(dependent["attempts"][-1]) / "job.json").read_text())
+        self.assertEqual(inherited["human_decisions"][0]["job_id"], "question")
+        self.assertEqual(inherited["human_decisions"][0]["answer"], answer.read_text())
+
+    def test_normal_shortage_cannot_be_classified_as_human_wait(self):
+        self.mode.write_text("invalid_human")
+        self.enqueue()
+        self.assertEqual(self.run_worker(), 2)
+        self.assertIn("allowed category", self.store.snapshot()["jobs"][0]["message"])
+
+    def test_abandoned_cancels_transitive_dependencies(self):
+        self.mode.write_text("deferred")
+        self.enqueue()
+        self.enqueue("child", dependencies=["first"])
+        self.enqueue("grandchild", dependencies=["child"])
+        self.assertEqual(self.run_worker(), 0)
+        self.assertEqual([j["status"] for j in self.store.snapshot()["jobs"]],
+                         ["abandoned", "cancelled", "cancelled"])
+
+    def test_unresolved_review_cannot_bypass_budget_with_followup(self):
+        self.enqueue()
+        state = self.store.snapshot()
+        result = {"status": "abandoned", "summary": "closed", "commit": "test", "report": "test",
+                  "next_jobs": [{"id": "bypass", "hypothesis": "H-ONE", "task": "same", "depends_on": []}]}
+        with self.assertRaisesRegex(ValueError, "same-hypothesis"):
+            finish_review(state, "first", result, self.store.directory, registry(self.root))
+        self.assertEqual(len(state["jobs"]), 1)
 
     def test_deferred_review_failure_stops_before_independent_work(self):
         self.mode.write_text("blocked")

@@ -35,6 +35,8 @@ if phase == "prepare":
     result = {"status": "ready", "summary": "prepared", "timeout_seconds": 1 if mode == "long" else 10}
     if mode in {"deferred", "blocked"}:
         result.update(status=mode, summary="Required provenance is missing")
+    if mode in {"replan", "needs_human", "invalid_human"}:
+        result.update(status="replan", summary="Try another approach")
 else:
     if mode == "review_failure":
         sys.exit(5)
@@ -48,6 +50,12 @@ else:
     sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
     result = {"status": "complete", "summary": "reviewed", "commit": sha,
               "report": "docs/research/results/fake/README.md", "next_jobs": []}
+    if mode in {"replan", "needs_human", "invalid_human"}:
+        result["status"] = "replan" if mode == "replan" else "needs_human"
+        (directory / "resolution.json").write_text(json.dumps({
+            "obstacle": "missing input", "attempted": "checked disk catalog",
+            "next_task": "Use a recorded alternative", "question": "Who supplied this game file?",
+            "category": "missing_samples" if mode == "invalid_human" else "unknown_data_provenance"}))
     if mode == "next_job":
         result["next_jobs"] = [{"id": "followup", "hypothesis": "H-TWO", "task": "Next task",
                                 "depends_on": [os.environ["RESEARCH_JOB_ID"]]}]

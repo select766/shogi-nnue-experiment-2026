@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "policy": "docs/operations/research-autonomy.md",
+  "datasets": [
+    {
+      "id": "floodgate2025-curated-v1",
+      "status": "available",
+      "provenance": "User-requested official 2025 archive; verified and fully replayed 2026-09-20",
+      "source_url": "https://wdoor.c.u-tokyo.ac.jp/shogi/archive/wdoor2025.7z",
+      "archive_sha256": "423504903f211316ec40f9c3d8dcc2e5faf392fc4d1334ede1489242a9d09baa",
+      "manifest": "dataset/floodgate2025/curated-v1/manifest.json",
+      "manifest_sha256": "31a8d11f675285ecb8ff8ecbeacf6838f3a178412ba605836b98617d85d5f2f3",
+      "documentation": "docs/operations/floodgate2025.md",
+      "games": 38351,
+      "positions": 5710803,
+      "minimum_rating_both_players": 3500,
+      "paths": {
+        "full_games": "dataset/floodgate2025/curated-v1/games.jsonl.gz",
+        "ply_analysis": "dataset/floodgate2025/curated-v1/positions.jsonl.gz",
+        "development": "dataset/floodgate2025/curated-v1/development.jsonl",
+        "selection": "dataset/floodgate2025/curated-v1/validation.jsonl",
+        "final_test": "dataset/floodgate2025/curated-v1/test.jsonl",
+        "match_pool": "dataset/floodgate2025/curated-v1/match.jsonl"
+      },
+      "limitations": "Known overlaps excluded, not exhaustive pretraining ancestry. bestmove is recorded move, not a new 1M-node teacher. Keep game splits; do not train on test/match. No changes to existing daily series."
+    },
+    {
+      "id": "floodgate2025-match-plan-v1",
+      "status": "available",
+      "provenance": "Deterministic disjoint subsets of floodgate2025-curated-v1 match pool",
+      "manifest": "dataset/floodgate2025/match-plan-v1/manifest.json",
+      "manifest_sha256": "7e95ae6ba79537616c7554bef94dfeec1d51399cc453aa216f8f464dda92a7af",
+      "paths": {
+        "cost_8": "dataset/floodgate2025/match-plan-v1/cost8.jsonl",
+        "formal_10000": "dataset/floodgate2025/match-plan-v1/openings10000.jsonl",
+        "reserve_1324": "dataset/floodgate2025/match-plan-v1/reserve.jsonl"
+      },
+      "limitations": "Preregister history treatment, reset/clear, stopping and analysis before matches. Do not replace openings based on outcomes."
+    }
+  ],
+  "existing_data": "AGENTS.md and docs/operations/data-preparation.md describe other disk inputs. Unknown provenance: consolidate questions to user; do not invent it.",
+  "generated_games": "Allowed with existing engines. Record engine/model hashes, options, seeds, nodes/time, starts, full moves, results, generator version and split rules. Schedule long generation as external compute.",
+  "new_external_downloads": "Only with an explicit user request; no routine human data-supply prerequisite."
+}

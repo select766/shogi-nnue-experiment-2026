@@ -1,0 +1,6 @@
+{
+  "id": "decision-replication-cost-floodgate2025",
+  "hypothesis": "H-DECISION-REPLICATION",
+  "task": "旧decision-replication-manifestは未実行で終了し、docs/research/results/research-loop-autonomy-20260920/README.mdの方針で置換した。configs/research_data.jsonの利用可能なFloodgate2025最終版とmatch-plan-v1を使う。cost8.jsonlの固定8開始局面で候補対対照の先後ペア16局を費用・手順確認専用に実施する。元棋譜履歴の取扱い、毎局reset、clear、反復と連続王手の裁定、モデル/engine hashを事前に固定しqualificationの成果を使う。8棋譜の成績でモデルや正式条件を選ばない。openings10000.jsonlの正式20,000局について主指標・ペア単位推論・成功/未確定基準・再開と打切り規則を事前登録する。対局計算はrun.shにしCodex終了後に外側で実行する。費用に基づき6時間以内のchunkを次ジョブにする。本ジョブでは正式20,000局は起動しない。既知の重複除外と未確認祖先を明記し、完全分離証明やユーザーによる追加棋譜供給を再要求しない。通常不足は自律方針に従い代替策を検討する。",
+  "depends_on": ["match-protocol-qualification"]
+}

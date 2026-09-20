@@ -32,11 +32,15 @@
 <!-- hypothesis id=H-DECISION-REPLICATION status=unverified priority=1 -->
 ### H-DECISION-REPLICATION: Decision-alignedの小効果が独立標本と明示した対局手順で再現する
 
-- 状態: 未検証。[手順pilot](results/match-protocol-pilot-20260920/README.md)は56局を完遂し手順合格。
+- 状態: 未検証。旧decision-replication-manifest / attempt-001は未実行で手法を終了。
+  [手順pilot](results/match-protocol-pilot-20260920/README.md)は56局を完遂し手順合格。
+  [再開準備](results/research-loop-autonomy-20260920/README.md)で整備済みFloodgate 2025を登録し、
+  全祖先の分離証明という実現困難な開始条件を撤回した。人間の追加棋譜提供は不要。
   棋力の独立再現は未着手。旧14,000局を合算しない。
-- 次: 旧train/教師/選抜/対局/accuracyを除外した新規10,000棋譜の開始局面manifestを先に固定。
-  棋譜ID・除外を証明できなければ正式追試は保留。履歴・reset・clearありの20,000局を
-  6時間以内のchunkへ分割し、全完了後に一度だけ判定。その後seed 43,44への転移を調べる。
+- 次: 手順qualification完了後、固定cost8で履歴取扱い・reset・clear条件の費用を測定する。
+  match-plan-v1の固定10,000棋譜による20,000局を6時間以内のchunkへ分割し、
+  全完了後に一度だけ判定。既知の除外範囲と未確認祖先を明示し、完全独立とは呼ばない。
+  その後seed 43,44への転移を調べる。費用不足は再設計し、データ増量を人間へ要求しない。
 
 <!-- hypothesis id=H-MATCH-PROTOCOL status=held priority=2 -->
 ### H-MATCH-PROTOCOL: 履歴と動的重みのキャッシュ管理が棋力差の推定に影響する
@@ -295,4 +299,5 @@
 | [2026-09-20研究レビュー](results/research-review-20260920/README.md) | H-RESEARCH-AUDIT, H-DECISION-ALIGNED-LOSS, H-TAIL-OBJECTIVE, H-ROOT-FEATURES, H-ROOT-REPRESENTATION, H-ROOT-SEARCH-STATS, H-TASK-ALIGNED-EXPERTS, H-EXPERT-DIVERSITY, H-LEAF-LOSS-STRENGTH, H-MATCH-PROTOCOL, H-DECISION-REPLICATION, H-DEPLOYMENT-STRENGTH, H-CONDITIONAL-ROUTING, H-DECISION-HORIZON | ペア再解析で旧条件の小効果を維持し、判定範囲を限定。履歴・TT・独立性と配備価値を次期仮説へ分離 |
 | [対局手順pilot](results/match-protocol-pilot-20260920/README.md) | H-MATCH-PROTOCOL, H-DECISION-REPLICATION, H-DAILY-ADJUDICATION | 7開始局面56局・6,034探索の手順合格。棋力影響は保留、独立追試manifestと日次裁定を課題化 |
 | [Floodgate 2025データ整備](results/floodgate2025-preparation/README.md) | H-FLOODGATE-2025, H-DECISION-REPLICATION | 双方R3500以上38,351棋譜・実手数付き571万局面、棋譜分離と固定対局用1万局面を整備 |
+| [自律研究ループの再開準備](results/research-loop-autonomy-20260920/README.md) | H-DECISION-REPLICATION, H-FLOODGATE-2025 | 整備済み入力を登録し、完全分離証明の要求を撤回。通常不足は有界再計画または手法終了へ |
 <!-- result-ledger:end -->

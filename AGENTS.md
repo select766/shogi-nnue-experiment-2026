@@ -50,9 +50,11 @@ Pythonを手動でactivateしない。`python`、`uv run`、`PYTHONPATH=...`を�
 - 仮説の優先順位は従来どおり`docs/research/hypotheses.md`を唯一の正本とする。
   実行状態は`.research-loop/`、引継ぎは課題ごとのattemptフォルダに保存する。
 - 中断後の計算を自動再実行しない。成果物を確認して`retry --phase`を明示する。
-- 通常runは空キューでも無期限待機する。研究上のデータ・出典不足はprepareでdeferredとし、
-  計算せずreviewで保留記録・台帳更新・コミットを終えてから独立課題へ進む。
-  認証・権限・実行エラーはblockedで全体停止し、研究上の保留と混同しない。
+- 通常runは空キューでも無期限待機する。`docs/operations/research-autonomy.md`を必ず読み、
+  通常不足は代替策へ再計画（同一仮説累計2回まで）か手法打切りとし、人間待ちにしない。
+  `needs_human`は契約・支払・破壊的変更・既存棋譜の来歴質問だけ。独立課題と日次は継続する。
+  認証・セッション故障・検査/コミット失敗は実行エラーとしてblockedで停止する。
+  `configs/research_data.json`の整備済みデータを利用し、不可能な完全分離証明を再要求しない。
 - 約1日1回、最良候補の固定正解率と対基準勝率を日次ジョブで測る。
   詳細は`docs/operations/daily-benchmark.md`。日次計算中もCodexを起動しない。
 - 最良候補は`configs/research_champion.json`。独立した選抜根拠を記録して更新・コミットする。
