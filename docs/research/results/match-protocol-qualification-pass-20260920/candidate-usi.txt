@@ -1,0 +1,2002 @@
+> usi
+< id name YaneuraOu NNUE 9.01git 64AVX2
+< id author yaneurao
+< option name Threads type spin default 4 min 1 max 1024
+< option name NumaPolicy type string default auto
+< option name USI_Ponder type check default false
+< option name Stochastic_Ponder type check default false
+< option name DepthLimit type spin default 0 min 0 max 2147483647
+< option name NodesLimit type spin default 0 min 0 max 9223372036854775807
+< option name DebugLogFile type string default <empty>
+< option name USI_Hash type spin default 1024 min 1 max 33554432
+< option name MultiPV type spin default 1 min 1 max 600
+< option name DrawValueBlack type spin default -2 min -30000 max 30000
+< option name DrawValueWhite type spin default -2 min -30000 max 30000
+< option name ResignValue type spin default 99999 min 0 max 99999
+< option name ExpertBlendingDir type string default <empty>
+< option name ExpertBlendingGateLogitBias type string default <empty>
+< option name ExpertBlendingRootSearchStatistics type string default <empty>
+< option name SearchLeafSamples type spin default 0 min 0 max 64
+< option name SearchLeafSeed type spin default 20260824 min 0 max 2147483647
+< option name ClearTTOnDynamicWeights type check default false
+< option name LogDynamicWeightCache type check default false
+< option name MaxMovesToDraw type spin default 0 min 0 max 100000
+< option name PvInterval type spin default 300 min 0 max 100000000
+< option name ConsiderationMode type check default false
+< option name OutputFailLHPV type check default true
+< option name GenerateAllLegalMoves type check default false
+< option name EnteringKingRule type combo default CSARule27 var NoEnteringKing var CSARule24 var CSARule24H var CSARule27 var CSARule27H var TryRule
+< option name NetworkDelay type spin default 120 min 0 max 10000
+< option name NetworkDelay2 type spin default 1120 min 0 max 10000
+< option name MinimumThinkingTime type spin default 2000 min 1000 max 100000
+< option name SlowMover type spin default 100 min 1 max 1000
+< option name USI_OwnBook type check default true
+< option name NarrowBook type check default false
+< option name BookMoves type spin default 16 min 0 max 10000
+< option name BookIgnoreRate type spin default 0 min 0 max 100
+< option name BookFile type combo default standard_book.db var no_book var standard_book.db var yaneura_book1.db var yaneura_book2.db var yaneura_book3.db var yaneura_book4.db var user_book1.db var user_book2.db var user_book3.db var book.bin
+< option name BookDir type string default book
+< option name BookEvalDiff type spin default 30 min 0 max 99999
+< option name BookEvalBlackLimit type spin default 0 min -99999 max 99999
+< option name BookEvalWhiteLimit type spin default -140 min -99999 max 99999
+< option name BookDepthLimit type spin default 16 min 0 max 99999
+< option name BookOnTheFly type check default false
+< option name ConsiderBookMoveCount type check default false
+< option name BookPvMoves type spin default 8 min 1 max 246
+< option name IgnoreBookPly type check default false
+< option name FlippedBook type check default true
+< option name EvalDir type string default eval
+< option name FV_SCALE type spin default 16 min 1 max 128
+< usiok
+> setoption name Threads value 1
+> setoption name USI_Hash value 16
+> setoption name MultiPV value 1
+> setoption name USI_Ponder value false
+> setoption name BookFile value no_book
+> setoption name ResignValue value 99999
+> setoption name EvalDir value /home/select766/shogi/train-nnue/bin/eval
+> setoption name ExpertBlendingDir value /home/select766/shogi/train-nnue/tmp/decision_aligned_candidate_release
+> setoption name ClearTTOnDynamicWeights value true
+> setoption name LogDynamicWeightCache value true
+> setoption name GenerateAllLegalMoves value true
+> isready
+< info string Using 1 thread
+< info string ExpertBlending: init dir=/home/select766/shogi/train-nnue/tmp/decision_aligned_candidate_release
+< info string ExpertBlending: head.bin loaded: F=125388 L1=256 mode=weighted expert_bytes=64216868
+< info string ExpertBlending: backbone.onnx loaded
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> setoption name ClearTTOnDynamicWeights value false
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 836 hashfull 0 time 153 pv 5i6i 5a5b
+< bestmove 5i6i ponder 5a5b
+> position sfen 4k4/9/9/9/9/9/9/9/3K5 w - 2
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp 167 nodes 129 nps 928 hashfull 0 time 139 pv 5a6a
+< bestmove 5a6a ponder 6i6h
+> position sfen 3k5/9/9/9/9/9/9/9/3K5 b - 3
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp -184 nodes 128 nps 934 hashfull 0 time 137 pv 6i5i 6a5b 5i6i 5b4a
+< bestmove 6i5i ponder 6a5b
+> position sfen 3k5/9/9/9/9/9/9/9/4K4 w - 4
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp 121 nodes 128 nps 934 hashfull 0 time 137 pv 6a5a
+< bestmove 6a5a ponder 5i6h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 5
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 2 seldepth 5 multipv 1 score cp -167 upperbound nodes 129 nps 928 hashfull 0 time 139 pv 5i6i 5a4a
+< bestmove 5i6i ponder 5a4a
+> position sfen 4k4/9/9/9/9/9/9/9/3K5 w - 6
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 126 lowerbound nodes 128 nps 927 hashfull 0 time 138 pv 5a6a
+< bestmove 5a6a ponder 6i5i
+> position sfen 3k5/9/9/9/9/9/9/9/3K5 b - 7
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp -164 nodes 128 nps 927 hashfull 0 time 138 pv 6i5i 6a5a
+< bestmove 6i5i ponder 6a5a
+> position sfen 3k5/9/9/9/9/9/9/9/4K4 w - 8
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp 170 nodes 129 nps 934 hashfull 0 time 138 pv 6a5a 5i6h
+< bestmove 6a5a ponder 5i6h
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 831 hashfull 0 time 154 pv 5i6i 5a5b
+< bestmove 5i6i ponder 5a5b
+> position sfen 4k4/9/9/9/9/9/9/9/3K5 w - 2
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp 167 nodes 129 nps 928 hashfull 0 time 139 pv 5a6a
+< bestmove 5a6a ponder 6i6h
+> position sfen 3k5/9/9/9/9/9/9/9/3K5 b - 3
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp -184 nodes 128 nps 914 hashfull 0 time 140 pv 6i5i 6a5b 5i6i 5b4a
+< bestmove 6i5i ponder 6a5b
+> position sfen 3k5/9/9/9/9/9/9/9/4K4 w - 4
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp 121 nodes 128 nps 920 hashfull 0 time 139 pv 6a5a
+< bestmove 6a5a ponder 5i6h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 5
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 2 seldepth 5 multipv 1 score cp -167 upperbound nodes 129 nps 928 hashfull 0 time 139 pv 5i6i 5a4a
+< bestmove 5i6i ponder 5a4a
+> position sfen 4k4/9/9/9/9/9/9/9/3K5 w - 6
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 126 lowerbound nodes 128 nps 920 hashfull 0 time 139 pv 5a6a
+< bestmove 5a6a ponder 6i5i
+> position sfen 3k5/9/9/9/9/9/9/9/3K5 b - 7
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp -164 nodes 128 nps 920 hashfull 0 time 139 pv 6i5i 6a5a
+< bestmove 6i5i ponder 6a5a
+> position sfen 3k5/9/9/9/9/9/9/9/4K4 w - 8
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp 170 nodes 129 nps 928 hashfull 0 time 139 pv 6a5a 5i6h
+< bestmove 6a5a ponder 5i6h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 9
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp -175 nodes 130 nps 935 hashfull 0 time 139 pv 5i6i 5a4a 6i6h
+< bestmove 5i6i ponder 5a4a
+> position sfen 4k4/9/9/9/9/9/9/9/3K5 w - 10
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 118 nodes 128 nps 920 hashfull 0 time 139 pv 5a6a 6i7i
+< bestmove 5a6a ponder 6i7i
+> position sfen 3k5/9/9/9/9/9/9/9/3K5 b - 11
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp -170 nodes 128 nps 920 hashfull 0 time 139 pv 6i5i 6a5a
+< bestmove 6i5i ponder 6a5a
+> position sfen 3k5/9/9/9/9/9/9/9/4K4 w - 12
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp 128 nodes 128 nps 920 hashfull 0 time 139 pv 6a5a
+< bestmove 6a5a ponder 5i5h
+> setoption name ClearTTOnDynamicWeights value true
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 805 hashfull 0 time 159 pv 5i6i 5a5b
+< bestmove 5i6i ponder 5a5b
+> position sfen 4k4/9/9/9/9/9/9/9/3K5 w - 2
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 878 hashfull 0 time 148 pv 5a6a 6i5h
+< bestmove 5a6a ponder 6i5h
+> position sfen 3k5/9/9/9/9/9/9/9/3K5 b - 3
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 895 hashfull 0 time 144 pv 6i5i 6a5a
+< bestmove 6i5i ponder 6a5a
+> position sfen 3k5/9/9/9/9/9/9/9/4K4 w - 4
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 902 hashfull 0 time 144 pv 6a5a 5i4h
+< bestmove 6a5a ponder 5i4h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 5
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 888 hashfull 0 time 144 pv 5i6i 5a5b
+< bestmove 5i6i ponder 5a5b
+> position sfen 4k4/9/9/9/9/9/9/9/3K5 w - 6
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 5a6a 6i5h
+< bestmove 5a6a ponder 6i5h
+> position sfen 3k5/9/9/9/9/9/9/9/3K5 b - 7
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 889 hashfull 0 time 145 pv 6i5i 6a5a
+< bestmove 6i5i ponder 6a5a
+> position sfen 3k5/9/9/9/9/9/9/9/4K4 w - 8
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 902 hashfull 0 time 144 pv 6a5a 5i4h
+< bestmove 6a5a ponder 5i4h
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 810 hashfull 0 time 158 pv 5i6i 5a5b
+< bestmove 5i6i ponder 5a5b
+> position sfen 4k4/9/9/9/9/9/9/9/3K5 w - 2
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=6
+< info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 5a6a 6i5h
+< bestmove 5a6a ponder 6i5h
+> position sfen 3k5/9/9/9/9/9/9/9/3K5 b - 3
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 860 hashfull 0 time 150 pv 6i5i 6a5a
+< bestmove 6i5i ponder 6a5a
+> position sfen 3k5/9/9/9/9/9/9/9/4K4 w - 4
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=6
+< info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 6a5a 5i4h
+< bestmove 6a5a ponder 5i4h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 5
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 888 hashfull 0 time 144 pv 5i6i 5a5b
+< bestmove 5i6i ponder 5a5b
+> position sfen 4k4/9/9/9/9/9/9/9/3K5 w - 6
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 5a6a 6i5h
+< bestmove 5a6a ponder 6i5h
+> position sfen 3k5/9/9/9/9/9/9/9/3K5 b - 7
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 895 hashfull 0 time 144 pv 6i5i 6a5a
+< bestmove 6i5i ponder 6a5a
+> position sfen 3k5/9/9/9/9/9/9/9/4K4 w - 8
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 902 hashfull 0 time 144 pv 6a5a 5i4h
+< bestmove 6a5a ponder 5i4h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 9
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 882 hashfull 0 time 145 pv 5i6i 5a5b
+< bestmove 5i6i ponder 5a5b
+> position sfen 4k4/9/9/9/9/9/9/9/3K5 w - 10
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=6
+< info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 902 hashfull 0 time 144 pv 5a6a 6i5h
+< bestmove 5a6a ponder 6i5h
+> position sfen 3k5/9/9/9/9/9/9/9/3K5 b - 11
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 889 hashfull 0 time 145 pv 6i5i 6a5a
+< bestmove 6i5i ponder 6a5a
+> position sfen 3k5/9/9/9/9/9/9/9/4K4 w - 12
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 6a5a 5i4h
+< bestmove 6a5a ponder 5i4h
+> setoption name ClearTTOnDynamicWeights value false
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 920 hashfull 0 time 139 pv 5i6i 5a5b
+< bestmove 5i6i ponder 5a5b
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp 167 nodes 129 nps 934 hashfull 0 time 138 pv 5a6a
+< bestmove 5a6a ponder 6i6h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp -184 nodes 128 nps 927 hashfull 0 time 138 pv 6i5i 6a5b 5i6i 5b4a
+< bestmove 6i5i ponder 6a5b
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp 121 nodes 128 nps 927 hashfull 0 time 138 pv 6a5a
+< bestmove 6a5a ponder 5i6h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 2 seldepth 5 multipv 1 score cp -167 upperbound nodes 129 nps 941 hashfull 0 time 137 pv 5i6i 5a4a
+< bestmove 5i6i ponder 5a4a
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 126 lowerbound nodes 128 nps 927 hashfull 0 time 138 pv 5a6a
+< bestmove 5a6a ponder 6i5i
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp -164 nodes 128 nps 927 hashfull 0 time 138 pv 6i5i 6a5a
+< bestmove 6i5i ponder 6a5a
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp 170 nodes 129 nps 934 hashfull 0 time 138 pv 6a5a 5i6h
+< bestmove 6a5a ponder 5i6h
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 831 hashfull 0 time 154 pv 5i6i 5a5b
+< bestmove 5i6i ponder 5a5b
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp 167 nodes 129 nps 934 hashfull 0 time 138 pv 5a6a
+< bestmove 5a6a ponder 6i6h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp -184 nodes 128 nps 914 hashfull 0 time 140 pv 6i5i 6a5b 5i6i 5b4a
+< bestmove 6i5i ponder 6a5b
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp 121 nodes 128 nps 920 hashfull 0 time 139 pv 6a5a
+< bestmove 6a5a ponder 5i6h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 2 seldepth 5 multipv 1 score cp -167 upperbound nodes 129 nps 934 hashfull 0 time 138 pv 5i6i 5a4a
+< bestmove 5i6i ponder 5a4a
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 126 lowerbound nodes 128 nps 920 hashfull 0 time 139 pv 5a6a
+< bestmove 5a6a ponder 6i5i
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp -164 nodes 128 nps 914 hashfull 0 time 140 pv 6i5i 6a5a
+< bestmove 6i5i ponder 6a5a
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp 170 nodes 129 nps 928 hashfull 0 time 139 pv 6a5a 5i6h
+< bestmove 6a5a ponder 5i6h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp -175 nodes 129 nps 928 hashfull 0 time 139 pv 5i6i 5a4a 6i6h
+< bestmove 5i6i ponder 5a4a
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a 5i6i
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp 115 nodes 128 nps 920 hashfull 0 time 139 pv 5a6a
+< bestmove 5a6a ponder 6i7i
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp -164 nodes 128 nps 914 hashfull 0 time 140 pv 6i5i 6a5b 5i6i 5b4a
+< bestmove 6i5i ponder 6a5b
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 127 seldepth 2 multipv 1 score cp -2 nodes 128 nps 914 hashfull 0 time 140 pv 6a5a
+< bestmove 6a5a ponder 5i6i
+> setoption name ClearTTOnDynamicWeights value true
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 805 hashfull 0 time 159 pv 5i6i 5a5b
+< bestmove 5i6i ponder 5a5b
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 5a6a 6i5h
+< bestmove 5a6a ponder 6i5h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=6
+< info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 883 hashfull 0 time 146 pv 6i5i 6a5a
+< bestmove 6i5i ponder 6a5a
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 6a5a 5i4h
+< bestmove 6a5a ponder 5i4h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 882 hashfull 0 time 145 pv 5i6i 5a5b
+< bestmove 5i6i ponder 5a5b
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 5a6a 6i5h
+< bestmove 5a6a ponder 6i5h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 889 hashfull 0 time 145 pv 6i5i 6a5a
+< bestmove 6i5i ponder 6a5a
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=6
+< info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 6a5a 5i4h
+< bestmove 6a5a ponder 5i4h
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 805 hashfull 0 time 159 pv 5i6i 5a5b
+< bestmove 5i6i ponder 5a5b
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 5a6a 6i5h
+< bestmove 5a6a ponder 6i5h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 889 hashfull 0 time 145 pv 6i5i 6a5a
+< bestmove 6i5i ponder 6a5a
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=4
+< info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 902 hashfull 0 time 144 pv 6a5a 5i4h
+< bestmove 6a5a ponder 5i4h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 882 hashfull 0 time 145 pv 5i6i 5a5b
+< bestmove 5i6i ponder 5a5b
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 5a6a 6i5h
+< bestmove 5a6a ponder 6i5h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 883 hashfull 0 time 146 pv 6i5i 6a5a
+< bestmove 6i5i ponder 6a5a
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 6a5a 5i4h
+< bestmove 6a5a ponder 5i4h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a
+> go nodes 128 searchmoves 5i6i
+< info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 876 hashfull 0 time 146 pv 5i6i 5a5b
+< bestmove 5i6i ponder 5a5b
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a 5i6i
+> go nodes 128 searchmoves 5a6a
+< info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 5a6a 6i5h
+< bestmove 5a6a ponder 6i5h
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a
+> go nodes 128 searchmoves 6i5i
+< info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 7 seldepth 2 multipv 1 score cp -6 upperbound nodes 128 nps 870 hashfull 0 time 147 pv 6i5i
+< bestmove 6i5i ponder 6a5a
+> position sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i
+> go nodes 128 searchmoves 6a5a
+< info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 127 seldepth 2 multipv 1 score cp -2 nodes 128 nps 882 hashfull 0 time 145 pv 6a5a
+< bestmove 6a5a
+> setoption name ClearTTOnDynamicWeights value false
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp -1056 upperbound nodes 129 nps 837 hashfull 0 time 154 pv 5a4a 5c4c+
+< bestmove 5a4a ponder 5c4c+
+> position sfen 5k3/9/4R4/9/9/9/9/9/K8 b - 2
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 815 lowerbound nodes 128 nps 914 hashfull 0 time 140 pv 5c4c
+< bestmove 5c4c ponder 4a3a
+> position sfen 5k3/9/5R3/9/9/9/9/9/K8 w - 3
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 6 multipv 1 score cp -933 upperbound nodes 129 nps 928 hashfull 0 time 139 pv 4a5a 4c1c+
+< bestmove 4a5a ponder 4c1c+
+> position sfen 4k4/9/5R3/9/9/9/9/9/K8 b - 4
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 996 nodes 128 nps 914 hashfull 0 time 140 pv 4c5c 5a4a 5c4c+ 4a5a
+< bestmove 4c5c ponder 5a4a
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 5
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 6 multipv 1 score cp -1237 nodes 128 nps 920 hashfull 0 time 139 pv 5a4a 5c4c+ 4a5a
+< bestmove 5a4a ponder 5c4c+
+> position sfen 5k3/9/4R4/9/9/9/9/9/K8 b - 6
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 911 upperbound nodes 128 nps 914 hashfull 0 time 140 pv 5c4c 4a5b
+< bestmove 5c4c ponder 4a5b
+> position sfen 5k3/9/5R3/9/9/9/9/9/K8 w - 7
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp -1141 upperbound nodes 129 nps 921 hashfull 0 time 140 pv 4a5a 4c5c+
+< bestmove 4a5a ponder 4c5c+
+> position sfen 4k4/9/5R3/9/9/9/9/9/K8 b - 8
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 1045 nodes 128 nps 914 hashfull 0 time 140 pv 4c5c 5a6b 5c3c 6b7b
+< bestmove 4c5c ponder 5a6b
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp -1056 upperbound nodes 129 nps 871 hashfull 0 time 148 pv 5a4a 5c4c+
+< bestmove 5a4a ponder 5c4c+
+> position sfen 5k3/9/4R4/9/9/9/9/9/K8 b - 2
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 815 lowerbound nodes 128 nps 907 hashfull 0 time 141 pv 5c4c
+< bestmove 5c4c ponder 4a3a
+> position sfen 5k3/9/5R3/9/9/9/9/9/K8 w - 3
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 6 multipv 1 score cp -933 upperbound nodes 129 nps 908 hashfull 0 time 142 pv 4a5a 4c1c+
+< bestmove 4a5a ponder 4c1c+
+> position sfen 4k4/9/5R3/9/9/9/9/9/K8 b - 4
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 996 nodes 128 nps 920 hashfull 0 time 139 pv 4c5c 5a4a 5c4c+ 4a5a
+< bestmove 4c5c ponder 5a4a
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 5
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 6 multipv 1 score cp -1237 nodes 128 nps 920 hashfull 0 time 139 pv 5a4a 5c4c+ 4a5a
+< bestmove 5a4a ponder 5c4c+
+> position sfen 5k3/9/4R4/9/9/9/9/9/K8 b - 6
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 911 upperbound nodes 128 nps 927 hashfull 0 time 138 pv 5c4c 4a5b
+< bestmove 5c4c ponder 4a5b
+> position sfen 5k3/9/5R3/9/9/9/9/9/K8 w - 7
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp -1141 upperbound nodes 129 nps 928 hashfull 0 time 139 pv 4a5a 4c5c+
+< bestmove 4a5a ponder 4c5c+
+> position sfen 4k4/9/5R3/9/9/9/9/9/K8 b - 8
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 1045 nodes 128 nps 920 hashfull 0 time 139 pv 4c5c 5a6b 5c3c 6b7b
+< bestmove 4c5c ponder 5a6b
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 9
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp -1866 nodes 130 nps 942 hashfull 0 time 138 pv 5a4a 5c4c+ 4a3a 4c5b
+< bestmove 5a4a ponder 5c4c+
+> position sfen 5k3/9/4R4/9/9/9/9/9/K8 b - 10
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 886 nodes 128 nps 920 hashfull 0 time 139 pv 5c4c 4a3b 4c7c+ 3b2a
+< bestmove 5c4c ponder 4a3b
+> position sfen 5k3/9/5R3/9/9/9/9/9/K8 w - 11
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 6 multipv 1 score cp -1266 nodes 128 nps 927 hashfull 0 time 138 pv 4a5a 4c5c+ 5a6a 5c4c 6a6b
+< bestmove 4a5a ponder 4c5c+
+> position sfen 4k4/9/5R3/9/9/9/9/9/K8 b - 12
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 6 multipv 1 score cp 897 lowerbound nodes 128 nps 914 hashfull 0 time 140 pv 4c5c
+< bestmove 4c5c ponder 5a4b
+> setoption name ClearTTOnDynamicWeights value true
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=4
+< info depth 4 seldepth 6 multipv 1 score cp -1056 upperbound nodes 129 nps 816 hashfull 0 time 158 pv 5a4a 5c4c+
+< bestmove 5a4a ponder 5c4c+
+> position sfen 5k3/9/4R4/9/9/9/9/9/K8 b - 2
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 3 seldepth 5 multipv 1 score cp 880 lowerbound nodes 128 nps 888 hashfull 0 time 144 pv 5c4c
+< bestmove 5c4c ponder 4a5b
+> position sfen 5k3/9/5R3/9/9/9/9/9/K8 w - 3
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 6 multipv 1 score cp -876 nodes 128 nps 836 hashfull 0 time 153 pv 4a5a 4c5c+ 5a4a 5c4c 4a5a
+< bestmove 4a5a ponder 4c5c+
+> position sfen 4k4/9/5R3/9/9/9/9/9/K8 b - 4
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 7 multipv 1 score cp 696 lowerbound nodes 128 nps 888 hashfull 0 time 144 pv 4c5c
+< bestmove 4c5c ponder 5a6a
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 5
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1056 upperbound nodes 129 nps 895 hashfull 0 time 144 pv 5a4a 5c4c+
+< bestmove 5a4a ponder 5c4c+
+> position sfen 5k3/9/4R4/9/9/9/9/9/K8 b - 6
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 3 seldepth 5 multipv 1 score cp 880 lowerbound nodes 128 nps 888 hashfull 0 time 144 pv 5c4c
+< bestmove 5c4c ponder 4a5b
+> position sfen 5k3/9/5R3/9/9/9/9/9/K8 w - 7
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 6 multipv 1 score cp -876 nodes 128 nps 888 hashfull 0 time 144 pv 4a5a 4c5c+ 5a4a 5c4c 4a5a
+< bestmove 4a5a ponder 4c5c+
+> position sfen 4k4/9/5R3/9/9/9/9/9/K8 b - 8
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 7 multipv 1 score cp 696 lowerbound nodes 128 nps 888 hashfull 0 time 144 pv 4c5c
+< bestmove 4c5c ponder 5a6a
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1056 upperbound nodes 129 nps 811 hashfull 0 time 159 pv 5a4a 5c4c+
+< bestmove 5a4a ponder 5c4c+
+> position sfen 5k3/9/4R4/9/9/9/9/9/K8 b - 2
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 3 seldepth 5 multipv 1 score cp 880 lowerbound nodes 128 nps 876 hashfull 0 time 146 pv 5c4c
+< bestmove 5c4c ponder 4a5b
+> position sfen 5k3/9/5R3/9/9/9/9/9/K8 w - 3
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 6 multipv 1 score cp -876 nodes 128 nps 888 hashfull 0 time 144 pv 4a5a 4c5c+ 5a4a 5c4c 4a5a
+< bestmove 4a5a ponder 4c5c+
+> position sfen 4k4/9/5R3/9/9/9/9/9/K8 b - 4
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 7 multipv 1 score cp 696 lowerbound nodes 128 nps 895 hashfull 0 time 143 pv 4c5c
+< bestmove 4c5c ponder 5a6a
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 5
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1056 upperbound nodes 129 nps 895 hashfull 0 time 144 pv 5a4a 5c4c+
+< bestmove 5a4a ponder 5c4c+
+> position sfen 5k3/9/4R4/9/9/9/9/9/K8 b - 6
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 3 seldepth 5 multipv 1 score cp 880 lowerbound nodes 128 nps 895 hashfull 0 time 143 pv 5c4c
+< bestmove 5c4c ponder 4a5b
+> position sfen 5k3/9/5R3/9/9/9/9/9/K8 w - 7
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 6 multipv 1 score cp -876 nodes 128 nps 895 hashfull 0 time 143 pv 4a5a 4c5c+ 5a4a 5c4c 4a5a
+< bestmove 4a5a ponder 4c5c+
+> position sfen 4k4/9/5R3/9/9/9/9/9/K8 b - 8
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 7 multipv 1 score cp 696 lowerbound nodes 128 nps 888 hashfull 0 time 144 pv 4c5c
+< bestmove 4c5c ponder 5a6a
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 9
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1056 upperbound nodes 129 nps 889 hashfull 0 time 145 pv 5a4a 5c4c+
+< bestmove 5a4a ponder 5c4c+
+> position sfen 5k3/9/4R4/9/9/9/9/9/K8 b - 10
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 3 seldepth 5 multipv 1 score cp 880 lowerbound nodes 128 nps 888 hashfull 0 time 144 pv 5c4c
+< bestmove 5c4c ponder 4a5b
+> position sfen 5k3/9/5R3/9/9/9/9/9/K8 w - 11
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=4
+< info depth 5 seldepth 6 multipv 1 score cp -876 nodes 128 nps 895 hashfull 0 time 143 pv 4a5a 4c5c+ 5a4a 5c4c 4a5a
+< bestmove 4a5a ponder 4c5c+
+> position sfen 4k4/9/5R3/9/9/9/9/9/K8 b - 12
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 7 multipv 1 score cp 696 lowerbound nodes 128 nps 888 hashfull 0 time 144 pv 4c5c
+< bestmove 4c5c ponder 5a6a
+> setoption name ClearTTOnDynamicWeights value false
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp -1056 upperbound nodes 129 nps 843 hashfull 0 time 153 pv 5a4a 5c4c+
+< bestmove 5a4a ponder 5c4c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 815 lowerbound nodes 128 nps 907 hashfull 0 time 141 pv 5c4c
+< bestmove 5c4c ponder 4a3a
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 6 multipv 1 score cp -933 upperbound nodes 129 nps 928 hashfull 0 time 139 pv 4a5a 4c1c+
+< bestmove 4a5a ponder 4c1c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 996 nodes 128 nps 920 hashfull 0 time 139 pv 4c5c 5a4a 5c4c+ 4a5a
+< bestmove 4c5c ponder 5a4a
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 6 multipv 1 score cp -1237 nodes 128 nps 920 hashfull 0 time 139 pv 5a4a 5c4c+ 4a5a
+< bestmove 5a4a ponder 5c4c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 911 upperbound nodes 128 nps 920 hashfull 0 time 139 pv 5c4c 4a5b
+< bestmove 5c4c ponder 4a5b
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp -1141 upperbound nodes 129 nps 921 hashfull 0 time 140 pv 4a5a 4c5c+
+< bestmove 4a5a ponder 4c5c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c 4a5a
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 1045 nodes 128 nps 920 hashfull 0 time 139 pv 4c5c 5a6b 5c3c 6b7b
+< bestmove 4c5c ponder 5a6b
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp -1056 upperbound nodes 129 nps 843 hashfull 0 time 153 pv 5a4a 5c4c+
+< bestmove 5a4a ponder 5c4c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 815 lowerbound nodes 128 nps 920 hashfull 0 time 139 pv 5c4c
+< bestmove 5c4c ponder 4a3a
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 6 multipv 1 score cp -933 upperbound nodes 129 nps 921 hashfull 0 time 140 pv 4a5a 4c1c+
+< bestmove 4a5a ponder 4c1c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 996 nodes 128 nps 920 hashfull 0 time 139 pv 4c5c 5a4a 5c4c+ 4a5a
+< bestmove 4c5c ponder 5a4a
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 6 multipv 1 score cp -1237 nodes 128 nps 920 hashfull 0 time 139 pv 5a4a 5c4c+ 4a5a
+< bestmove 5a4a ponder 5c4c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 911 upperbound nodes 128 nps 920 hashfull 0 time 139 pv 5c4c 4a5b
+< bestmove 5c4c ponder 4a5b
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp -1141 upperbound nodes 129 nps 928 hashfull 0 time 139 pv 4a5a 4c5c+
+< bestmove 4a5a ponder 4c5c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c 4a5a
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 1045 nodes 128 nps 920 hashfull 0 time 139 pv 4c5c 5a6b 5c3c 6b7b
+< bestmove 4c5c ponder 5a6b
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c 4a5a 4c5c
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp -1037 nodes 131 nps 942 hashfull 0 time 139 pv 5a4a 5c4c 4a5a 4c5c+ 5a4a
+< bestmove 5a4a ponder 5c4c
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c 4a5a 4c5c 5a4a
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp 1171 lowerbound nodes 128 nps 914 hashfull 0 time 140 pv 5c4c
+< bestmove 5c4c ponder 4a5a
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 6 multipv 1 score cp -1113 nodes 128 nps 927 hashfull 0 time 138 pv 4a5a 4c1c+ 5a6b
+< bestmove 4a5a ponder 4c1c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c 4a5a
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 8 seldepth 2 multipv 1 score mate -1 nodes 8 nps 57 hashfull 0 time 138 pv 4c5c
+< bestmove 4c5c ponder 5a4a
+> setoption name ClearTTOnDynamicWeights value true
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1056 upperbound nodes 129 nps 811 hashfull 0 time 159 pv 5a4a 5c4c+
+< bestmove 5a4a ponder 5c4c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 3 seldepth 5 multipv 1 score cp 880 lowerbound nodes 128 nps 882 hashfull 0 time 145 pv 5c4c
+< bestmove 5c4c ponder 4a5b
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 6 multipv 1 score cp -876 nodes 128 nps 882 hashfull 0 time 145 pv 4a5a 4c5c+ 5a4a 5c4c 4a5a
+< bestmove 4a5a ponder 4c5c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 7 multipv 1 score cp 696 lowerbound nodes 128 nps 882 hashfull 0 time 145 pv 4c5c
+< bestmove 4c5c ponder 5a6a
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1056 upperbound nodes 129 nps 895 hashfull 0 time 144 pv 5a4a 5c4c+
+< bestmove 5a4a ponder 5c4c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 3 seldepth 5 multipv 1 score cp 880 lowerbound nodes 128 nps 876 hashfull 0 time 146 pv 5c4c
+< bestmove 5c4c ponder 4a5b
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 6 multipv 1 score cp -876 nodes 128 nps 882 hashfull 0 time 145 pv 4a5a 4c5c+ 5a4a 5c4c 4a5a
+< bestmove 4a5a ponder 4c5c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c 4a5a
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 7 multipv 1 score cp 696 lowerbound nodes 128 nps 882 hashfull 0 time 145 pv 4c5c
+< bestmove 4c5c ponder 5a6a
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1056 upperbound nodes 129 nps 811 hashfull 0 time 159 pv 5a4a 5c4c+
+< bestmove 5a4a ponder 5c4c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 3 seldepth 5 multipv 1 score cp 880 lowerbound nodes 128 nps 882 hashfull 0 time 145 pv 5c4c
+< bestmove 5c4c ponder 4a5b
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 6 multipv 1 score cp -876 nodes 128 nps 876 hashfull 0 time 146 pv 4a5a 4c5c+ 5a4a 5c4c 4a5a
+< bestmove 4a5a ponder 4c5c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 7 multipv 1 score cp 696 lowerbound nodes 128 nps 882 hashfull 0 time 145 pv 4c5c
+< bestmove 4c5c ponder 5a6a
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1056 upperbound nodes 129 nps 889 hashfull 0 time 145 pv 5a4a 5c4c+
+< bestmove 5a4a ponder 5c4c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 3 seldepth 5 multipv 1 score cp 880 lowerbound nodes 128 nps 882 hashfull 0 time 145 pv 5c4c
+< bestmove 5c4c ponder 4a5b
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 6 multipv 1 score cp -876 nodes 128 nps 882 hashfull 0 time 145 pv 4a5a 4c5c+ 5a4a 5c4c 4a5a
+< bestmove 4a5a ponder 4c5c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c 4a5a
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 7 multipv 1 score cp 696 lowerbound nodes 128 nps 882 hashfull 0 time 145 pv 4c5c
+< bestmove 4c5c ponder 5a6a
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c 4a5a 4c5c
+> go nodes 128 searchmoves 5a4a
+< info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1056 upperbound nodes 129 nps 895 hashfull 0 time 144 pv 5a4a 5c4c+
+< bestmove 5a4a ponder 5c4c+
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c 4a5a 4c5c 5a4a
+> go nodes 128 searchmoves 5c4c
+< info string blending_weight=[0.24135867, 0.12158836, 0.10056753, 0.05888720, 0.34513605, 0.02544699, 0.07931353, 0.02770170]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 3 seldepth 5 multipv 1 score cp 880 lowerbound nodes 130 nps 890 hashfull 0 time 146 pv 5c4c
+< bestmove 5c4c ponder 4a5b
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c
+> go nodes 128 searchmoves 4a5a
+< info string blending_weight=[0.21899854, 0.15851213, 0.14863235, 0.05286942, 0.30115566, 0.02387139, 0.06632119, 0.02963932]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 6 multipv 1 score cp -1002 nodes 130 nps 896 hashfull 0 time 145 pv 4a5a 4c2c 5a4a
+< bestmove 4a5a ponder 4c2c
+> position sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1 moves 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c 4a5a 4c5c 5a4a 5c4c 4a5a
+> go nodes 128 searchmoves 4c5c
+< info string blending_weight=[0.24888138, 0.11005307, 0.16263251, 0.04593713, 0.31122783, 0.02074894, 0.07104003, 0.02947918]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 8 seldepth 2 multipv 1 score mate -1 nodes 8 nps 55 hashfull 0 time 145 pv 4c5c
+< bestmove 4c5c
+> setoption name ClearTTOnDynamicWeights value false
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp -933 nodes 128 nps 914 hashfull 0 time 140 pv 5i4i 5g1g+ 4i3i 1g1i 3i3h
+< bestmove 5i4i ponder 5g1g+
+> position sfen k8/9/9/9/9/9/4r4/9/5K3 w - 2
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 700 nodes 129 nps 928 hashfull 0 time 139 pv 5g4g 4i5h
+< bestmove 5g4g ponder 4i5h
+> position sfen k8/9/9/9/9/9/5r3/9/5K3 b - 3
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 8 multipv 1 score cp -1020 upperbound nodes 128 nps 914 hashfull 0 time 140 pv 4i5i 4g5g+
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/5r3/9/4K4 w - 4
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 7 multipv 1 score cp 818 nodes 129 nps 921 hashfull 0 time 140 pv 4g5g 5i4i 5g4g+ 4i3i 4g3g 3i4i
+< bestmove 4g5g ponder 5i4i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 5
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp -762 nodes 128 nps 920 hashfull 0 time 139 pv 5i4i 5g4g 4i5h
+< bestmove 5i4i ponder 5g4g
+> position sfen k8/9/9/9/9/9/4r4/9/5K3 w - 6
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 747 nodes 129 nps 928 hashfull 0 time 139 pv 5g4g 4i3i 4g3g+ 3i4i
+< bestmove 5g4g ponder 4i3i
+> position sfen k8/9/9/9/9/9/5r3/9/5K3 b - 7
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp -1193 upperbound nodes 128 nps 920 hashfull 0 time 139 pv 4i5i 4g5g+
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/5r3/9/4K4 w - 8
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 7 multipv 1 score cp 823 nodes 128 nps 920 hashfull 0 time 139 pv 4g5g 5i4i 5g4g+ 4i3i 4g3g 3i4i
+< bestmove 4g5g ponder 5i4i
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp -933 nodes 128 nps 831 hashfull 0 time 154 pv 5i4i 5g1g+ 4i3i 1g1i 3i3h
+< bestmove 5i4i ponder 5g1g+
+> position sfen k8/9/9/9/9/9/4r4/9/5K3 w - 2
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 700 nodes 129 nps 928 hashfull 0 time 139 pv 5g4g 4i5h
+< bestmove 5g4g ponder 4i5h
+> position sfen k8/9/9/9/9/9/5r3/9/5K3 b - 3
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 8 multipv 1 score cp -1020 upperbound nodes 128 nps 927 hashfull 0 time 138 pv 4i5i 4g5g+
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/5r3/9/4K4 w - 4
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 7 multipv 1 score cp 818 nodes 129 nps 928 hashfull 0 time 139 pv 4g5g 5i4i 5g4g+ 4i3i 4g3g 3i4i
+< bestmove 4g5g ponder 5i4i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 5
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp -762 nodes 128 nps 920 hashfull 0 time 139 pv 5i4i 5g4g 4i5h
+< bestmove 5i4i ponder 5g4g
+> position sfen k8/9/9/9/9/9/4r4/9/5K3 w - 6
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 747 nodes 129 nps 928 hashfull 0 time 139 pv 5g4g 4i3i 4g3g+ 3i4i
+< bestmove 5g4g ponder 4i3i
+> position sfen k8/9/9/9/9/9/5r3/9/5K3 b - 7
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp -1193 upperbound nodes 128 nps 920 hashfull 0 time 139 pv 4i5i 4g5g+
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/5r3/9/4K4 w - 8
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 7 multipv 1 score cp 823 nodes 128 nps 914 hashfull 0 time 140 pv 4g5g 5i4i 5g4g+ 4i3i 4g3g 3i4i
+< bestmove 4g5g ponder 5i4i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 9
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 6 multipv 1 score cp -1036 nodes 128 nps 920 hashfull 0 time 139 pv 5i4i 5g4g+ 4i3i 9a8b
+< bestmove 5i4i ponder 5g4g+
+> position sfen k8/9/9/9/9/9/4r4/9/5K3 w - 10
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 6 multipv 1 score cp 543 lowerbound nodes 130 nps 928 hashfull 0 time 140 pv 5g4g
+< bestmove 5g4g ponder 4i3h
+> position sfen k8/9/9/9/9/9/5r3/9/5K3 b - 11
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp -982 nodes 129 nps 928 hashfull 0 time 139 pv 4i5i 4g5g 5i4i
+< bestmove 4i5i ponder 4g5g
+> position sfen k8/9/9/9/9/9/5r3/9/4K4 w - 12
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp 870 lowerbound nodes 128 nps 920 hashfull 0 time 139 pv 4g5g
+< bestmove 4g5g ponder 5i6h
+> setoption name ClearTTOnDynamicWeights value true
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=4
+< info depth 4 seldepth 6 multipv 1 score cp -933 nodes 128 nps 810 hashfull 0 time 158 pv 5i4i 5g1g+ 4i3i 1g1i 3i3h
+< bestmove 5i4i ponder 5g1g+
+> position sfen k8/9/9/9/9/9/4r4/9/5K3 w - 2
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 613 nodes 129 nps 889 hashfull 0 time 145 pv 5g4g 4i3i 4g3g+ 3i2i
+< bestmove 5g4g ponder 4i3i
+> position sfen k8/9/9/9/9/9/5r3/9/5K3 b - 3
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1388 nodes 129 nps 889 hashfull 0 time 145 pv 4i5i 4g5g+ 5i4i 9a8a
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/5r3/9/4K4 w - 4
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 7 multipv 1 score cp 830 lowerbound nodes 128 nps 888 hashfull 0 time 144 pv 4g5g
+< bestmove 4g5g ponder 5i4i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 5
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -933 nodes 128 nps 888 hashfull 0 time 144 pv 5i4i 5g1g+ 4i3i 1g1i 3i3h
+< bestmove 5i4i ponder 5g1g+
+> position sfen k8/9/9/9/9/9/4r4/9/5K3 w - 6
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 613 nodes 129 nps 889 hashfull 0 time 145 pv 5g4g 4i3i 4g3g+ 3i2i
+< bestmove 5g4g ponder 4i3i
+> position sfen k8/9/9/9/9/9/5r3/9/5K3 b - 7
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=6
+< info depth 4 seldepth 6 multipv 1 score cp -1388 nodes 129 nps 877 hashfull 0 time 147 pv 4i5i 4g5g+ 5i4i 9a8a
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/5r3/9/4K4 w - 8
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 7 multipv 1 score cp 830 lowerbound nodes 128 nps 888 hashfull 0 time 144 pv 4g5g
+< bestmove 4g5g ponder 5i4i
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -933 nodes 128 nps 805 hashfull 0 time 159 pv 5i4i 5g1g+ 4i3i 1g1i 3i3h
+< bestmove 5i4i ponder 5g1g+
+> position sfen k8/9/9/9/9/9/4r4/9/5K3 w - 2
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 613 nodes 129 nps 889 hashfull 0 time 145 pv 5g4g 4i3i 4g3g+ 3i2i
+< bestmove 5g4g ponder 4i3i
+> position sfen k8/9/9/9/9/9/5r3/9/5K3 b - 3
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1388 nodes 129 nps 883 hashfull 0 time 146 pv 4i5i 4g5g+ 5i4i 9a8a
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/5r3/9/4K4 w - 4
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 7 multipv 1 score cp 830 lowerbound nodes 128 nps 882 hashfull 0 time 145 pv 4g5g
+< bestmove 4g5g ponder 5i4i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 5
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -933 nodes 128 nps 882 hashfull 0 time 145 pv 5i4i 5g1g+ 4i3i 1g1i 3i3h
+< bestmove 5i4i ponder 5g1g+
+> position sfen k8/9/9/9/9/9/4r4/9/5K3 w - 6
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 613 nodes 129 nps 895 hashfull 0 time 144 pv 5g4g 4i3i 4g3g+ 3i2i
+< bestmove 5g4g ponder 4i3i
+> position sfen k8/9/9/9/9/9/5r3/9/5K3 b - 7
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1388 nodes 129 nps 889 hashfull 0 time 145 pv 4i5i 4g5g+ 5i4i 9a8a
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/5r3/9/4K4 w - 8
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 7 multipv 1 score cp 830 lowerbound nodes 128 nps 882 hashfull 0 time 145 pv 4g5g
+< bestmove 4g5g ponder 5i4i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 9
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -933 nodes 128 nps 882 hashfull 0 time 145 pv 5i4i 5g1g+ 4i3i 1g1i 3i3h
+< bestmove 5i4i ponder 5g1g+
+> position sfen k8/9/9/9/9/9/4r4/9/5K3 w - 10
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 613 nodes 129 nps 895 hashfull 0 time 144 pv 5g4g 4i3i 4g3g+ 3i2i
+< bestmove 5g4g ponder 4i3i
+> position sfen k8/9/9/9/9/9/5r3/9/5K3 b - 11
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1388 nodes 129 nps 889 hashfull 0 time 145 pv 4i5i 4g5g+ 5i4i 9a8a
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/5r3/9/4K4 w - 12
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=4
+< info depth 5 seldepth 7 multipv 1 score cp 830 lowerbound nodes 128 nps 882 hashfull 0 time 145 pv 4g5g
+< bestmove 4g5g ponder 5i4i
+> setoption name ClearTTOnDynamicWeights value false
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp -933 nodes 128 nps 825 hashfull 0 time 155 pv 5i4i 5g1g+ 4i3i 1g1i 3i3h
+< bestmove 5i4i ponder 5g1g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 700 nodes 129 nps 921 hashfull 0 time 140 pv 5g4g 4i5h
+< bestmove 5g4g ponder 4i5h
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 8 multipv 1 score cp -1020 upperbound nodes 128 nps 907 hashfull 0 time 141 pv 4i5i 4g5g+
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 7 multipv 1 score cp 818 nodes 129 nps 921 hashfull 0 time 140 pv 4g5g 5i4i 5g4g+ 4i3i 4g3g 3i4i
+< bestmove 4g5g ponder 5i4i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp -762 nodes 128 nps 914 hashfull 0 time 140 pv 5i4i 5g4g 4i5h
+< bestmove 5i4i ponder 5g4g
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 747 nodes 129 nps 921 hashfull 0 time 140 pv 5g4g 4i3i 4g3g+ 3i4i
+< bestmove 5g4g ponder 4i3i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp -1193 upperbound nodes 128 nps 920 hashfull 0 time 139 pv 4i5i 4g5g+
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g 4i5i
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 7 multipv 1 score cp 823 nodes 128 nps 914 hashfull 0 time 140 pv 4g5g 5i4i 5g4g+ 4i3i 4g3g 3i4i
+< bestmove 4g5g ponder 5i4i
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp -933 nodes 128 nps 825 hashfull 0 time 155 pv 5i4i 5g1g+ 4i3i 1g1i 3i3h
+< bestmove 5i4i ponder 5g1g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 5 multipv 1 score cp 700 nodes 129 nps 928 hashfull 0 time 139 pv 5g4g 4i5h
+< bestmove 5g4g ponder 4i5h
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 8 multipv 1 score cp -1020 upperbound nodes 128 nps 895 hashfull 0 time 143 pv 4i5i 4g5g+
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 7 multipv 1 score cp 818 nodes 129 nps 921 hashfull 0 time 140 pv 4g5g 5i4i 5g4g+ 4i3i 4g3g 3i4i
+< bestmove 4g5g ponder 5i4i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 4 multipv 1 score cp -762 nodes 128 nps 914 hashfull 0 time 140 pv 5i4i 5g4g 4i5h
+< bestmove 5i4i ponder 5g4g
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 5 multipv 1 score cp 747 nodes 129 nps 921 hashfull 0 time 140 pv 5g4g 4i3i 4g3g+ 3i4i
+< bestmove 5g4g ponder 4i3i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp -1193 upperbound nodes 128 nps 914 hashfull 0 time 140 pv 4i5i 4g5g+
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g 4i5i
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 7 multipv 1 score cp 823 nodes 128 nps 914 hashfull 0 time 140 pv 4g5g 5i4i 5g4g+ 4i3i 4g3g 3i4i
+< bestmove 4g5g ponder 5i4i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g 4i5i 4g5g
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 5 seldepth 6 multipv 1 score cp -1036 nodes 128 nps 914 hashfull 0 time 140 pv 5i4i 5g4g+ 4i3i 9a8b
+< bestmove 5i4i ponder 5g4g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g 4i5i 4g5g 5i4i
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 3 seldepth 6 multipv 1 score cp 543 lowerbound nodes 128 nps 920 hashfull 0 time 139 pv 5g4g
+< bestmove 5g4g ponder 4i3h
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 4 seldepth 6 multipv 1 score cp -1003 nodes 128 nps 914 hashfull 0 time 140 pv 4i5i 9a8a 5i6i 4g6g+ 6i5i
+< bestmove 4i5i ponder 9a8a
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g 4i5i
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string dynamic_weight_cache clear=0 elapsed_ms=0
+< info depth 8 seldepth 2 multipv 1 score mate -1 nodes 8 nps 57 hashfull 0 time 139 pv 4g5g
+< bestmove 4g5g ponder 5i4i
+> setoption name ClearTTOnDynamicWeights value true
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=4
+< info depth 4 seldepth 6 multipv 1 score cp -933 nodes 128 nps 805 hashfull 0 time 159 pv 5i4i 5g1g+ 4i3i 1g1i 3i3h
+< bestmove 5i4i ponder 5g1g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 613 nodes 129 nps 889 hashfull 0 time 145 pv 5g4g 4i3i 4g3g+ 3i2i
+< bestmove 5g4g ponder 4i3i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1388 nodes 129 nps 889 hashfull 0 time 145 pv 4i5i 4g5g+ 5i4i 9a8a
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 7 multipv 1 score cp 830 lowerbound nodes 128 nps 876 hashfull 0 time 146 pv 4g5g
+< bestmove 4g5g ponder 5i4i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -933 nodes 128 nps 882 hashfull 0 time 145 pv 5i4i 5g1g+ 4i3i 1g1i 3i3h
+< bestmove 5i4i ponder 5g1g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 613 nodes 129 nps 889 hashfull 0 time 145 pv 5g4g 4i3i 4g3g+ 3i2i
+< bestmove 5g4g ponder 4i3i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1388 nodes 129 nps 883 hashfull 0 time 146 pv 4i5i 4g5g+ 5i4i 9a8a
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g 4i5i
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 7 multipv 1 score cp 830 lowerbound nodes 128 nps 876 hashfull 0 time 146 pv 4g5g
+< bestmove 4g5g ponder 5i4i
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> isready
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< readyok
+> usinewgame
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -933 nodes 128 nps 795 hashfull 0 time 161 pv 5i4i 5g1g+ 4i3i 1g1i 3i3h
+< bestmove 5i4i ponder 5g1g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 613 nodes 129 nps 889 hashfull 0 time 145 pv 5g4g 4i3i 4g3g+ 3i2i
+< bestmove 5g4g ponder 4i3i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -1388 nodes 129 nps 883 hashfull 0 time 146 pv 4i5i 4g5g+ 5i4i 9a8a
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 7 multipv 1 score cp 830 lowerbound nodes 128 nps 882 hashfull 0 time 145 pv 4g5g
+< bestmove 4g5g ponder 5i4i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -933 nodes 128 nps 882 hashfull 0 time 145 pv 5i4i 5g1g+ 4i3i 1g1i 3i3h
+< bestmove 5i4i ponder 5g1g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 613 nodes 129 nps 883 hashfull 0 time 146 pv 5g4g 4i3i 4g3g+ 3i2i
+< bestmove 5g4g ponder 4i3i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=6
+< info depth 4 seldepth 6 multipv 1 score cp -1388 nodes 129 nps 889 hashfull 0 time 145 pv 4i5i 4g5g+ 5i4i 9a8a
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g 4i5i
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 7 multipv 1 score cp 830 lowerbound nodes 128 nps 882 hashfull 0 time 145 pv 4g5g
+< bestmove 4g5g ponder 5i4i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g 4i5i 4g5g
+> go nodes 128 searchmoves 5i4i
+< info string blending_weight=[0.21877506, 0.15588400, 0.14506243, 0.05066269, 0.31765038, 0.02041593, 0.06350589, 0.02804370]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 6 multipv 1 score cp -933 nodes 128 nps 882 hashfull 0 time 145 pv 5i4i 5g1g+ 4i3i 1g1i 3i3h
+< bestmove 5i4i ponder 5g1g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g 4i5i 4g5g 5i4i
+> go nodes 128 searchmoves 5g4g
+< info string blending_weight=[0.23907396, 0.11596970, 0.12349879, 0.05061138, 0.33947253, 0.02223121, 0.08008721, 0.02905517]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 4 seldepth 5 multipv 1 score cp 613 nodes 129 nps 889 hashfull 0 time 145 pv 5g4g 4i3i 4g3g+ 3i2i
+< bestmove 5g4g ponder 4i3i
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g
+> go nodes 128 searchmoves 4i5i
+< info string blending_weight=[0.21984270, 0.15756276, 0.14659387, 0.05217554, 0.31191632, 0.02163643, 0.06199107, 0.02828126]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 5 seldepth 6 multipv 1 score cp -821 nodes 128 nps 882 hashfull 0 time 145 pv 4i5i 4g5g+ 5i6i 5g2g
+< bestmove 4i5i ponder 4g5g+
+> position sfen k8/9/9/9/9/9/4r4/9/4K4 b - 1 moves 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g 4i5i 4g5g 5i4i 5g4g 4i5i
+> go nodes 128 searchmoves 4g5g
+< info string blending_weight=[0.23998143, 0.11677685, 0.09273495, 0.05333650, 0.36720735, 0.02273103, 0.07979102, 0.02744089]
+< info string USI_Hash : Start clearing with 1 threads , size =  16[MB]
+< info string USI_Hash : Finish clearing.
+< info string dynamic_weight_cache clear=1 elapsed_ms=5
+< info depth 8 seldepth 2 multipv 1 score mate -1 nodes 8 nps 54 hashfull 0 time 146 pv 4g5g
+< bestmove 4g5g
+> quit

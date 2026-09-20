@@ -1,0 +1,34 @@
+{
+  "verified": true,
+  "cases": 48,
+  "searches": 480,
+  "failed_searches": 0,
+  "terminations": {
+    "max_moves": 24,
+    "repetition_draw": 8,
+    "perpetual_check_black": 8,
+    "perpetual_check_white": 8
+  },
+  "nodes_min": 8,
+  "nodes_max": 133,
+  "per_model_resets": {
+    "candidate": 48,
+    "control": 48
+  },
+  "runtime_cshogi_version": "0.9.7",
+  "runtime_files_verified": 20,
+  "prepare_inputs_verified": 16,
+  "loaded_libraries_verified": {
+    "candidate": 9,
+    "control": 9
+  },
+  "evidence_sha256": {
+    "manifest.json": "ef92361cc1a3e7a80852ae262376058cc0f882da93d48763ed565ef558d8a730",
+    "records.json": "6ad666e0149b69f5bfdf8d213a6868d4ddda40dd8860c712e5a45626b84f0491",
+    "summary.json": "db78f2f0eef5263a8fa68eea85572941fd4eb8d4c674116e163622248797847a",
+    "/tmp/match-qualification-execution-20260920T195941-182783-candidate.log": "9e02288a0b007eb03494cb5ba0353b04007c6d93a5ece79c9efccc5072d099ca",
+    "/tmp/match-qualification-execution-20260920T195941-182783-control.log": "3a8f069a738fc5fb650ba801ae3ff22a82a053ce89f3a2304300fd635568f860"
+  },
+  "elapsed_seconds": 95.1735271610014,
+  "strength_inference": "not measured"
+}

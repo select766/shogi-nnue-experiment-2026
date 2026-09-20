@@ -37,7 +37,7 @@
   [再開準備](results/research-loop-autonomy-20260920/README.md)で整備済みFloodgate 2025を登録し、
   全祖先の分離証明という実現困難な開始条件を撤回した。人間の追加棋譜提供は不要。
   棋力の独立再現は未着手。旧14,000局を合算しない。
-- 次: 手順qualification完了後、固定cost8で履歴取扱い・reset・clear条件の費用を測定する。
+- 次: 手順qualificationは48件480探索で合格。次に固定cost8で履歴取扱い・reset・clear条件の費用を測定する。
   match-plan-v1の固定10,000棋譜による20,000局を6時間以内のchunkへ分割し、
   全完了後に一度だけ判定。既知の除外範囲と未確認祖先を明示し、完全独立とは呼ばない。
   その後seed 43,44への転移を調べる。費用不足は再設計し、データ増量を人間へ要求しない。
@@ -45,14 +45,15 @@
 <!-- hypothesis id=H-MATCH-PROTOCOL status=held priority=2 -->
 ### H-MATCH-PROTOCOL: 履歴と動的重みのキャッシュ管理が棋力差の推定に影響する
 
-- 状態: 保留。[qualification attempt-001](results/match-protocol-qualification-20260920/README.md)は
+- 状態: 保留（棋力影響は未測定）。[qualification attempt-002](results/match-protocol-qualification-pass-20260920/README.md)は
+  fixture専用GenerateAllLegalMoves=trueで48件480探索を完遂し、手順合格。[qualification attempt-001](results/match-protocol-qualification-20260920/README.md)は
   48件中8件完了、連続王手fixtureの不成searchmove不一致で途中失敗。棋力は未測定。
   [感度試験計画](experiments/match-protocol-qualification-20260920.md)は事前登録済み。
   [pilot](results/match-protocol-pilot-20260920/README.md)の7開始局面×8セルは完遂。
   6,034探索の履歴・cache証跡を検証し、clear介入で14/14着手列が変化した。
   履歴単独の着手列は一致したが、棋力影響の方向・大きさ・同等性はいずれも未確定。
-- 次: 同ジョブをreplanしfixture専用の全合法手生成・失敗記録を補強して48件を再検証。
-  合格後にcost8で64局の費用を測り、reserve全1,324棋譜の対応あり感度試験をchunk化。
+- 次: 新規match-protocol-cost8で64局の費用を測り、reserve全1,324棋譜の対応あり感度試験をchunk化。
+  独立再現用cost16局は既存ジョブで別に測定し、両費用標本を棋力推定には用いない。
   正式再現の主条件は成績で選ばず履歴・clearありを維持。
 
 <!-- hypothesis id=H-DAILY-ADJUDICATION status=unverified priority=3 -->
@@ -305,4 +306,5 @@
 | [Floodgate 2025データ整備](results/floodgate2025-preparation/README.md) | H-FLOODGATE-2025, H-DECISION-REPLICATION | 双方R3500以上38,351棋譜・実手数付き571万局面、棋譜分離と固定対局用1万局面を整備 |
 | [自律研究ループの再開準備](results/research-loop-autonomy-20260920/README.md) | H-DECISION-REPLICATION, H-FLOODGATE-2025 | 整備済み入力を登録し、完全分離証明の要求を撤回。通常不足は有界再計画または手法終了へ |
 | [対局手順qualification attempt-001](results/match-protocol-qualification-20260920/README.md) | H-MATCH-PROTOCOL | 8/48件で不成searchmove不一致、棋力未測定、同ジョブをreplan |
+| [対局手順qualification attempt-002](results/match-protocol-qualification-pass-20260920/README.md) | H-MATCH-PROTOCOL, H-DECISION-REPLICATION | 48件480探索完遂、手順合格。棋力未測定、固定cost8の次段階へ |
 <!-- result-ledger:end -->

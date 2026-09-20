@@ -91,3 +91,17 @@ cost8 SHA256: `489fb26bf06718c05b0f447195a9c4a02dedecca2fc2c01c3b79bf7f256e2168`
 openings10000 SHA256: `ecf70e1cec54e5274f2581c21cf66657110a25e5d91902f4e1b2c21a5bed654d`。
 モデル等の実hash一覧はattemptのinput-manifest.json。合成fixtureはqualification実装の
 FIXTURES定数で完全指定し、学習・棋力評価標本へ混ぜない。
+
+## attempt-002: 不成searchmove修復（2026-09-20、実行前）
+
+前attemptは48件中8件完了後、指定5c4cにbestmove 5c7c+が返り停止した。
+fixture専用GenerateAllLegalMoves=trueを必須化し、protocol_version=2、fixture_options、
+各engineの設定・advertised optionsを保存する。不成の単一searchmoveを既存48件480探索内で
+再検証する。不一致探索はexpected/actual/position/command/info/responses/errorを
+fixture JSONとrecords.jsonのfailed_searchesへ永続記録する。エンジンなし回帰検査では
+同じ不一致を注入して保存を確認する。実機の修復確認は外部runまで未確定。
+
+全48件を最初から実施し旧8件は合算しない。成功基準、合成局面、予算1,800秒、
+棋力試験の設定と統計閾値は維持する。cost8は全件合格後の別ジョブ。新仮説は不要。
+入力hashは前attemptと同一でprepare時に全16ファイルを再照合し、attempt-002の
+input-manifest.jsonに固定した。retryは毎回新しい成果物フォルダへ全件再実行する。

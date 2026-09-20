@@ -1,0 +1,18 @@
+{
+  "dataset/floodgate2025/match-plan-v1/manifest.json": "7e95ae6ba79537616c7554bef94dfeec1d51399cc453aa216f8f464dda92a7af",
+  "dataset/floodgate2025/match-plan-v1/cost8.jsonl": "489fb26bf06718c05b0f447195a9c4a02dedecca2fc2c01c3b79bf7f256e2168",
+  "dataset/floodgate2025/match-plan-v1/reserve.jsonl": "fef2d6763ecc5d0c6de41700219995446d994bb4f8f1dde1561b1d9520357cc2",
+  "dataset/floodgate2025/match-plan-v1/openings10000.jsonl": "ecf70e1cec54e5274f2581c21cf66657110a25e5d91902f4e1b2c21a5bed654d",
+  "bin/eval/nn.bin": "403c07c978ab9b0935266b402fff526de1eea094a629020c65690ba18d4bfc63",
+  "uv.lock": "8d0965fda8530110394c9b4f3a0c9b9d0809a4583697ec2359744a973675be62",
+  "pyproject.toml": "4fe7c24c098594e6e90d6027319ffff8e116765d271436f83338233379fc7b75",
+  "YaneuraOu/extra/onnxruntime/linux/current/lib/libonnxruntime.so.1": "9c8139e1856568f068f1cad78fc9798084941db50be7c201a1dbdcfd18105433",
+  "tmp/decision_aligned_candidate_release/backbone.onnx": "823f461d19a7e3c1af0ddfaea5d41b56085f936c7b6f37daa81220f9bdf1dfe4",
+  "tmp/decision_aligned_candidate_release/head.bin": "eb12f9b6086c55ab2b96a177429b7409fe63c4b06c63cd2389ddbe07fcb1171f",
+  "tmp/decision_aligned_candidate_release/head.json": "57743e63e006c8cfb69867c9843c6c75d2e179da65c479c279d419cfd99cedfa",
+  "logs/decision_aligned_weight005_from_m0/checkpoints/9.ckpt": "14b379990200148be5aec751f62326bd5cd6b43b8f40989e3d6f7698616784b2",
+  "tmp/decision_aligned_control_release/backbone.onnx": "88b792cc8019b654a8ccc6d5c439e229a885d6dcc7af47b5226e25ef133bfc0b",
+  "tmp/decision_aligned_control_release/head.bin": "eb12f9b6086c55ab2b96a177429b7409fe63c4b06c63cd2389ddbe07fcb1171f",
+  "tmp/decision_aligned_control_release/head.json": "57743e63e006c8cfb69867c9843c6c75d2e179da65c479c279d419cfd99cedfa",
+  "logs/decision_aligned_control_from_m0/checkpoints/9.ckpt": "353e27ff69ccbeaa20b2a1f7c9a8d0568e1fc704efffb6cf31f65522ca08bc67"
+}

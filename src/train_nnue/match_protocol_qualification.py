@@ -20,21 +20,48 @@ FIXTURES = (
      ("5i4i", "5g4g", "4i5i", "4g5g"), 1),
 )
 
+# Qualification only: a singleton searchmoves must include legal underpromotions.
+FIXTURE_OPTIONS = {"GenerateAllLegalMoves": "true"}
+PROTOCOL_VERSION = 2
+
 
 class ForcedCycle:
     """Only accept an actual engine bestmove from the single allowed move."""
-    def __init__(self, engine, cycle):
+    def __init__(self, engine, cycle, failures=None):
         self.engine, self.moves = engine, iter(cycle * 3)
+        self.failures = failures if failures is not None else []
+        self.position_command = None
 
     def __getattr__(self, name):
         return getattr(self.engine, name)
 
+    def position(self, *, sfen, moves=None):
+        self.position_command = "position " + sfen + (" moves " + " ".join(moves) if moves else "")
+        self.engine.position(sfen=sfen, moves=moves)
+
     def go(self, *, nodes, listener):
         expected = next(self.moves)
-        result = self.engine.go(nodes=nodes, listener=listener, searchmoves=[expected])
-        if result[0] != expected:
-            raise RuntimeError(f"forced move mismatch: {expected} != {result[0]}")
-        return result
+        response = dict(expected=expected, actual=None, position=self.position_command,
+                        command=f"go nodes {nodes} searchmoves {expected}", info=[], responses=[])
+
+        def capture(line):
+            response["responses"].append(line)
+            if line.startswith("info "):
+                response["info"].append(line)
+            if line.startswith("bestmove "):
+                response["actual"] = line.split()[1]
+            listener(line)
+
+        try:
+            result = self.engine.go(nodes=nodes, listener=capture, searchmoves=[expected])
+            response["actual"] = result[0]
+            if result[0] != expected:
+                raise RuntimeError(f"forced move mismatch: {expected} != {result[0]}")
+            return result
+        except BaseException as error:
+            response["error"] = repr(error)
+            self.failures.append(response)
+            raise
 
 
 def runtime_manifest(paths):
@@ -71,6 +98,8 @@ def main():
             paths += [Path(f"tmp/decision_aligned_{model}_release") / name
                       for name in ("backbone.onnx", "head.bin", "head.json")]
         manifest = runtime_manifest(paths)
+        manifest.update(protocol_version=PROTOCOL_VERSION, fixture_options=FIXTURE_OPTIONS,
+                        fixtures=FIXTURES, expected_cases=48, expected_searches=480)
         dump(out / "manifest.json", manifest)
         # Refuse changed model/input files relative to prepare.
         import json
@@ -84,6 +113,7 @@ def main():
                            EvalDir=str(Path("bin/eval").resolve()),
                            ExpertBlendingDir=str(Path(f"tmp/decision_aligned_{model}_release").resolve()),
                            ClearTTOnDynamicWeights="true", LogDynamicWeightCache="true")
+            options.update(FIXTURE_OPTIONS)
             log = f"/tmp/match-qualification-{out.name}-{model}.log"
             engine = AuditedEngine(args.binary, options, deadline, log)
             dump(out / f"engine-{model}.json", dict(options=options, advertised=engine.advertised, log=log))
@@ -99,11 +129,11 @@ def main():
                         engine.setoption("ClearTTOnDynamicWeights", str(clear).lower())
                         for limit in (8, 12):
                             row = dict(model=model, fixture=name, history=history, clear=clear,
-                                       limit=limit, complete=False, trace={})
+                                       limit=limit, complete=False, trace={}, failed_searches=[])
                             records.append(row)
                             dump(out / "progress.json", {k: v for k, v in row.items() if k != "trace"})
                             try:
-                                forced = ForcedCycle(engine, cycle)
+                                forced = ForcedCycle(engine, cycle, row["failed_searches"])
                                 actual = play_game(forced, forced, {"nodes": 128}, sfen,
                                                    max_moves=limit, history=history, details=row["trace"])
                                 expected_result = (0, 8) if limit == 8 else (result, 12)
