@@ -10,6 +10,8 @@
 3. [データ](operations/data-preparation.md): 現行データの場所、形式、再生成方針。
 4. [2026年8月研究報告](research/update-report-202608.md): これまでの根拠と実験判断。
 5. [研究仮説レジストリ](research/hypotheses.md): 未検証仮説の状態、優先順位、実験結果との対応。
+6. [2026年9月研究レビュー](research/results/research-review-20260920/README.md)と
+   [次期実験計画](research/experiments/research-next-20260920.md): 既存結果の再点検と現在の実験方針。
 
 ## Operations
 

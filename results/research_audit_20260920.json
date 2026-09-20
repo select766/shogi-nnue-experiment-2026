@@ -1,0 +1,267 @@
+{
+  "format": "research-audit-20260920-v1",
+  "method": "opening-pair sample variance, delta-method normal 95% interval; no selection correction",
+  "limitations": "SFEN disjointness does not establish source-game independence; no full pretraining overlap audit",
+  "matches": {
+    "4000": {
+      "games": 4000,
+      "opening_pairs": 2000,
+      "outcomes": {
+        "win": 1982,
+        "loss": 1898,
+        "draw": 120
+      },
+      "pair_total_score_counts": {
+        "0.0": 393,
+        "0.5": 59,
+        "1.0": 1061,
+        "1.5": 45,
+        "2.0": 442
+      },
+      "score_rate": 0.5105,
+      "elo": 7.29722011350894,
+      "pair_elo_se": 5.098277702162413,
+      "pair_elo_95": [
+        -2.6952205659130133,
+        17.289660792930896
+      ],
+      "legacy_game_independent_elo_95": {
+        "lower": -3.309255085626167,
+        "upper": 17.903695312644025
+      }
+    },
+    "12000": {
+      "games": 12000,
+      "opening_pairs": 6000,
+      "outcomes": {
+        "win": 5917,
+        "loss": 5679,
+        "draw": 404
+      },
+      "pair_total_score_counts": {
+        "0.0": 1197,
+        "0.5": 171,
+        "1.0": 3138,
+        "1.5": 185,
+        "2.0": 1309
+      },
+      "score_rate": 0.5099166666666667,
+      "elo": 6.891709517844468,
+      "pair_elo_se": 2.949858641686008,
+      "pair_elo_95": [
+        1.1100928206556482,
+        12.673326215033288
+      ],
+      "legacy_game_independent_elo_95": {
+        "lower": 0.7797889190606391,
+        "upper": 13.003630116628305
+      }
+    },
+    "14000": {
+      "games": 14000,
+      "opening_pairs": 7000,
+      "outcomes": {
+        "win": 6902,
+        "loss": 6633,
+        "draw": 465
+      },
+      "pair_total_score_counts": {
+        "0.0": 1382,
+        "0.5": 194,
+        "1.0": 3704,
+        "1.5": 213,
+        "2.0": 1507
+      },
+      "score_rate": 0.5096071428571428,
+      "elo": 6.676548324014132,
+      "pair_elo_se": 2.7143758605681843,
+      "pair_elo_95": [
+        1.3564693967955757,
+        11.996627251232688
+      ],
+      "legacy_game_independent_elo_95": {
+        "lower": 1.0167505819152103,
+        "upper": 12.336346066113059
+      }
+    },
+    "extension_8000": {
+      "games": 8000,
+      "opening_pairs": 4000,
+      "outcomes": {
+        "loss": 3781,
+        "win": 3935,
+        "draw": 284
+      },
+      "pair_total_score_counts": {
+        "0.0": 804,
+        "0.5": 112,
+        "1.0": 2077,
+        "1.5": 140,
+        "2.0": 867
+      },
+      "score_rate": 0.509625,
+      "elo": 6.688961329048341,
+      "pair_elo_se": 3.6171657503332573,
+      "pair_elo_95": [
+        -0.4005532677166439,
+        13.778475925813327
+      ]
+    },
+    "sensitivity_2000": {
+      "games": 2000,
+      "opening_pairs": 1000,
+      "outcomes": {
+        "win": 985,
+        "loss": 954,
+        "draw": 61
+      },
+      "pair_total_score_counts": {
+        "0.0": 185,
+        "0.5": 23,
+        "1.0": 566,
+        "1.5": 28,
+        "2.0": 198
+      },
+      "score_rate": 0.50775,
+      "elo": 5.385682906675427,
+      "pair_elo_se": 6.914718475155332,
+      "pair_elo_95": [
+        -8.166916267862744,
+        18.9382820812136
+      ]
+    },
+    "all_new_10000": {
+      "games": 10000,
+      "opening_pairs": 5000,
+      "outcomes": {
+        "loss": 4735,
+        "win": 4920,
+        "draw": 345
+      },
+      "pair_total_score_counts": {
+        "0.0": 989,
+        "0.5": 135,
+        "1.0": 2643,
+        "1.5": 168,
+        "2.0": 1065
+      },
+      "score_rate": 0.50925,
+      "elo": 6.42829176006316,
+      "pair_elo_se": 3.2069054552367304,
+      "pair_elo_95": [
+        0.14287256597414189,
+        12.713710954152177
+      ]
+    },
+    "14000_excluding_teacher_overlap": {
+      "games": 13998,
+      "opening_pairs": 6999,
+      "outcomes": {
+        "win": 6901,
+        "loss": 6632,
+        "draw": 465
+      },
+      "pair_total_score_counts": {
+        "0.0": 1382,
+        "0.5": 194,
+        "1.0": 3703,
+        "1.5": 213,
+        "2.0": 1507
+      },
+      "score_rate": 0.5096085155022146,
+      "elo": 6.677502487819509,
+      "pair_elo_se": 2.7147638304595403,
+      "pair_elo_95": [
+        1.3566631535868083,
+        11.99834182205221
+      ]
+    }
+  },
+  "chunk_sensitivity_14000": {
+    "chunks": 140,
+    "games_per_chunk": 100,
+    "normal_95": [
+      1.425235049535571,
+      11.927861598492694
+    ],
+    "note": "chunk clusters address within-process dependence, not source-game dependence"
+  },
+  "teacher": {
+    "rows": 2000,
+    "unique_positions": 1999,
+    "train_validation_overlap": 1,
+    "train_validation_overlap_positions": [
+      "lnsg2snl/4k1g2/p1ppppb1p/9/9/1rP3R2/P2PPPP1P/1BG1K4/LNS2GSNL w 3P2p"
+    ],
+    "match_opening_overlap": 1,
+    "match_opening_overlap_positions": [
+      "lnsgk1snl/1r4gb1/ppppppppp/9/9/2P6/PP1PPPPPP/1B5R1/LNSGKGSNL b -"
+    ],
+    "evaluation": {
+      "validation": {
+        "unique_positions": 10000,
+        "teacher_overlap": 2
+      },
+      "test": {
+        "unique_positions": 10000,
+        "teacher_overlap": 1
+      }
+    },
+    "generation": {
+      "format": "search-utility-teacher-v1",
+      "roots": 2000,
+      "start_root": 0,
+      "candidate_nodes": 10000,
+      "reference_nodes": 100000,
+      "logit_bias": 1.0,
+      "minimum_improvement_cp": 10.0,
+      "candidate_definition": "current gate plus +logit_bias toward each of 8 experts",
+      "teacher_definition": "retain current gate unless independent restricted-move oracle improves by threshold; otherwise mean gate of tied best candidates",
+      "teacher_changed_fraction": 0.279,
+      "oracle_gain_cp_mean": 349.6605,
+      "oracle_gain_cp_positive_fraction": 0.3185,
+      "candidate_move_diversity_mean": 2.453,
+      "elapsed_seconds": 1137.9831458459958
+    }
+  },
+  "history_probe": {
+    "plies": 6,
+    "search_positions": [
+      "sfen lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1",
+      "sfen lnsgkgsnl/1r5b1/ppppppppp/9/9/8P/PPPPPPPP1/1B5R1/LNSGKGSNL w - 2",
+      "sfen lnsgkgsnl/1r5b1/pppppppp1/8p/9/8P/PPPPPPPP1/1B5R1/LNSGKGSNL b - 3",
+      "sfen lnsgkgsnl/1r5b1/pppppppp1/8p/8P/9/PPPPPPPP1/1B5R1/LNSGKGSNL w - 4",
+      "sfen lnsgkgsnl/1r5b1/pppppppp1/9/8p/9/PPPPPPPP1/1B5R1/LNSGKGSNL b p 5",
+      "sfen lnsgkgsnl/1r5b1/pppppppp1/9/8p/7P1/PPPPPPP2/1B5R1/LNSGKGSNL w p 6"
+    ],
+    "positions_with_move_history": 0
+  },
+  "protocol": {
+    "engine1": {
+      "path": "/home/select766/shogi/train-nnue/bin/YaneuraOu-expert-blending.sh",
+      "options": {
+        "Threads": "1",
+        "EvalDir": "/home/select766/shogi/train-nnue/bin/eval",
+        "ExpertBlendingDir": "/home/select766/shogi/train-nnue/tmp/decision_aligned_candidate_release"
+      }
+    },
+    "engine2": {
+      "path": "/home/select766/shogi/train-nnue/bin/YaneuraOu-expert-blending.sh",
+      "options": {
+        "Threads": "1",
+        "EvalDir": "/home/select766/shogi/train-nnue/bin/eval",
+        "ExpertBlendingDir": "/home/select766/shogi/train-nnue/tmp/decision_aligned_control_release"
+      }
+    },
+    "clear_hash_each_move": false
+  },
+  "source_sha256": {
+    "results/match_decision_aligned_4000.json": "99010e64459e003f0a34a0e58d525b9f59e5f76c37c3bca776c860ac9f25f5af",
+    "results/match_decision_aligned_12000.json": "941665d7a1ec6c1b2835431ee91133b9febd64d47bf45072478c826d7b272594",
+    "results/match_decision_aligned_14000.json": "85231d7c7b793458b1403fbb7c9c9fdcc1d762630d5e5dbbc8c99b3c57c534b2",
+    "tmp/search_utility_v1/pilot/details.jsonl": "518ff0a6d68c812427ed9a12823527f2f3c0dcfbe8adb7ba14cddd76e8d5b0e3",
+    "data/accuracy_eval_10k/validation.jsonl": "eaa2ebc40aa5e603cb653db1212c9731234685727841ea933e845bd777754eb9",
+    "data/accuracy_eval_10k/test.jsonl": "c68144ac95580a394f90421b1cfee50a71b21cfbbf3461640ca41e14619f10ff",
+    "tmp/search_utility_v1/pilot/teacher.json": "53ce0b5ed44996b0bf4f4e588576c7a92c1e0eecba3295585695e9d0fd1b4467"
+  }
+}

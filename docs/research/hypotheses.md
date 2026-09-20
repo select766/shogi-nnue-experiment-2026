@@ -1,6 +1,6 @@
 # 研究仮説レジストリ
 
-更新日: 2026-08-28
+更新日: 2026-09-20
 
 このファイルを、未検証仮説の優先順位と過去の判定を管理する唯一の台帳とする。
 実験計画や結果文書は詳しい条件と証跡を保持し、この台帳は「次に何を、なぜ検証するか」を保持する。
@@ -21,12 +21,56 @@
 
 `未検証`、`検証中`、`保留`は未完了であり、優先順位を持つ。`支持`、`棄却`、`飽和`、`測定完了`は
 完了した判定である。`支持`は一般的な真理ではなく、記載した条件と判定指標の範囲で証拠が得られたことを表す。
+`棄却`も検証した介入と事前screening条件の範囲に限定する。不通過や有意差なしを、
+広い機構仮説の否定・同等性の証明へ拡張しない。探索的結果と独立確証を区別する。
 
 ## 優先順位付き未完了仮説
 
-なし。
+以下は[2026-09-20レビュー](results/research-review-20260920/README.md)から追加した。
+具体的条件と段階間の依存は[次期実験計画](experiments/research-next-20260920.md)に記す。
+
+<!-- hypothesis id=H-MATCH-PROTOCOL status=unverified priority=1 -->
+### H-MATCH-PROTOCOL: 履歴と動的重みのキャッシュ管理が棋力差の推定に影響する
+
+- 状態: 未検証。履歴を送らず、動的重み更新時clearも指定しない旧手順を確認した。
+  実装上の差は確認済みだが、棋力差への影響方向・大きさは未測定。
+- 次: 毎局resetと着手履歴送信を整備し、履歴×clearの短期診断。独立棋力追試の前提とする。
+
+<!-- hypothesis id=H-DECISION-REPLICATION status=unverified priority=2 -->
+### H-DECISION-REPLICATION: Decision-alignedの小効果が独立標本と明示した対局手順で再現する
+
+- 状態: 未検証。旧14,000局のペア区間は正だが、単一seed、選択後の追加検証、履歴・TT条件に限定される。
+- 次: 固定候補/対照を新規10,000開始局面・20,000局で比較。旧局数を合算せず一度だけ判定。
+  その後、学習seed 43,44への転移を調べる。
+
+<!-- hypothesis id=H-DEPLOYMENT-STRENGTH status=unverified priority=3 -->
+### H-DEPLOYMENT-STRENGTH: Expert Blendingが合成費用込みの同じ実時間で標準HalfKPを上回る
+
+- 状態: 未検証。decision-alignedの対照はtask-only Expert Blendingであり、標準HalfKPではない。
+  CPUで実行可能という速度測定だけでは、実時間での棋力優位を示さない。
+- 次: 再現候補を固定し、前処理込みの同実時間を主条件、同nodesを副条件として標準NNUEと比較。
+
+<!-- hypothesis id=H-CONDITIONAL-ROUTING status=unverified priority=4 -->
+### H-CONDITIONAL-ROUTING: Decision-aligned改善にはrootごとに変わるgateが寄与している
+
+- 状態: 未検証。現在の対照では、root依存性の改善と全体のexpert利用率の変化を分離できない。
+- 次: 同expertのtrain平均gate・学習した定数logitsと比較し、root入力自体の寄与を測る。
+
+<!-- hypothesis id=H-DECISION-HORIZON status=unverified priority=5 -->
+### H-DECISION-HORIZON: 配備探索量に合わせたhard方向教師がdecision-aligned学習を改善する
+
+- 状態: 未検証。現教師は候補10k/reference100k nodes。候補順位のhorizon転移が弱い既存結果がある。
+- 次: 新規同一rootで候補100k/reference100kと候補100k/reference1mを対照化する。
+  まず教師診断と費用を測り、モデル構造や候補方向は同時に変えない。
 
 ## 判定済み仮説
+
+<!-- hypothesis id=H-RESEARCH-AUDIT status=measured -->
+### H-RESEARCH-AUDIT: 保存された対局明細から小効果の統計とデータ分離を再点検できる
+
+- 状態: 測定完了。[再解析](results/research-review-20260920/README.md)で14,000局の
+  ペア集計・包含関係を確認。ペア区間`[+1.36,+12.00]`、教師と重なる1開始局面を除いても同程度。
+  教師train/val重複1局面、履歴欠落、キャッシュ条件の不統一を確認し、影響を上記仮説へ分離した。
 
 <!-- hypothesis id=H-DECISION-ALIGNED-LOSS status=supported -->
 ### H-DECISION-ALIGNED-LOSS: Rootの意思決定に整合した目的なら棋力へ転換できる
@@ -34,6 +78,10 @@
 - 状態: 支持。事前登録12,000局は5,917勝5,679敗404分、`+6.89 Elo`、95%区間
   `[+0.78,+13.00]`だった。未使用局面2,000局の感度追試後も合計14,000局で`+6.68 Elo`、
   区間`[+1.02,+12.34]`を維持した。固定条件での小効果として支持する。
+- 2026-09-20限定追記: [ペア再解析](results/research-review-20260920/README.md)でも
+  14,000局`+6.68 Elo [ +1.36,+12.00 ]`。旧task-only対照、seed42、10万nodes、
+  履歴なし・動的重み更新時clear指定なしに対する名目区間である。追加計画は当初4,000局を見た後に
+  登録され、選択・逐次判断全体を補正した確証ではない。標準HalfKPや同実時間への優位は未検証。
 
 <!-- hypothesis id=H-ROOT-SEARCH-STATS status=rejected -->
 ### H-ROOT-SEARCH-STATS: 浅いroot探索統計が固定blendの予測に必要である
@@ -41,6 +89,7 @@
 - 状態: 棄却。valB/valA lossと固定validation bestmoveは改善したが、独立10,000 testは
   `-0.01`ポイント、重複なし1,000局面追加splitは`-2.70`ポイント、McNemar `p=0.038878`
   だった。速度は本探索比約0.13%だが、固定bestmove改善が独立splitへ転移しなかった。
+- 棄却範囲は固定1024-node MultiPVの6特徴追加。浅い探索情報一般の不必要性までは示さない。
 
 <!-- hypothesis id=H-ROOT-SEARCH-STATS-STRENGTH status=measured -->
 ### H-ROOT-SEARCH-STATS-STRENGTH: 浅いroot探索統計の小さなbestmove改善は棋力へ転換する
@@ -66,12 +115,14 @@
 
 - 状態: 棄却。32手幅phase専門化は担当expert lossとoracle gainを改善したが、独立64 rootの
   候補手多様度が`1.828`から`1.766`へ低下し、事前の同時改善条件を満たさなかった。
+- 32手幅phase役割とpositive-axis候補のscreening不通過に限定する。専門化一般や棋力への寄与は否定しない。
 
 <!-- hypothesis id=H-ROOT-FEATURES status=rejected -->
 ### H-ROOT-FEATURES: 現DNN出力にないroot情報が固定blend予測に必要である
 
 - 状態: 棄却。静的7特徴は独立root lossを改善し、CPU追加時間も増やさなかったが、
   固定bestmoveは62.00%から61.95%へ低下した。浅い探索統計は`H-ROOT-SEARCH-STATS`へ分離した。
+- 7特徴・1 epochの候補を採用しない判断であり、微小なbestmove点推定の負方向は一般仮説の反証ではない。
 
 <!-- hypothesis id=H-SU-ADAPTIVE-RADIUS status=rejected -->
 ### H-SU-ADAPTIVE-RADIUS: Root別に候補半径を変えるとsearch utility信号を効率よく増やせる
@@ -84,18 +135,22 @@
 
 - 状態: 測定完了。固定10万nodesの4,000局は1,950勝1,919敗131分、`+2.69 Elo`、95%区間
   `[-7.90,+13.28]`で0を跨いだ。局数を10倍にしても正方向へ分離せず、leaf loss単独では選抜しない。
+- この区間は有用な正効果も含み、効果なし・棋力同等とは判定していない。
 
 <!-- hypothesis id=H-ROOT-REPRESENTATION status=rejected -->
 ### H-ROOT-REPRESENTATION: Rootだけから探索後の影響を予測する表現力が不足している
 
 - 状態: 棄却。hidden 256はvalBで悪化し、512も未使用valAで平均group lossを改善しなかった。
   配備制約を保った特徴追加は`H-ROOT-FEATURES`へ分離した。
+- 棄却範囲は入力固定・1 epochの幅256/512。表現力不足一般を否定したものではない。
 
 <!-- hypothesis id=H-TAIL-OBJECTIVE status=supported -->
 ### H-TAIL-OBJECTIVE: 平均leaf lossが探索上重要な少数leafを希釈している
 
 - 状態: 支持。上位2/8 leafのCVaR学習は独立rootでtail lossと平均lossを改善し、固定10,000局面の
   bestmove一致率をmean対照比`+0.21`ポイントとした。ただし`p=0.6325`で効果量は未確定である。
+- 支持はtail/mean loss改善と当時のscreening条件に限定。loss上位leafが意思決定上重要という
+  機構や棋力向上までは実証していない（[レビュー](results/research-review-20260920/README.md)）。
 
 <!-- hypothesis id=H-SU-HORIZON status=rejected -->
 ### H-SU-HORIZON: Search utility教師は探索量をまたいで安定する
@@ -108,6 +163,7 @@
 
 - 状態: 棄却。偏差拡大で相関を0.892へ下げても、100万nodesの有効教師率、oracle gain、候補手多様度が
   すべて悪化した。task-alignedな専門化は別仮説へ分離した。
+- 棄却した介入は既存expert偏差の放射状2倍拡大であり、有用な多様性一般の否定ではない。
 
 <!-- hypothesis id=H-SU-GEOMETRY status=rejected -->
 ### H-SU-GEOMETRY: Search utility候補の探索半径と形状が狭すぎる
@@ -213,4 +269,5 @@
 | [Joint signed候補方向](results/joint-candidate-directions-20260828/README.md) | H-SU-JOINT-DIRECTIONS | selection改善はheld-outへ転移せずutilityと多様度の同時改善を棄却 |
 | [浅いroot探索統計の棋力追試](results/root-search-stats-strength-20260828/README.md) | H-ROOT-SEARCH-STATS-STRENGTH, H-DECISION-ALIGNED-LOSS | 4,000局で棋力転換を確認できず過去の正方向仮説を深掘り |
 | [24時間 深掘り検証](results/deep-validation-24h-20260828/README.md) | H-DECISION-ALIGNED-LOSS, H-ROOT-SEARCH-STATS | decision-alignedを12,000局で支持しroot統計の独立bestmove転移を棄却 |
+| [2026-09-20研究レビュー](results/research-review-20260920/README.md) | H-RESEARCH-AUDIT, H-DECISION-ALIGNED-LOSS, H-TAIL-OBJECTIVE, H-ROOT-FEATURES, H-ROOT-REPRESENTATION, H-ROOT-SEARCH-STATS, H-TASK-ALIGNED-EXPERTS, H-EXPERT-DIVERSITY, H-LEAF-LOSS-STRENGTH, H-MATCH-PROTOCOL, H-DECISION-REPLICATION, H-DEPLOYMENT-STRENGTH, H-CONDITIONAL-ROUTING, H-DECISION-HORIZON | ペア再解析で旧条件の小効果を維持し、判定範囲を限定。履歴・TT・独立性と配備価値を次期仮説へ分離 |
 <!-- result-ledger:end -->
