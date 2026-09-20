@@ -29,16 +29,17 @@
 以下は[2026-09-20レビュー](results/research-review-20260920/README.md)から追加した。
 具体的条件と段階間の依存は[次期実験計画](experiments/research-next-20260920.md)に記す。
 
-<!-- hypothesis id=H-DECISION-REPLICATION status=unverified priority=1 -->
+<!-- hypothesis id=H-DECISION-REPLICATION status=held priority=1 -->
 ### H-DECISION-REPLICATION: Decision-alignedの小効果が独立標本と明示した対局手順で再現する
 
-- 状態: 未検証。旧decision-replication-manifest / attempt-001は未実行で手法を終了。
+- 状態: 保留（棋力再現は未測定）。[cost16 review](results/decision-replication-cost-floodgate2025-20260920/README.md)は16局・1,273探索を完遂し手順合格。
+  [正式20,000局の事前登録](experiments/decision-replication-floodgate2025-20260920.md)は維持、正式対局は未実行。旧decision-replication-manifest / attempt-001は未実行で手法を終了。
   [手順pilot](results/match-protocol-pilot-20260920/README.md)は56局を完遂し手順合格。
   [再開準備](results/research-loop-autonomy-20260920/README.md)で整備済みFloodgate 2025を登録し、
   全祖先の分離証明という実現困難な開始条件を撤回した。人間の追加棋譜提供は不要。
   棋力の独立再現は未着手。旧14,000局を合算しない。
-- 次: 手順qualificationは48件480探索で合格。次に固定cost8で履歴取扱い・reset・clear条件の費用を測定する。
-  match-plan-v1の固定10,000棋譜による20,000局を6時間以内のchunkへ分割し、
+- 次: costの平均36.918秒/ペア、最遅63.230秒から166ペア×60 chunk＋40ペアの61 chunkへ固定。
+  まずformal先頭166ペア（332局）を6時間以内の外部計算で実施し、以後固定順で進め、
   全完了後に一度だけ判定。既知の除外範囲と未確認祖先を明示し、完全独立とは呼ばない。
   その後seed 43,44への転移を調べる。費用不足は再設計し、データ増量を人間へ要求しない。
 
@@ -307,4 +308,5 @@
 | [自律研究ループの再開準備](results/research-loop-autonomy-20260920/README.md) | H-DECISION-REPLICATION, H-FLOODGATE-2025 | 整備済み入力を登録し、完全分離証明の要求を撤回。通常不足は有界再計画または手法終了へ |
 | [対局手順qualification attempt-001](results/match-protocol-qualification-20260920/README.md) | H-MATCH-PROTOCOL | 8/48件で不成searchmove不一致、棋力未測定、同ジョブをreplan |
 | [対局手順qualification attempt-002](results/match-protocol-qualification-pass-20260920/README.md) | H-MATCH-PROTOCOL, H-DECISION-REPLICATION | 48件480探索完遂、手順合格。棋力未測定、固定cost8の次段階へ |
+| [Floodgate2025固定cost16](results/decision-replication-cost-floodgate2025-20260920/README.md) | H-DECISION-REPLICATION | 16局1,273探索の監査合格、棋力判定は保留。費用だけで正式61 chunkを固定 |
 <!-- result-ledger:end -->

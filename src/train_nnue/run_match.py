@@ -103,14 +103,20 @@ class RootStatisticsEngine:
 def play_game(
     engine1, engine2, go_params, start_sfen=cshogi.STARTING_SFEN,
     max_moves=512, clear_hash_each_move=False, *, history=True, details=None,
+    initial_sfen=None, history_usi=None,
 ):
     """Play from an opening; return black's result and number of legal plies.
 
-    Each game resets both engines. History is complete from the supplied opening
-    (history before that opening is unknown). ``details`` receives an audit trail.
+    Each game resets both engines. Optional source history is legally replayed
+    and included in adjudication, and in USI positions when history=True.
+    max_moves counts only newly played plies. ``details`` receives an audit trail.
     Protocol/illegal-move faults are recorded and raised, never scored as wins.
     """
-    board = cshogi.Board(start_sfen)
+    prefix = list(history_usi or [])
+    if prefix and initial_sfen is None:
+        raise ValueError("history_usi requires initial_sfen")
+    origin = initial_sfen if initial_sfen is not None else start_sfen
+    board = cshogi.Board(origin)
     engines = [engine1, engine2]
     trace = details if details is not None else {}
     trace.update(start_sfen=start_sfen, history=history, moves_usi=[], searches=[])
@@ -118,6 +124,17 @@ def play_game(
     position_key = lambda: " ".join(board.sfen().split()[:3])
     occurrences = {position_key(): [0]}
     checks = []
+    for token in prefix:
+        turn = board.turn
+        move = board.move_from_usi(token)
+        if not move or not board.is_legal(move):
+            raise ValueError(f"illegal source history: {token}")
+        board.push(move)
+        checks.append((turn, board.is_check()))
+        occurrences.setdefault(position_key(), []).append(len(checks))
+    if board.sfen() != start_sfen:
+        raise ValueError("source history does not reconstruct opening SFEN")
+    trace.update(initial_sfen=origin, history_usi=prefix)
 
     def finish(result, reason):
         trace.update(result=result, termination=reason, final_sfen=board.sfen(),
@@ -143,8 +160,8 @@ def play_game(
             return finish(0, "max_moves")
         engine = engines[turn]
         search_started = time.monotonic()
-        position = f"sfen {start_sfen if history else board.sfen()}"
-        moves = list(trace["moves_usi"]) if history else []
+        position = f"sfen {origin if history else board.sfen()}"
+        moves = prefix + list(trace["moves_usi"]) if history else []
         engine.position(sfen=position, moves=moves)
         if clear_hash_each_move:
             engine.setoption("Clear Hash", "")

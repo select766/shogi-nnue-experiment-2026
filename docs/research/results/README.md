@@ -1,5 +1,7 @@
 # 実験結果
 
+- [Floodgate2025固定cost16](decision-replication-cost-floodgate2025-20260920/README.md)
+
 - [対局手順qualification attempt-001](match-protocol-qualification-20260920/README.md)
 
 - [2026-09-20研究レビューと既存対局再解析](research-review-20260920/README.md)

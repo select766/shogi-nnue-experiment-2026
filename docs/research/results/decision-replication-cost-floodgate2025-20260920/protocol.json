@@ -1,0 +1,37 @@
+{
+  "binary": "/home/select766/shogi/train-nnue/.research-loop/experiments/match-protocol-qualification/attempt-002/artifacts/engine-20260920T105932-182634",
+  "options": {
+    "candidate": {
+      "Threads": 1,
+      "USI_Hash": 16,
+      "MultiPV": 1,
+      "USI_Ponder": "false",
+      "BookFile": "no_book",
+      "ResignValue": 99999,
+      "EvalDir": "/home/select766/shogi/train-nnue/bin/eval",
+      "ExpertBlendingDir": "/home/select766/shogi/train-nnue/tmp/decision_aligned_candidate_release",
+      "ClearTTOnDynamicWeights": "true",
+      "LogDynamicWeightCache": "true",
+      "GenerateAllLegalMoves": "false"
+    },
+    "control": {
+      "Threads": 1,
+      "USI_Hash": 16,
+      "MultiPV": 1,
+      "USI_Ponder": "false",
+      "BookFile": "no_book",
+      "ResignValue": 99999,
+      "EvalDir": "/home/select766/shogi/train-nnue/bin/eval",
+      "ExpertBlendingDir": "/home/select766/shogi/train-nnue/tmp/decision_aligned_control_release",
+      "ClearTTOnDynamicWeights": "true",
+      "LogDynamicWeightCache": "true",
+      "GenerateAllLegalMoves": "false"
+    }
+  },
+  "nodes": 100000,
+  "max_moves": 512,
+  "source_history": true,
+  "formal_games": 20000,
+  "cost_games": 16,
+  "seed": "no new RNG; file order; training seed42"
+}

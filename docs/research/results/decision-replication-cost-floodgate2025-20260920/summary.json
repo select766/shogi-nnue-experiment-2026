@@ -1,0 +1,24 @@
+{
+  "complete_games": 16,
+  "pair_seconds": [
+    32.25268876500195,
+    63.22984440000073,
+    6.366162483001972,
+    27.47564067500207,
+    49.621318456000154,
+    39.35185065999758,
+    46.18941916300537,
+    30.858415081002022
+  ],
+  "mean_pair_seconds": 36.91816746037648,
+  "max_pair_seconds": 63.22984440000073,
+  "planning_pair_seconds": 126.45968880000146,
+  "formal_sequential_hours": 102.55046516771245,
+  "conservative_formal_hours": 351.2769133333374,
+  "chunk_pairs": 166,
+  "expected_chunks": 61,
+  "estimate_limitation": "8 cost pairs only; no measured parallel scaling or duration guarantee",
+  "strength_inference": "not measured; cost scores must not select models or conditions",
+  "status": "complete",
+  "failure": null
+}
