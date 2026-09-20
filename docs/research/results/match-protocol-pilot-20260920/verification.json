@@ -1,0 +1,28 @@
+{
+  "verified": true,
+  "games": 56,
+  "openings": 7,
+  "searches": 6034,
+  "nodes_min": 21,
+  "nodes_max": 102868,
+  "cache_events": 6034,
+  "cache_clear_ms": 14501,
+  "terminations": {
+    "no_legal_moves": 56
+  },
+  "per_engine_game_resets": [
+    56,
+    56
+  ],
+  "input_hashes_verified": 18,
+  "review_environment_cshogi_version": "0.9.7",
+  "runtime_cshogi_version": "unknown",
+  "below_budget_searches": 448,
+  "below_budget_with_mate": 448,
+  "evidence_sha256": {
+    "records.json": "fb1c115ff0746738760636f20579822d73e531c9479ee5fddda3d74bb2764300",
+    "openings.json": "b71d9bcb16487966ec67a71743adb12e5bfcefac3aa889045b45166a6ca027a6",
+    "summary.json": "212d172e204475c38149a3a8fff1799ec533ff40a9e8b4644b15a707d563cedc",
+    "manifest.json": "93c80e4226071c399e3465f403400addd76c38002f91614f41e2f0cc6db9cb5e"
+  }
+}

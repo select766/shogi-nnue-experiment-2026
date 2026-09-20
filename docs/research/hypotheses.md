@@ -29,34 +29,47 @@
 以下は[2026-09-20レビュー](results/research-review-20260920/README.md)から追加した。
 具体的条件と段階間の依存は[次期実験計画](experiments/research-next-20260920.md)に記す。
 
-<!-- hypothesis id=H-MATCH-PROTOCOL status=unverified priority=1 -->
-### H-MATCH-PROTOCOL: 履歴と動的重みのキャッシュ管理が棋力差の推定に影響する
-
-- 状態: 未検証。履歴を送らず、動的重み更新時clearも指定しない旧手順を確認した。
-  実装上の差は確認済みだが、棋力差への影響方向・大きさは未測定。
-- 次: 毎局resetと着手履歴送信を整備し、履歴×clearの短期診断。独立棋力追試の前提とする。
-
-<!-- hypothesis id=H-DECISION-REPLICATION status=unverified priority=2 -->
+<!-- hypothesis id=H-DECISION-REPLICATION status=unverified priority=1 -->
 ### H-DECISION-REPLICATION: Decision-alignedの小効果が独立標本と明示した対局手順で再現する
 
-- 状態: 未検証。旧14,000局のペア区間は正だが、単一seed、選択後の追加検証、履歴・TT条件に限定される。
-- 次: 固定候補/対照を新規10,000開始局面・20,000局で比較。旧局数を合算せず一度だけ判定。
-  その後、学習seed 43,44への転移を調べる。
+- 状態: 未検証。[手順pilot](results/match-protocol-pilot-20260920/README.md)は56局を完遂し手順合格。
+  棋力の独立再現は未着手。旧14,000局を合算しない。
+- 次: 旧train/教師/選抜/対局/accuracyを除外した新規10,000棋譜の開始局面manifestを先に固定。
+  棋譜ID・除外を証明できなければ正式追試は保留。履歴・reset・clearありの20,000局を
+  6時間以内のchunkへ分割し、全完了後に一度だけ判定。その後seed 43,44への転移を調べる。
 
-<!-- hypothesis id=H-DEPLOYMENT-STRENGTH status=unverified priority=3 -->
+<!-- hypothesis id=H-MATCH-PROTOCOL status=held priority=2 -->
+### H-MATCH-PROTOCOL: 履歴と動的重みのキャッシュ管理が棋力差の推定に影響する
+
+- 状態: 保留。[pilot](results/match-protocol-pilot-20260920/README.md)の7開始局面×8セルは完遂。
+  6,034探索の履歴・cache証跡を検証し、clear介入で14/14着手列が変化した。
+  履歴単独の着手列は一致したが、棋力影響の方向・大きさ・同等性はいずれも未確定。
+- 次: 実機の反復・連続王手fixtureと実行時版記録を補強し、棋力影響を測る別の
+  対応あり4条件感度試験を事前登録する。正式再現の主条件は成績で選ばず履歴・clearありを維持。
+
+<!-- hypothesis id=H-DAILY-ADJUDICATION status=unverified priority=3 -->
+### H-DAILY-ADJUDICATION: 日次runnerの早期反復裁定が監視結果を変える
+
+- 状態: 未検証。[pilot review](results/match-protocol-pilot-20260920/README.md)で研究runnerは
+  4回出現へ修正した一方、daily_benchmark.gameはcshogi.is_draw()直結のままと確認。
+  実際の日次勝率への影響件数・方向は未測定。
+- 次: 合成fixtureで差を検査し裁定を共通化。既存日次データを候補選抜に使わず、
+  手順変更は新seriesとして準備する。旧seriesを改変・遡及合算しない。
+
+<!-- hypothesis id=H-DEPLOYMENT-STRENGTH status=unverified priority=4 -->
 ### H-DEPLOYMENT-STRENGTH: Expert Blendingが合成費用込みの同じ実時間で標準HalfKPを上回る
 
 - 状態: 未検証。decision-alignedの対照はtask-only Expert Blendingであり、標準HalfKPではない。
   CPUで実行可能という速度測定だけでは、実時間での棋力優位を示さない。
 - 次: 再現候補を固定し、前処理込みの同実時間を主条件、同nodesを副条件として標準NNUEと比較。
 
-<!-- hypothesis id=H-CONDITIONAL-ROUTING status=unverified priority=4 -->
+<!-- hypothesis id=H-CONDITIONAL-ROUTING status=unverified priority=5 -->
 ### H-CONDITIONAL-ROUTING: Decision-aligned改善にはrootごとに変わるgateが寄与している
 
 - 状態: 未検証。現在の対照では、root依存性の改善と全体のexpert利用率の変化を分離できない。
 - 次: 同expertのtrain平均gate・学習した定数logitsと比較し、root入力自体の寄与を測る。
 
-<!-- hypothesis id=H-DECISION-HORIZON status=unverified priority=5 -->
+<!-- hypothesis id=H-DECISION-HORIZON status=unverified priority=6 -->
 ### H-DECISION-HORIZON: 配備探索量に合わせたhard方向教師がdecision-aligned学習を改善する
 
 - 状態: 未検証。現教師は候補10k/reference100k nodes。候補順位のhorizon転移が弱い既存結果がある。
@@ -270,4 +283,5 @@
 | [浅いroot探索統計の棋力追試](results/root-search-stats-strength-20260828/README.md) | H-ROOT-SEARCH-STATS-STRENGTH, H-DECISION-ALIGNED-LOSS | 4,000局で棋力転換を確認できず過去の正方向仮説を深掘り |
 | [24時間 深掘り検証](results/deep-validation-24h-20260828/README.md) | H-DECISION-ALIGNED-LOSS, H-ROOT-SEARCH-STATS | decision-alignedを12,000局で支持しroot統計の独立bestmove転移を棄却 |
 | [2026-09-20研究レビュー](results/research-review-20260920/README.md) | H-RESEARCH-AUDIT, H-DECISION-ALIGNED-LOSS, H-TAIL-OBJECTIVE, H-ROOT-FEATURES, H-ROOT-REPRESENTATION, H-ROOT-SEARCH-STATS, H-TASK-ALIGNED-EXPERTS, H-EXPERT-DIVERSITY, H-LEAF-LOSS-STRENGTH, H-MATCH-PROTOCOL, H-DECISION-REPLICATION, H-DEPLOYMENT-STRENGTH, H-CONDITIONAL-ROUTING, H-DECISION-HORIZON | ペア再解析で旧条件の小効果を維持し、判定範囲を限定。履歴・TT・独立性と配備価値を次期仮説へ分離 |
+| [対局手順pilot](results/match-protocol-pilot-20260920/README.md) | H-MATCH-PROTOCOL, H-DECISION-REPLICATION, H-DAILY-ADJUDICATION | 7開始局面56局・6,034探索の手順合格。棋力影響は保留、独立追試manifestと日次裁定を課題化 |
 <!-- result-ledger:end -->

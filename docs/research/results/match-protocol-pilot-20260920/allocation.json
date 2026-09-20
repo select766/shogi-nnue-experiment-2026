@@ -1,0 +1,9 @@
+{
+  "planned_openings": 7,
+  "slowest_calibration_seconds": 31.821974235001107,
+  "safety_factor": 1.5,
+  "remaining_seconds": 2917.7405866970003,
+  "formal_20000_sequential_hours": 176.78874575000614,
+  "formal_20000_ideal_four_workers_hours": 44.197186437501536,
+  "estimate_caveat": "Synthetic opening estimate; parallel scaling unmeasured"
+}

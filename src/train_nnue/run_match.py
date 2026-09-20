@@ -45,19 +45,35 @@ class RootStatisticsEngine:
     def setoption(self, name, value):
         self.candidate.setoption(name, value)
 
-    def position(self, *, sfen):
+    def isready(self):
+        self.candidate.isready()
+        self.shallow.send("isready")
+        self.shallow.read_until(lambda line: line == "readyok")
+
+    def usinewgame(self):
+        self.candidate.usinewgame()
+        self.shallow.send("usinewgame")
+
+    def position(self, *, sfen, moves=None):
         prefix = "sfen "
         if not sfen.startswith(prefix):
             raise ValueError("RootStatisticsEngine requires an explicit SFEN")
-        self.sfen = sfen[len(prefix):]
-        self.candidate.position(sfen=sfen)
+        board = cshogi.Board(sfen[len(prefix):])
+        for token in moves or []:
+            move = board.move_from_usi(token)
+            if not move or not board.is_legal(move):
+                raise ValueError(f"illegal history move: {token}")
+            board.push(move)
+        self.sfen = board.sfen()
+        self.history_sfen = sfen[len(prefix):] + (" moves " + " ".join(moves) if moves else "")
+        self.candidate.position(sfen=sfen, moves=moves)
 
     def go(self, **go_params):
         if self.sfen is None:
             raise RuntimeError("position must be set before go")
         started = time.monotonic()
         features = shallow_multipv_features(
-            self.shallow, self.sfen, nodes=self.nodes, multipv=self.multipv
+            self.shallow, self.history_sfen, nodes=self.nodes, multipv=self.multipv
         )
         self.shallow_seconds += time.monotonic() - started
         encoded = ",".join(f"{float(value):.8g}" for value in features)
@@ -86,75 +102,78 @@ class RootStatisticsEngine:
 
 def play_game(
     engine1, engine2, go_params, start_sfen=cshogi.STARTING_SFEN,
-    max_moves=512, clear_hash_each_move=False,
+    max_moves=512, clear_hash_each_move=False, *, history=True, details=None,
 ):
-    """1局対局する。
+    """Play from an opening; return black's result and number of legal plies.
 
-    Args:
-        engine1: 先手エンジン
-        engine2: 後手エンジン
-        go_params: Engine.goへ渡す固定探索条件
-        start_sfen: 開始局面
-        max_moves: 最大手数
-
-    Returns:
-        result: 1=先手勝ち, 0=引き分け, -1=後手勝ち
-        moves: 手数
+    Each game resets both engines. History is complete from the supplied opening
+    (history before that opening is unknown). ``details`` receives an audit trail.
+    Protocol/illegal-move faults are recorded and raised, never scored as wins.
     """
     board = cshogi.Board(start_sfen)
     engines = [engine1, engine2]
+    trace = details if details is not None else {}
+    trace.update(start_sfen=start_sfen, history=history, moves_usi=[], searches=[])
+    started = time.monotonic()
+    position_key = lambda: " ".join(board.sfen().split()[:3])
+    occurrences = {position_key(): [0]}
+    checks = []
+
+    def finish(result, reason):
+        trace.update(result=result, termination=reason, final_sfen=board.sfen(),
+                     elapsed_seconds=time.monotonic() - started)
+        return result, len(trace["moves_usi"])
 
     for engine in engines:
-        engine.position(sfen=f"sfen {start_sfen}")
-
-    move_count = 0
-    while move_count < max_moves:
-        turn = board.turn  # 0=BLACK(先手), 1=WHITE(後手)
+        engine.isready()
+        engine.usinewgame()
+    while True:
+        turn = board.turn
+        if board.is_game_over():
+            return finish(-1 if turn == 0 else 1, "no_legal_moves")
+        repetitions = occurrences[position_key()]
+        if len(repetitions) >= 4:
+            cycle = checks[repetitions[-4]:]
+            for checker in (0, 1):
+                own_checks = [check for side, check in cycle if side == checker]
+                if own_checks and all(own_checks):
+                    return finish(-1 if checker == 0 else 1, "perpetual_check_black" if checker == 0 else "perpetual_check_white")
+            return finish(0, "repetition_draw")
+        if len(trace["moves_usi"]) >= max_moves:
+            return finish(0, "max_moves")
         engine = engines[turn]
-
-        # Set position
-        if move_count == 0:
-            engine.position(sfen=f"sfen {board.sfen()}")
-        else:
-            engine.position(sfen=f"sfen {board.sfen()}")
-
-        # Go
+        search_started = time.monotonic()
+        position = f"sfen {start_sfen if history else board.sfen()}"
+        moves = list(trace["moves_usi"]) if history else []
+        engine.position(sfen=position, moves=moves)
         if clear_hash_each_move:
             engine.setoption("Clear Hash", "")
-        bestmove, _ = engine.go(**go_params)
-
-        if bestmove is None or bestmove == 'resign':
-            # Current player resigns -> opponent wins
-            return -1 if turn == 0 else 1, move_count
-        if bestmove == 'win':
-            # Declare win
-            return 1 if turn == 0 else -1, move_count
-
-        # Apply move
-        move = board.move_from_usi(bestmove)
-        if move is None or move == 0:
-            # Invalid move -> current player loses
-            return -1 if turn == 0 else 1, move_count
-
+        infos = []
+        bestmove, _ = engine.go(**go_params, listener=infos.append)
+        nodes = None
+        for line in infos:
+            fields = line.split()
+            if fields[:1] == ["info"] and "nodes" in fields:
+                nodes = int(fields[fields.index("nodes") + 1])
+        trace["searches"].append(dict(
+            turn=turn, position=position + (" moves " + " ".join(moves) if moves else ""),
+            bestmove=bestmove, nodes=nodes, info=infos,
+            elapsed_seconds=time.monotonic() - search_started))
+        if bestmove == "resign":
+            return finish(-1 if turn == 0 else 1, "resign")
+        if bestmove == "win" and board.is_nyugyoku():
+            return finish(1 if turn == 0 else -1, "entering_king")
+        try:
+            move = board.move_from_usi(bestmove) if bestmove not in (None, "win") else 0
+        except (ValueError, TypeError):
+            move = 0
+        if not move or not board.is_legal(move):
+            finish(None, "protocol_error" if bestmove is None else "illegal_move")
+            raise ValueError(f"invalid bestmove {bestmove!r} at {board.sfen()}")
         board.push(move)
-        move_count += 1
-
-        # Check game end
-        if board.is_game_over():
-            # Current side has no legal moves = loses
-            return -1 if board.turn == 0 else 1, move_count
-
-        # Repetition check
-        rep = board.is_draw()
-        if rep == cshogi.REPETITION_DRAW:
-            return 0, move_count
-        elif rep == cshogi.REPETITION_WIN:
-            return 1 if board.turn == 0 else -1, move_count
-        elif rep == cshogi.REPETITION_LOSE:
-            return -1 if board.turn == 0 else 1, move_count
-
-    # Max moves reached -> draw
-    return 0, move_count
+        trace["moves_usi"].append(bestmove)
+        checks.append((turn, board.is_check()))
+        occurrences.setdefault(position_key(), []).append(len(checks))
 
 
 def elo_diff(wins, losses, draws):
@@ -235,6 +254,7 @@ def main():
     )
     parser.add_argument("--max-moves", type=int, default=512, help="Max moves per game")
     parser.add_argument("--clear-hash-each-move", action="store_true")
+    parser.add_argument("--no-history", action="store_true", help="Legacy protocol ablation")
     parser.add_argument("--engine1-root-stats-engine")
     parser.add_argument("--engine1-root-stats-options", default="")
     parser.add_argument("--root-stats-nodes", type=int, default=1024)
@@ -325,11 +345,12 @@ def main():
     for i in range(games):
         opening_index = (i // 2) % len(openings)
         start_sfen = openings[opening_index]["sfen"]
+        trace = {}
         if i % 2 == 0:
             # Engine1 = BLACK (先手), Engine2 = WHITE (後手)
             result, moves = play_game(
                 engine1, engine2, go_params, start_sfen, args.max_moves,
-                args.clear_hash_each_move,
+                args.clear_hash_each_move, history=not args.no_history, details=trace,
             )
             if result > 0:
                 e1_wins += 1
@@ -345,7 +366,7 @@ def main():
             # Engine1 = WHITE (後手), Engine2 = BLACK (先手)
             result, moves = play_game(
                 engine2, engine1, go_params, start_sfen, args.max_moves,
-                args.clear_hash_each_move,
+                args.clear_hash_each_move, history=not args.no_history, details=trace,
             )
             if result > 0:
                 e1_losses += 1
@@ -365,6 +386,8 @@ def main():
             engine1_result = "loss"
         game_details.append(
             {
+                "trace": trace,
+                "opening_source": openings[opening_index],
                 "game": i + 1,
                 "opening_index": opening_index,
                 "sfen": start_sfen,
@@ -398,6 +421,8 @@ def main():
             "engine1": {"path": engine1_path, "options": engine1_opts},
             "engine2": {"path": engine2_path, "options": engine2_opts},
             "search": go_params,
+            "history": not args.no_history,
+            "reset_each_game": True,
             "clear_hash_each_move": args.clear_hash_each_move,
             "engine1_root_statistics": root_statistics_config,
             "engine1_root_statistics_timing": (

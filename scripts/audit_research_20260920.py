@@ -51,17 +51,25 @@ def paired_summary(details):
 
 
 def history_probe():
-    """Spy on actual play_game calls; no external engine is started."""
+    """Probe the current checkout; saved historical probes remain immutable."""
     calls = []
 
     class SpyEngine:
-        def position(self, *, sfen):
-            self.sfen = sfen
+        def isready(self):
+            pass
+
+        def usinewgame(self):
+            pass
+
+        def position(self, *, sfen, moves=None):
+            self.sfen = sfen + (" moves " + " ".join(moves) if moves else "")
+            self.board = cshogi.Board(sfen.removeprefix("sfen "))
+            for move in moves or []:
+                self.board.push_usi(move)
 
         def go(self, **kwargs):
             calls.append(self.sfen)
-            board = cshogi.Board(self.sfen.removeprefix("sfen "))
-            return cshogi.move_to_usi(next(iter(board.legal_moves))), None
+            return cshogi.move_to_usi(next(iter(self.board.legal_moves))), None
 
     play_game(SpyEngine(), SpyEngine(), {"nodes": 1}, max_moves=6)
     return {"plies": len(calls), "search_positions": calls,
