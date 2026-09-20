@@ -48,6 +48,13 @@ Pythonを手動でactivateしない。`python`、`uv run`、`PYTHONPATH=...`を�
 - 仮説の優先順位は従来どおり`docs/research/hypotheses.md`を唯一の正本とする。
   実行状態は`.research-loop/`、引継ぎは課題ごとのattemptフォルダに保存する。
 - 中断後の計算を自動再実行しない。成果物を確認して`retry --phase`を明示する。
+- 約1日1回、最良候補の固定正解率と対基準勝率を日次ジョブで測る。
+  詳細は`docs/operations/daily-benchmark.md`。日次計算中もCodexを起動しない。
+- 最良候補は`configs/research_champion.json`。独立した選抜根拠を記録して更新・コミットする。
+  最新checkpointやlossだけで交代させず、日次監視データを候補選抜・係数調整に使わない。
+- 日次の固定データ・対戦相手・条件はseries内で変更しない。変更時は新seriesにする。
+  機械的な日次観測は個別仮説の判定と別に蓄積し、仮説台帳の毎日更新は不要。
+- 日次評価を遅らせないよう、新規の長い研究計算はできるだけ6時間以内のchunkへ分割する。
 
 ## 現行データ
 

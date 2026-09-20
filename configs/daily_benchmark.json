@@ -1,0 +1,20 @@
+{
+  "series": "growth-v1",
+  "champion": "configs/research_champion.json",
+  "accuracy_dataset": "data/accuracy_eval_10k/test.jsonl",
+  "accuracy_positions": 10000,
+  "accuracy_nodes": 1000000,
+  "opening_source": "data/accuracy_eval_10k/validation.jsonl",
+  "opening_count": 200,
+  "opening_seed": 20260920,
+  "max_abs_eval": 500,
+  "match_nodes": 100000,
+  "max_moves": 512,
+  "workers": 4,
+  "baseline": {
+    "name": "HalfKP-83000",
+    "engine_path": "bin/YaneuraOu-by-gcc",
+    "engine_options": {"Threads": 1, "USI_Hash": 256, "BookFile": "no_book", "EvalDir": "bin/eval"},
+    "assets": ["bin/YaneuraOu-by-gcc", "bin/eval/nn.bin"]
+  }
+}

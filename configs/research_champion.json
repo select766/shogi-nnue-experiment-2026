@@ -1,0 +1,24 @@
+{
+  "id": "decision-aligned-weight005-epoch9",
+  "checkpoint": "logs/decision_aligned_weight005_from_m0/checkpoints/9.ckpt",
+  "evidence": "docs/research/results/research-review-20260920/README.md",
+  "selection_note": "暫定最良候補。旧task-only対照に約+6.7 Eloの信号。標準HalfKPへの優位は未確定。日次評価結果を選抜には使わない。",
+  "engine_path": "bin/YaneuraOu-expert-blending.sh",
+  "engine_options": {
+    "Threads": 1,
+    "USI_Hash": 256,
+    "BookFile": "no_book",
+    "EvalDir": "bin/eval",
+    "ExpertBlendingDir": "tmp/decision_aligned_candidate_release",
+    "ClearTTOnDynamicWeights": "true"
+  },
+  "assets": [
+    "bin/YaneuraOu-expert-blending.sh",
+    "bin/YaneuraOu-expert-blending",
+    "tmp/decision_aligned_candidate_release/backbone.onnx",
+    "tmp/decision_aligned_candidate_release/head.bin",
+    "tmp/decision_aligned_candidate_release/head.json",
+    "bin/eval/nn.bin",
+    "YaneuraOu/extra/onnxruntime/linux/current/lib/libonnxruntime.so.1"
+  ]
+}

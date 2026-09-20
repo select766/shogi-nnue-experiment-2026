@@ -3,5 +3,11 @@
   "session_timeout_seconds": 1800,
   "max_compute_seconds": 86400,
   "poll_seconds": 1,
-  "terminate_grace_seconds": 10
+  "terminate_grace_seconds": 10,
+  "daily_benchmark": {
+    "enabled": true,
+    "config": "configs/daily_benchmark.json",
+    "interval_seconds": 86400,
+    "timeout_seconds": 43200
+  }
 }

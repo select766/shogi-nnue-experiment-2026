@@ -15,6 +15,10 @@ LLMへの問い合わせはない。全phaseは直列。新しい課題の優先
 `docs/research/hypotheses.md`の未完了仮説priorityから毎回読む。キューへ順位を複製しない。
 途中まで準備/計算した課題は、別課題を開始する前にその解釈まで終える。
 
+約24時間ごとの[日次定点評価](daily-benchmark.md)は研究課題の間に優先して実行する。
+これはCodexを使わない組込み計算ジョブで、最良候補の正解率・勝率と成長グラフを更新する。
+日次評価が有効な通常runは、研究キューが空でもモデルを起動せず次の期限を待つ。
+
 ## 初回設定と起動
 
 ホスト環境でCodex CLIへログイン済み、プロジェクトPython環境が構築済みであることが前提。
@@ -27,7 +31,7 @@ bash scripts/research_loop.sh init
 bash scripts/research_loop.sh enqueue configs/research_loop_seed.json
 bash scripts/research_loop.sh status
 
-# ユーザーのターミナル（sandbox外）で起動。キューが空か停止要求まで継続
+# ユーザーのターミナル（sandbox外）で起動。日次評価が有効なら空キューでも待機
 bash scripts/research_loop.sh run
 
 # 最初の1課題だけ完了して終了する場合
@@ -157,8 +161,8 @@ completeは記録完了の意味で、仮説の支持とは限らない。
 
 外部セッションはこのファイルを作り`enqueue PATH.json`で追加できる。reviewのnext_jobsも同じ形式。
 順位変更は仮説台帳で行い、state.jsonは直接編集しない。実験コードの編集前はpauseしworker終了を確認する。
-キュー操作とstatusは実行中も可能。キューが空、依存未完了、対象仮説完了などで実行可能課題が
-なければworkerは終了する。
+キュー操作とstatusは実行中も可能。実行可能課題がない場合、日次評価が無効ならworkerは終了する。
+日次評価が有効なら次の期限を待つ。max-jobs指定時は空キューで終了する。
 
 `configs/research_loop.json`の設定:
 

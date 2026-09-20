@@ -16,6 +16,7 @@
 ## Operations
 
 - [研究ジョブキューと外部セッションからの操作](operations/research-loop.md)
+- [最良候補の日次定点評価と成長グラフ](operations/daily-benchmark.md)
 - [Python環境](operations/python-environments.md)
 - [学習と評価](operations/training-and-evaluation.md)
 - [データ準備](operations/data-preparation.md)

@@ -224,6 +224,10 @@ next_jobsはid/hypothesis/task/depends_onの配列。台帳に登録済みの未
 独立した具体的課題を作る。実施価値がある未完了仮説を残すなら必要な次ジョブを提案する。
 依存する次ジョブのdepends_onには今回のjob IDを入れる。長時間計算を自分で開始しない。
 権限・入力不足などで記録/コミットを完遂できなければblockedとし、理由をsummaryに書く。
+モデルを作った実験ではconfigs/research_champion.jsonの現最良候補と比較する。
+独立した選抜実験の根拠があれば最良候補manifestを新ID・checkpoint・配備ファイル・根拠文書付きで更新し、
+実験コミットへ含める。日次growth評価は監視専用で、同データでの係数調整や候補選抜をしない。
+単なる新checkpointやloss改善だけで最良候補を置き換えない。不確定なら現候補を維持する。
 """
 
 
@@ -346,6 +350,19 @@ class Worker:
         with self.store.edit() as state:
             state["active"] = {"job": job_id, "phase": phase, "run_dir": str(run_dir),
                                "worker_pid": os.getpid(), "started_at": now(), "pid": None}
+        if job.get("kind") == "daily_benchmark":
+            process = self.run_process(
+                [str(self.root / "scripts/project_python.sh"), "-m", "train_nnue.daily_benchmark",
+                 "--run-dir", str(run_dir)], "execute", run_dir, job_id, job["timeout_seconds"], lock)
+            write_json(run_dir / "execution.json", process)
+            if process["exit_code"] != 0 or process["reason"] != "exited":
+                raise ValueError(f"daily benchmark failed: {process['reason']}; inspect logs and retry execute")
+            completion = read_json(run_dir / "benchmark-complete.json")
+            with self.store.edit() as state:
+                saved = next(j for j in state["jobs"] if j["id"] == job_id)
+                saved.update(status="done", completed_at=now(), message=completion["dashboard"])
+                state["active"] = None
+            return
         if phase in {"prepare", "review"}:
             output = run_dir / f"{phase}.json"
             # Preserve failed session outputs on retry; never accept an old answer.
@@ -425,8 +442,23 @@ class Worker:
                         return 0
                     if any(j["status"] == "blocked" for j in state["jobs"]):
                         return 2
+                    daily = self.config.get("daily_benchmark", {})
+                    ongoing = any(j["status"] == "queued" and j["phase"] != "prepare" for j in state["jobs"])
+                    if daily.get("enabled") and not ongoing:
+                        from train_nnue.daily_benchmark import schedule
+                        try:
+                            schedule(self.root, self.store, daily)
+                        except Exception as error:
+                            with self.store.edit() as saved:
+                                saved.update(paused=True, benchmark_error=str(error))
+                            print(f"Daily scheduling blocked: {error}", file=sys.stderr)
+                            return 2
+                        state = self.store.snapshot()
                     job = choose(state, registry(self.root))
                     if job is None:
+                        if daily.get("enabled") and not max_jobs:
+                            time.sleep(self.config["poll_seconds"])
+                            continue
                         return 0
                     try:
                         self.phase(job, lock)
@@ -435,7 +467,7 @@ class Worker:
                         print(f"Blocked {job['id']}: {error}", file=sys.stderr)
                         return 2
                     state = self.store.snapshot()
-                    if next(j for j in state["jobs"] if j["id"] == job["id"])["status"] == "done":
+                    if job.get("kind") != "daily_benchmark" and next(j for j in state["jobs"] if j["id"] == job["id"])["status"] == "done":
                         completed += 1
                     if max_jobs and completed >= max_jobs:
                         return 0
@@ -475,6 +507,8 @@ def main(argv=None):
     cancel = sub.add_parser("cancel")
     cancel.add_argument("job_id")
     sub.add_parser("recover")
+    sub.add_parser("benchmark-init")
+    sub.add_parser("benchmark-enqueue")
     args = parser.parse_args(argv)
     store = Store(args.state_dir)
     try:
@@ -492,10 +526,24 @@ def main(argv=None):
             hypotheses = registry(ROOT)
             for job in state["jobs"]:
                 job["priority"] = hypotheses.get(job["hypothesis"], {}).get("priority")
+            if args.config.exists():
+                from train_nnue.daily_benchmark import due
+                settings = read_json(args.config).get("daily_benchmark", {})
+                state["daily_benchmark"] = {"enabled": settings.get("enabled", False),
+                                             "due": due(state, settings.get("interval_seconds", 86400)),
+                                             "config": settings.get("config")}
             print(json.dumps(state, indent=2, ensure_ascii=False))
         elif args.command == "enqueue":
             with store.edit() as state:
                 add_jobs(state, [read_json(args.job_file)], registry(ROOT))
+        elif args.command in {"benchmark-init", "benchmark-enqueue"}:
+            from train_nnue.daily_benchmark import initialize, schedule
+            settings = read_json(args.config)["daily_benchmark"]
+            with workspace_lock(Store(ROOT / ".research-loop")), store.worker_lock():
+                if args.command == "benchmark-init":
+                    print(initialize(ROOT, store.directory, Path(settings["config"])))
+                else:
+                    print(schedule(ROOT, store, settings, force=True))
         elif args.command in {"pause", "resume"}:
             with store.edit() as state:
                 state["paused"] = args.command == "pause"
@@ -528,10 +576,12 @@ def main(argv=None):
                     job = next((j for j in state["jobs"] if j["id"] == args.job_id), None)
                     if job is None or job["status"] != "blocked":
                         raise ValueError("retry requires a blocked job")
+                    if job.get("kind") == "daily_benchmark" and args.phase != "execute":
+                        raise ValueError("daily benchmark retry uses --phase execute (no Codex session)")
                     if args.phase != "prepare":
                         if not job["attempts"]:
                             raise ValueError("no prior attempt to retry")
-                        required = "prepared.json" if args.phase == "execute" else "execution.json"
+                        required = "benchmark.json" if job.get("kind") == "daily_benchmark" else "prepared.json" if args.phase == "execute" else "execution.json"
                         if not (Path(job["attempts"][-1]) / required).exists():
                             raise ValueError(f"retry requires {required}")
                     job.update(status="queued", phase=args.phase, message="explicit retry requested")
