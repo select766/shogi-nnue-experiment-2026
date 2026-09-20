@@ -1,0 +1,1 @@
+Independent cshogi CSA parser: 200 raw games; names/ratings/all moves/reported scores/hash match

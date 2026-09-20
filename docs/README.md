@@ -20,6 +20,7 @@
 - [Python環境](operations/python-environments.md)
 - [学習と評価](operations/training-and-evaluation.md)
 - [データ準備](operations/data-preparation.md)
+- [Floodgate 2025・双方R3500以上の実手数付きデータ](operations/floodgate2025.md)
 - [最善手一致率の仕様](operations/accuracy-evaluation.md)
 - [Expert分析と可視化](operations/expert-analysis.md)
 - [やねうら王ビルド (Linux)](operations/engine-build-linux.md)

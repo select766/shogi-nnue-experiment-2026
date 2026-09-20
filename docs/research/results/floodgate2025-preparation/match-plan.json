@@ -1,0 +1,26 @@
+{
+  "created_at": "2026-09-20T10:06:28.151082+00:00",
+  "seed": "floodgate2025-match-plan-v1",
+  "source_manifest": "dataset/floodgate2025/curated-v1/manifest.json",
+  "source_manifest_sha256": "31a8d11f675285ecb8ff8ecbeacf6838f3a178412ba605836b98617d85d5f2f3",
+  "source_pool_sha256": "85599845b58893b1f5e023c95aba19b72476e7934c2258eac3b56fda8f2dfa5a",
+  "code_sha256": "cf107ca8c9501edc03afb9277e5ccf679c33406e6c5d67cee2c6e1ed24e6e4b0",
+  "files": {
+    "cost8.jsonl": {
+      "count": 8,
+      "sha256": "489fb26bf06718c05b0f447195a9c4a02dedecca2fc2c01c3b79bf7f256e2168"
+    },
+    "openings10000.jsonl": {
+      "count": 10000,
+      "sha256": "ecf70e1cec54e5274f2581c21cf66657110a25e5d91902f4e1b2c21a5bed654d"
+    },
+    "reserve.jsonl": {
+      "count": 1324,
+      "sha256": "fef2d6763ecc5d0c6de41700219995446d994bb4f8f1dde1561b1d9520357cc2"
+    }
+  },
+  "purpose": "Fixed input pools only; no matches or model-strength claims",
+  "history": "history_usi reconstructs original game; decide and preregister whether match runner uses it",
+  "independence": "one position per original game; excludes explicitly inventoried old positions, not all pretraining ancestors",
+  "reserve_policy": "Do not replace bad match outcomes with reserve entries"
+}

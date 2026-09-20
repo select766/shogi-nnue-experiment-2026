@@ -1,0 +1,21 @@
+{
+  "source_url": "https://wdoor.c.u-tokyo.ac.jp/shogi/archive/wdoor2025.7z",
+  "archive": "dataset/floodgate2025/raw/wdoor2025.7z",
+  "archive_sha256": "423504903f211316ec40f9c3d8dcc2e5faf392fc4d1334ede1489242a9d09baa",
+  "output": "dataset/floodgate2025/curated-v1",
+  "year": 2025,
+  "min_rating": 3500,
+  "seed": "floodgate2025-v1",
+  "sample_min_ply": 24,
+  "opening_max_abs_score": 500,
+  "exclude_jsonl": [
+    "data/accuracy_eval/train.jsonl",
+    "data/accuracy_eval/val.jsonl",
+    "data/accuracy_eval/test.jsonl",
+    "data/accuracy_eval_10k/validation.jsonl",
+    "data/accuracy_eval_10k/test.jsonl",
+    "data/match_eval/proxy_gap_openings_200.jsonl",
+    "tmp/search_utility_v1/pilot/details.jsonl"
+  ],
+  "exclude_match_json": ["results/match_decision_aligned_14000.json"]
+}

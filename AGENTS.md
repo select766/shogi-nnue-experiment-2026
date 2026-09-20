@@ -39,8 +39,10 @@ Pythonを手動でactivateしない。`python`、`uv run`、`PYTHONPATH=...`を�
 
 ## 研究ループの運用
 
-- 5分を超える計算はCodexセッション内で起動・監視せず、研究ジョブキューへ渡す。
-  セッション内の短い検査には`timeout 300`を使う。
+- 研究ループが起動するprepare/reviewのCodexセッションでは、5分を超える計算を
+  起動・監視せず外部計算phaseまたは次ジョブへ渡す。短い検査には`timeout 300`を使う。
+  この時間制限はループ外でユーザーが直接依頼する整備・デバッグ・調査セッションには適用しない。
+  ループ外では依頼内容と作業規模に応じて実行時間を判断する。安全・権限・GPU等の規則は共通。
 - 管理入口は`bash scripts/research_loop.sh`。詳細は`docs/operations/research-loop.md`。
   ユーザーがsandbox外で`run`を起動し、prepareとreviewは毎回新規Codexセッションで実施する。
 - 外部セッションは`status`、`pause`、`pause --now`、`enqueue`で確認・制御できる。
@@ -66,6 +68,13 @@ Pythonを手動でactivateしない。`python`、`uv run`、`PYTHONPATH=...`を�
 - 再生成元: `dataset/tanuki-.nnue-pytorch-2024-07-30.1/`
 - 初期NNUE: `logs/halfkp_v1/checkpoints/83000.ckpt`
 - DNN backbone: `tmp/dlshogi-model/model_resnet10_swish-072`
+- 実手数・元棋譜付き評価: `dataset/floodgate2025/curated-v1/`（原棋譜の双方rating>=3500）。
+  固定追試入力は`dataset/floodgate2025/match-plan-v1/`。詳細は`docs/operations/floodgate2025.md`。
+
+テスト用棋譜は取得済みデータを優先する。来歴不明点は調査後にまとめてユーザーへ質問し、
+回答を永続記録する。人間による継続的なデータ補充を前提にせず、不足時は既存エンジンの
+自動対局で生成し来歴を記録してよい。外部棋譜の追加取得はユーザーが明示的に依頼した場合に限る。
+pretraining祖先までの完全分離証明を一律の開始条件にせず、確認済み範囲と限界を報告する。
 
 旧`split_v1`、旧paired、`uniform_50_old`は削除済み。archiveの旧パスを使わない。
 

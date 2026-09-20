@@ -36,10 +36,13 @@ rootでDNNを1回実行し探索終了までblend固定、8 expertsという配�
 - 候補: `logs/decision_aligned_weight005_from_m0/checkpoints/9.ckpt`
 - 対照: `logs/decision_aligned_control_from_m0/checkpoints/9.ckpt`
 - 両側Threads=1、10万nodes、同一hash容量、履歴あり、毎局reset、動的重み更新時clearあり。
-- 開始局面: 旧train/utility教師/選抜/対局/accuracy全splitを除外した、出典を識別できる
-  新規10,000棋譜から各1局面。`abs(eval)<=500`、合法な非終局面、先後反転で20,000局。
-  盤面・手番・持駒で重複排除。元棋譜IDが得られない場合は「棋譜単位で独立」とせず、
-  別出典の棋譜を調達してから正式標本とmanifestを固定する。
+- 開始局面（2026-09-20更新）: [整備済みFloodgate 2025](../../operations/floodgate2025.md)の
+  `dataset/floodgate2025/match-plan-v1/openings10000.jsonl`。双方R3500以上、元棋譜ID付きの
+  10,000棋譜から各1局面。`abs(eval)<=500`は対局者の報告値による近似条件。
+  先後反転で20,000局。既知の旧評価・教師・対局局面と重複除外済みで、照合範囲はmanifestに記録。
+  pretraining祖先までの完全分離は未証明と明記するが、それ自体を開始阻害条件にしない。
+  cost8.jsonlの別8棋譜で先に費用を測る。原棋譜のhistory_usiをエンジンへ渡すか、抽出SFENから
+  新規対局とするかは、本番前に固定して記録する。追加の棋譜提供をユーザーに要求しない。
 - 20,000局の最終結果を一度だけ判定。旧14,000局は合算しない。途中成績による延長や
   checkpoint選び直しをしない。停止が必要なら未完了と記録する。
 - 主指標: ペア単位score/Eloと95%区間。下端`>0`なら独立再現支持、上端`<0`なら

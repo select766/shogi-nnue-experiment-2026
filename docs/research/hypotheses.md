@@ -78,6 +78,16 @@
 
 ## 判定済み仮説
 
+<!-- hypothesis id=H-FLOODGATE-2025 status=measured -->
+### H-FLOODGATE-2025: 原棋譜から双方R3500以上の実手数・履歴付き評価標本を構成できる
+
+- 状態: 測定完了。[2025年データ整備](results/floodgate2025-preparation/README.md)で
+  128,843棋譜を走査し、38,351棋譜・5,710,803局面を採用、全件再生検証を通過した。
+  開発・選抜・test・対局を棋譜単位で分け、費用測定8棋譜と本番10,000棋譜も固定。
+- H-DECISION-REPLICATIONの次の準備は本データを使用する。上記旧計画の完全な祖先分離証明は
+  開始条件から外し、既知の重複除外範囲と未確認範囲を明示する。優先順位は維持する。
+  元の保留attemptは履歴として残す。新しい棋力の判定・対局はまだ行っていない。
+
 <!-- hypothesis id=H-RESEARCH-AUDIT status=measured -->
 ### H-RESEARCH-AUDIT: 保存された対局明細から小効果の統計とデータ分離を再点検できる
 
@@ -284,4 +294,5 @@
 | [24時間 深掘り検証](results/deep-validation-24h-20260828/README.md) | H-DECISION-ALIGNED-LOSS, H-ROOT-SEARCH-STATS | decision-alignedを12,000局で支持しroot統計の独立bestmove転移を棄却 |
 | [2026-09-20研究レビュー](results/research-review-20260920/README.md) | H-RESEARCH-AUDIT, H-DECISION-ALIGNED-LOSS, H-TAIL-OBJECTIVE, H-ROOT-FEATURES, H-ROOT-REPRESENTATION, H-ROOT-SEARCH-STATS, H-TASK-ALIGNED-EXPERTS, H-EXPERT-DIVERSITY, H-LEAF-LOSS-STRENGTH, H-MATCH-PROTOCOL, H-DECISION-REPLICATION, H-DEPLOYMENT-STRENGTH, H-CONDITIONAL-ROUTING, H-DECISION-HORIZON | ペア再解析で旧条件の小効果を維持し、判定範囲を限定。履歴・TT・独立性と配備価値を次期仮説へ分離 |
 | [対局手順pilot](results/match-protocol-pilot-20260920/README.md) | H-MATCH-PROTOCOL, H-DECISION-REPLICATION, H-DAILY-ADJUDICATION | 7開始局面56局・6,034探索の手順合格。棋力影響は保留、独立追試manifestと日次裁定を課題化 |
+| [Floodgate 2025データ整備](results/floodgate2025-preparation/README.md) | H-FLOODGATE-2025, H-DECISION-REPLICATION | 双方R3500以上38,351棋譜・実手数付き571万局面、棋譜分離と固定対局用1万局面を整備 |
 <!-- result-ledger:end -->
