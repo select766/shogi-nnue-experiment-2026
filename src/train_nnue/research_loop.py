@@ -210,6 +210,10 @@ def prompt(phase, root, run_dir):
   結果はRUN_DIR/artifacts/へ、大量stdoutは/tmp/*.logへ。RUN_DIR/result-summary.mdへ
   読みやすい64KiB以内の要約と詳細成果物パスを保存する。失敗時にも分かる進捗・ログを残す。
   retry時の挙動（checkpoint再開か最初からか）をhandoff.mdへ明記する。
+共通ツール・実験固有スクリプトとも、結果を変えず独立実行できる作業は必ず並列化する。
+planに並列化単位、worker数、CPU/メモリ上限、同等性検査を書く。逐次なら具体的理由を書く。
+固定nodes対局はThreads=1・先後ペア単位で標準4 workers。時間制限/速度測定は競合条件に注意。
+docs/operations/match-parallelism.mdを読む。旧manifestを上書きせず明示移行する。
 必要なrepoコードと5分以内の検査を実装し、対象仮説を検証中にする。新仮説は台帳に安定IDで登録する。
 run.shを自分で起動してはいけない。prepare後にあなたのプロセスが終了してから外側が実行する。
 最終JSONのstatusはready/replan/needs_human/blocked。timeout_secondsは本体の上限秒（job.jsonの設定上限以下）。
@@ -238,7 +242,8 @@ submoduleを変えた場合は先にそのコミットを作る。run.sh/plan/ha
 最終JSON: status completeは検証結果の記録・コミットまで完了した意味（仮説支持とは別）。
 commitは実在コミットSHA、reportはrepo相対の恒久結果文書パス、summaryは判断の短い要約。
 next_jobsはid/hypothesis/task/depends_onの配列。台帳に登録済みの未完了仮説から、
-独立した具体的課題を作る。実施価値がある未完了仮説を残すなら必要な次ジョブを提案する。
+独立した具体的課題を作る。既存キューで予定済みの課題は再提案しない。next_jobs=[]も有効。
+未登録の必要な次ジョブだけを提案する。
 依存する次ジョブのdepends_onには今回のjob IDを入れる。長時間計算を自分で開始しない。
 記録/コミット自体を完遂できなければblockedとし、理由をsummaryに書く。通常入力不足とは区別する。
 モデルを作った実験ではconfigs/research_champion.jsonの現最良候補と比較する。
@@ -464,7 +469,11 @@ class Worker:
             if output.exists():
                 output.rename(run_dir / f"{phase}-previous-{index:03d}.json")
             prompt_path = run_dir / f"{phase}-prompt-{index:03d}.md"
-            prompt_path.write_text(prompt(phase, self.root, run_dir))
+            queue = [{k: j.get(k) for k in ("id", "hypothesis", "task", "depends_on", "status", "phase")}
+                     for j in self.store.snapshot()["jobs"]]
+            prompt_path.write_text(prompt(phase, self.root, run_dir) +
+                                  "\n既存キュー（登録済みIDはnext_jobsに再提案しない）:\n" +
+                                  json.dumps(queue, ensure_ascii=False, indent=2))
             schema_path = run_dir / f"{phase}.schema.json"
             write_json(schema_path, schema(phase))
             command = self.config["codex_command"] + ["--cd", str(self.root), "--output-schema",
@@ -521,7 +530,7 @@ class Worker:
             saved.update(phase=next_phase, message=f"{phase} finished")
             state["active"] = None
 
-    def run(self, max_jobs=0):
+    def run(self, max_jobs=0, max_phases=0):
         # A second state directory must not circumvent workspace mutual exclusion.
         workspace = Store(self.root / ".research-loop")
         with workspace_lock(workspace) as workspace_file, self.store.worker_lock() as lock:
@@ -530,6 +539,7 @@ class Worker:
             if state["active"] is not None:
                 raise ValueError("unclean previous exit; use recover after checking recorded processes")
             completed = 0
+            phases = 0
             idle_announced = False
             previous = {}
             for signum in (signal.SIGINT, signal.SIGTERM):
@@ -571,6 +581,9 @@ class Worker:
                         self.block(job["id"], str(error))
                         print(f"Blocked {job['id']}: {error}", file=sys.stderr)
                         return 2
+                    phases += 1
+                    if max_phases and phases >= max_phases:
+                        return 0
                     state = self.store.snapshot()
                     if job.get("kind") != "daily_benchmark" and next(j for j in state["jobs"] if j["id"] == job["id"])["status"] in {"done", "abandoned", "needs_human"}:
                         completed += 1
@@ -603,6 +616,10 @@ def main(argv=None):
     add.add_argument("job_file", type=Path)
     run = sub.add_parser("run")
     run.add_argument("--max-jobs", type=int, default=0, help="0: run indefinitely, including idle time, until paused or error")
+    run.add_argument("--max-phases", type=int, default=0, help="stop after this many phases, including replan reviews")
+    apply = sub.add_parser("apply-review", help="validate and apply a saved successful review, then remain paused; no Codex or computation")
+    apply.add_argument("job_id")
+    apply.add_argument("--omit-existing-job", action="append", default=[])
     pause = sub.add_parser("pause")
     pause.add_argument("--now", action="store_true", help="terminate active process group")
     sub.add_parser("resume")
@@ -654,6 +671,40 @@ def main(argv=None):
                     print(initialize(ROOT, store.directory, Path(settings["config"])))
                 else:
                     print(schedule(ROOT, store, settings, force=True))
+        elif args.command == "apply-review":
+            with workspace_lock(Store(ROOT / ".research-loop")), store.worker_lock():
+                state = store.snapshot()
+                if not state["paused"] or state["active"]:
+                    raise ValueError("apply-review requires paused, inactive queue")
+                job = next(j for j in state["jobs"] if j["id"] == args.job_id)
+                if job["status"] != "blocked" or job["phase"] != "review":
+                    raise ValueError("apply-review requires a blocked review")
+                directory = Path(job["attempts"][-1])
+                process = read_json(directory / "review-process.json")
+                if process["exit_code"] != 0 or process["reason"] != "exited":
+                    raise ValueError("saved review session did not succeed")
+                result = read_json(directory / "review.json")
+                Worker(ROOT, store, read_json(args.config)).validate_review(result, directory)
+                omitted = []
+                for key in args.omit_existing_job:
+                    proposal = next((j for j in result["next_jobs"] if j["id"] == key), None)
+                    existing = next((j for j in state["jobs"] if j["id"] == key), None)
+                    if not proposal or not existing or existing["status"] != "queued" or any(
+                        proposal[k] != existing[k] for k in ("hypothesis", "depends_on")
+                    ):
+                        raise ValueError("omission requires a queued job with matching hypothesis and dependencies")
+                    omitted.append({"proposal": proposal, "existing": existing})
+                    result["next_jobs"].remove(proposal)
+                with store.edit() as current:
+                    if current != state:
+                        raise ValueError("queue changed during review validation")
+                    finish_review(current, args.job_id, result, directory, registry(ROOT))
+                    current.setdefault("review_applications", []).append({
+                        "job": args.job_id, "at": now(), "review_sha256": hashlib.sha256(
+                            (directory / "review.json").read_bytes()).hexdigest(),
+                        "omitted": omitted, "commit": result["commit"]})
+                    current["paused"] = True
+                print("Saved review applied; queue remains paused; no computation started")
         elif args.command in {"pause", "resume"}:
             with store.edit() as state:
                 state["paused"] = args.command == "pause"
@@ -722,7 +773,7 @@ def main(argv=None):
                     job.update(status="queued", phase=args.phase, message="explicit retry requested")
         elif args.command == "run":
             config = read_json(args.config)
-            if args.max_jobs < 0 or any(config[k] <= 0 for k in (
+            if args.max_jobs < 0 or args.max_phases < 0 or any(config[k] <= 0 for k in (
                 "session_timeout_seconds", "max_compute_seconds", "poll_seconds", "terminate_grace_seconds"
             )):
                 raise ValueError("limits must be positive")
@@ -730,7 +781,7 @@ def main(argv=None):
                 raise ValueError("codex_command must be a nonempty argv array")
             if any(v in {"resume", "fork", "--last"} for v in config["codex_command"]):
                 raise ValueError("research phases must use fresh sessions, not resume/fork")
-            return Worker(ROOT, store, config).run(args.max_jobs)
+            return Worker(ROOT, store, config).run(args.max_jobs, args.max_phases)
         return 0
     except (ValueError, OSError, subprocess.SubprocessError) as error:
         print(f"research-loop: {error}", file=sys.stderr)

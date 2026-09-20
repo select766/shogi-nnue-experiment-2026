@@ -216,3 +216,9 @@ timeout 300 scripts/project_python.sh -m unittest tests.test_research_loop
 模擬Codexと短い実プロセスで、fresh session分離、計算中にprepareプロセスがないこと、
 優先順位・依存、JSON不正、計算失敗、timeout、境界停止・即時中断、二重起動、
 dirty worktree保護、キュー更新の原子性を検査する。学習やAPI呼出しは行わない。
+
+## phase限定実行と保存済みreviewの復旧
+
+`run --max-phases 1`は再計画を含め1 phaseで終了する。`--max-jobs 1`はreplan後の計算まで
+継続し得る。保存済みreviewの反映失敗は`apply-review`で検証・反映だけを実施できる。
+詳細と重複提案の明示除外は[並列化と復旧](match-parallelism.md)を参照。

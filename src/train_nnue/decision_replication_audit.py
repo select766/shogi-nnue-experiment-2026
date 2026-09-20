@@ -72,7 +72,8 @@ def audit_pair(OUT, opening, protocol, libraries):
             cache = [x for x in s['info'] if x.startswith('info string dynamic_weight_cache ')]
             assert len(cache) == 1 and 'clear=1 ' in cache[0]
             ns = [int(x.split()[x.split().index('nodes')+1]) for x in s['info'] if x.startswith('info ') and 'nodes' in x.split()]
-            assert ns and ns[-1] == s['nodes'] and s['nodes'] > 0
+            assert ns and ns[-1] == s['nodes'] and all(n >= 0 for n in ns)
+            assert s['nodes'] > 0 or (s['bestmove'] == 'win' and b.is_nyugyoku())
             nodes.append(s['nodes'])
             assert s['info'][-1].split()[:2] == ['bestmove',s['bestmove']]
             token = s['bestmove']

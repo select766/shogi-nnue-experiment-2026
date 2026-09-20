@@ -15,6 +15,7 @@
 
 ## Operations
 
+- [対局・実験の並列化と停止中の復旧](operations/match-parallelism.md)
 - [研究ジョブキューと外部セッションからの操作](operations/research-loop.md)
 - [自律研究・再計画・人間判断の境界](operations/research-autonomy.md)
 - [最良候補の日次定点評価と成長グラフ](operations/daily-benchmark.md)

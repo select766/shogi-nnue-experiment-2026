@@ -391,6 +391,52 @@ class ResearchLoopTest(unittest.TestCase):
         self.assertTrue(state["paused"])
         self.assertEqual(state["jobs"][0]["status"], "blocked")
 
+    def test_phase_limit_stops_after_replan_review(self):
+        self.mode.write_text('replan')
+        self.enqueue()
+        self.assertEqual(Worker(self.root,self.store,self.config).run(max_phases=2),0)
+        job=self.store.snapshot()['jobs'][0]
+        self.assertEqual(job['phase'],'prepare')
+        self.assertEqual(len(job['attempts']),1)
+        self.assertEqual(len(job['replan_history']),1)
+
+    def test_phase_limit_stops_after_prepare_without_compute(self):
+        self.enqueue()
+        self.assertEqual(Worker(self.root,self.store,self.config).run(max_phases=1),0)
+        job=self.store.snapshot()['jobs'][0]
+        self.assertEqual(job['phase'],'execute')
+        self.assertFalse((Path(job['attempts'][0])/'execution.json').exists())
+
+    def test_apply_saved_review_omits_only_explicit_existing_job_and_stays_paused(self):
+        self.enqueue()
+        self.enqueue('existing','H-TWO')
+        directory=self.store.directory/'saved'
+        directory.mkdir()
+        proposal=dict(id='existing',hypothesis='H-TWO',task='Reworded task',depends_on=[])
+        result=dict(status='replan',summary='repair',commit='abc1234',report='report',next_jobs=[proposal])
+        write_json(directory/'review.json',result)
+        write_json(directory/'review-process.json',dict(exit_code=0,reason='exited'))
+        write_json(directory/'resolution.json',dict(obstacle='bug',attempted='checked',next_task='fix'))
+        config=self.root/'config.json'
+        write_json(config,self.config)
+        with self.store.edit() as state:
+            state['paused']=True
+            state['jobs'][0].update(status='blocked',phase='review',attempts=[str(directory)])
+        argv=['--config',str(config),'apply-review','first']
+        with patch('train_nnue.research_loop.ROOT',self.root), patch.object(Worker,'validate_review'):
+            self.assertEqual(main(argv),2)
+            self.assertEqual(self.store.snapshot()['jobs'][0]['status'],'blocked')
+            self.assertEqual(main(argv+['--omit-existing-job','existing']),0)
+            self.assertEqual(main(argv+['--omit-existing-job','existing']),2)
+        state=self.store.snapshot()
+        self.assertTrue(state['paused'])
+        self.assertEqual(state['jobs'][0]['phase'],'prepare')
+        self.assertEqual(len(state['jobs'][0]['replan_history']),1)
+        self.assertEqual(len(state['jobs']),2)
+        self.assertEqual(len(state['review_applications']),1)
+        self.assertEqual(json.loads((directory/'review.json').read_text()),result)
+        self.assertEqual(self.events(),[])
+
 
 if __name__ == "__main__":
     unittest.main()

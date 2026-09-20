@@ -67,7 +67,7 @@ class FormalTest(unittest.TestCase):
                                initial_sfen=cshogi.STARTING_SFEN, history_usi=[])
                 config = dict(binary='unused', options={'candidate': {}, 'control': {}}, nodes=100000, max_moves=512)
                 engines = []
-                def engine(*args):
+                def engine(*args, **kwargs):
                     e = Mock()
                     e.process.pid = __import__('os').getpid()
                     e.options, e.advertised = {}, []
@@ -112,3 +112,48 @@ class FormalTest(unittest.TestCase):
                 self.assertLess((run/'result-summary.md').stat().st_size, 65536)
                 for e in engines:
                     e.quit.assert_called_once()
+
+    def test_workers_use_disjoint_pairs_and_aggregate_in_id_order(self):
+        import threading
+        barrier=threading.Barrier(4)
+        assignments=[]
+        with tempfile.TemporaryDirectory() as directory:
+            run=Path(directory)
+            dump(run/'libraries.json', {})
+            dump(run/'input-manifest.json', {})
+            def worker(run,out,tasks,protocol,libraries,deadline,stop):
+                assignments.append([i for i,_ in tasks])
+                barrier.wait(timeout=3)
+                return [dict(pair_id=i) for i,_ in tasks]
+            with patch(MODULE+'check',return_value=({'first_pair':64},[{}]*8,{})), \
+                 patch(MODULE+'identity',return_value={}), \
+                 patch(MODULE+'runtime_manifest',return_value={}), \
+                 patch(MODULE+'_worker',side_effect=worker):
+                execute(run,10,workers=4)
+            out=Path(json.loads((run/'artifacts/latest.json').read_text())['directory'])
+            summary=json.loads((out/'summary.json').read_text())
+            self.assertEqual([r['pair_id'] for r in summary['pairs']],list(range(64,72)))
+            self.assertEqual(sorted(assignments),[[64,68],[65,69],[66,70],[67,71]])
+
+    def test_worker_failure_cancels_siblings_and_preserves_failure_summary(self):
+        import threading
+        barrier=threading.Barrier(2)
+        cancelled=threading.Event()
+        with tempfile.TemporaryDirectory() as directory:
+            run=Path(directory)
+            dump(run/'libraries.json', {})
+            dump(run/'input-manifest.json', {})
+            def worker(run,out,tasks,protocol,libraries,deadline,stop):
+                barrier.wait(timeout=3)
+                if tasks[0][0]==1:
+                    stop.set()
+                    raise ValueError('worker failed')
+                if stop.wait(3): cancelled.set()
+                return []
+            with patch(MODULE+'check',return_value=({'first_pair':1},[{},{}],{})), \
+                 patch(MODULE+'identity',return_value={}), \
+                 patch(MODULE+'runtime_manifest',return_value={}), \
+                 patch(MODULE+'_worker',side_effect=worker):
+                with self.assertRaisesRegex(ValueError,'worker failed'): execute(run,10,workers=2)
+            self.assertTrue(cancelled.is_set())
+            self.assertIn('worker failed',(run/'result-summary.md').read_text())

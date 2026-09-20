@@ -1,4 +1,7 @@
 """Fixed formal chunks with durable, audited complete-pair reuse on explicit retry."""
+from concurrent.futures import ThreadPoolExecutor
+import threading
+import uuid
 import argparse
 import gzip
 import json
@@ -66,30 +69,25 @@ def save_log_slice(source, start, target):
             dest.write(data)
 
 
-def execute(run, budget):
-    out = run / 'artifacts' / (time.strftime('execution-%Y%m%dT%H%M%S') + f'-{os.getpid()}')
-    out.mkdir(parents=True)
-    dump(run / 'artifacts/latest.json', dict(directory=str(out)))
-    deadline = time.monotonic() + budget
+def _worker(run, out, tasks, protocol, libraries, deadline, stop):
+    out.mkdir(parents=True, exist_ok=True)
     engines, logs, accepted = [], {}, []
     status, failure = 'failed', 'interrupted'
     try:
-        chunk, openings, protocol = check(run)
-        libraries = load(run / 'libraries.json')
-        dump(out / 'manifest.json', runtime_manifest(list(load(run / 'input-manifest.json'))))
-        dump(out / 'identity.json', identity(run))
-        for pair_id, opening in enumerate(openings, chunk['first_pair']):
+        for pair_id, opening in tasks:
             entry = reusable(run, pair_id, opening, protocol, libraries)
             if entry:
                 accepted.append(entry)
                 continue
+            if stop.is_set():
+                raise InterruptedError('another worker stopped')
             if time.monotonic() >= deadline:
                 raise TimeoutError('formal chunk deadline')
             # Persistent two processes within an execution, as in cost16.
             if not engines:
                 for model in ('candidate', 'control'):
-                    log = f'/tmp/decision-formal-{out.name}-{model}.log'
-                    engine = AuditedEngine(protocol['binary'], protocol['options'][model], deadline, log)
+                    log = f'/tmp/decision-formal-{out.parent.name}-{out.name}-{model}.log'
+                    engine = AuditedEngine(protocol['binary'], protocol['options'][model], deadline, log, stop_event=stop)
                     engines.append(engine)
                     logs[model] = log
                     maps = Path(f'/proc/{engine.process.pid}/maps').read_text()
@@ -156,6 +154,7 @@ def execute(run, budget):
             dump(out / 'accepted.json', accepted)
         status, failure = 'complete', None
     except BaseException as error:
+        stop.set()
         failure = repr(error)
         raise
     finally:
@@ -163,17 +162,62 @@ def execute(run, budget):
             try:
                 engine.quit()
             except Exception as error:
+                stop.set()
                 status, failure = 'failed', f'cleanup: {error!r}; previous={failure}'
-        dump(out / 'summary.json', dict(status=status, failure=failure, accepted_pairs=len(accepted),
-             pairs=accepted, strength_inference='not performed; requires all 10000 audited pairs'))
+        dump(out / 'summary.json', dict(status=status, failure=failure,
+             accepted_pairs=len(accepted), pairs=accepted))
+    if status != 'complete':
+        raise RuntimeError(failure)
+    return accepted
+
+
+def execute(run, budget, workers=1):
+    if not 1 <= workers <= 16 or budget <= 0:
+        raise ValueError('workers must be 1..16 and budget positive')
+    out = run / 'artifacts' / (time.strftime('execution-%Y%m%dT%H%M%S') + f'-{os.getpid()}-{uuid.uuid4().hex[:8]}')
+    out.mkdir(parents=True)
+    dump(run / 'artifacts/latest.json', dict(directory=str(out)))
+    deadline = time.monotonic() + budget
+    stop = threading.Event()
+    accepted, status, failure = [], 'failed', 'interrupted'
+    pool = None
+    try:
+        chunk, openings, protocol = check(run)
+        libraries = load(run / 'libraries.json')
+        dump(out / 'manifest.json', runtime_manifest(list(load(run / 'input-manifest.json'))))
+        dump(out / 'identity.json', identity(run))
+        tasks = list(enumerate(openings, chunk['first_pair']))
+        dump(out / 'schedule.json', dict(workers=workers, unit='color pair',
+             assignments=[[i for i, _ in tasks[w::workers]] for w in range(workers)]))
+        if workers == 1:
+            accepted = _worker(run, out, tasks, protocol, libraries, deadline, stop)
+        else:
+            pool = ThreadPoolExecutor(max_workers=workers)
+            futures = [pool.submit(_worker, run, out / f'worker-{w:02d}',
+                       tasks[w::workers], protocol, libraries, deadline, stop) for w in range(workers)]
+            for future in futures:
+                accepted.extend(future.result())
+        accepted.sort(key=lambda row: row['pair_id'])
+        status, failure = 'complete', None
+    except BaseException as error:
+        failure = repr(error)
+        raise
+    finally:
+        stop.set()
+        if pool is not None:
+            pool.shutdown(wait=True, cancel_futures=True)
+        # Workers publish markers only after full pair audit, even on interruption.
+        if status != 'complete':
+            accepted = [load(p) for p in sorted((run / 'artifacts').glob('pair-*.json'))]
+        dump(out / 'summary.json', dict(status=status, failure=failure, workers=workers,
+             accepted_pairs=len(accepted), pairs=accepted,
+             strength_inference='not performed; requires all 10000 audited pairs'))
         (run / 'result-summary.md').write_text(
             f'# H-DECISION-REPLICATION formal chunk\n\nStatus: {status}\n'
             f'Failure: {str(failure)[:2000]}\nAccepted complete pairs: {len(accepted)}\n'
-            f'Artifacts: {out}\nLogs: /tmp/decision-formal-{out.name}-*.log\n'
+            f'Workers: {workers}\nArtifacts: {out}\n'
             'No interim strength decision. All 61 chunks are required for the single primary analysis.\n'
             'Failure/timeout requires review and explicit retry; incomplete pairs are not scored.\n')
-    if status != 'complete':
-        raise RuntimeError(failure)
 
 
 def main():
@@ -181,6 +225,7 @@ def main():
     parser.add_argument('--run-dir', type=Path, required=True)
     parser.add_argument('--check-only', action='store_true')
     parser.add_argument('--audit-only', action='store_true')
+    parser.add_argument('--workers', type=int, default=4)
     parser.add_argument('--budget-seconds', type=int, default=20400)
     args = parser.parse_args()
     if args.check_only or args.audit_only:
@@ -196,7 +241,7 @@ def main():
     def interrupted(signum, frame):
         raise InterruptedError(f'signal {signum}')
     signal.signal(signal.SIGTERM, interrupted)
-    execute(args.run_dir.resolve(), args.budget_seconds)
+    execute(args.run_dir.resolve(), args.budget_seconds, args.workers)
 
 
 if __name__ == '__main__':

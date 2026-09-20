@@ -59,7 +59,8 @@ def generated_openings(count=16, seed=20260920):
 
 class AuditedEngine:
     """Synchronous USI with bounded reads and a durable command/response log."""
-    def __init__(self, binary, options, deadline, log):
+    def __init__(self, binary, options, deadline, log, stop_event=None):
+        self.stop_event = stop_event
         self.deadline = deadline
         self.log = Path(log).open("w", buffering=1)
         self.buffer = b""
@@ -91,12 +92,14 @@ class AuditedEngine:
     def read(self):
         local_deadline = min(self.deadline, time.monotonic() + 120)
         while b"\n" not in self.buffer:
+            if self.stop_event is not None and self.stop_event.is_set():
+                raise InterruptedError("match worker cancelled")
             remaining = local_deadline - time.monotonic()
             if remaining <= 0:
                 if time.monotonic() >= self.deadline:
                     raise BudgetExpired("50-minute compute deadline")
                 raise TimeoutError("USI response exceeded 120 seconds")
-            if not select.select([self.process.stdout], [], [], remaining)[0]:
+            if not select.select([self.process.stdout], [], [], min(remaining, 0.2))[0]:
                 continue
             chunk = os.read(self.process.stdout.fileno(), 65536)
             if not chunk:
