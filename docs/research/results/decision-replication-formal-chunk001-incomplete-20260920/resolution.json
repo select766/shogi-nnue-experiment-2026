@@ -1,0 +1,5 @@
+{
+  "obstacle": "正式chunk001はexit 1、2777.252秒で停止。166ペア中63ペアのみ受理。pair64の合法入玉宣言bestmove win / nodes 0をauditorのnodes>0条件が拒否。",
+  "attempted": "固定入力hash・分離・63完全ペアを保存通信から再監査し合格。pair64の旧監査失敗を再現し、全履歴再生とcshogi.is_nyugyoku()で合法入玉を確認。32回帰検査合格。計算再実行なし。replan_historyは空、残数2。",
+  "next_task": "同じjobの新prepareでnodes=0を合法入玉bestmove winに限定して許容し、欠測・負nodes・通常手zero・不正win・通信不一致を拒否する回帰検査を追加。旧attemptと入力/engine/model/protocol/library/対局実装の同一性を照合し、監査のみの版差を明記した移行manifestで監査済みpair1〜63を明示移行する。旧identityを上書きしない。pair64はmarker未受理のため両局を新processで再実行し、固定166まで継続する。旧証跡を保存し、旧/新監査を通す。既存対局条件と61 chunk・20,000局の主判定を維持し、6時間以内の外部runへ渡す。成績による除外・条件変更や自動再実行は禁止。"
+}

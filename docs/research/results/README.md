@@ -1,5 +1,7 @@
 # 実験結果
 
+- [正式chunk001未完了](decision-replication-formal-chunk001-incomplete-20260920/README.md)
+
 - [Floodgate2025固定cost16](decision-replication-cost-floodgate2025-20260920/README.md)
 
 - [対局手順qualification attempt-001](match-protocol-qualification-20260920/README.md)

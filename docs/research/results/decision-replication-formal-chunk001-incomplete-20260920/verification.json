@@ -1,0 +1,27 @@
+{
+  "status": "incomplete",
+  "planned_pairs": 166,
+  "accepted_pairs": 63,
+  "accepted_games": 126,
+  "stored_complete_games": 128,
+  "accepted_searches": 11643,
+  "original_pair64_audit": "reproduced AssertionError",
+  "zero_node_declarations": [
+    {
+      "candidate_color": 0,
+      "search_index": 232,
+      "sfen": "5KG2/3+P+N+P2+S/+S1+N4G1/7sp/9/7g1/1+p4+p1P/+l1p2p1+l1/+b+rk+s4g w Rb2n2l10p 268",
+      "legal_entering_king": true,
+      "info": [
+        "info string blending_weight=[0.17791086, 0.08440181, 0.10270592, 0.05349433, 0.53884530, 0.00818873, 0.01498049, 0.01947255]",
+        "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+        "info string USI_Hash : Finish clearing.",
+        "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+        "info depth 0 multipv 1 score mate 1 nodes 0 nps 0 hashfull 0 time 146 pv win",
+        "bestmove win"
+      ]
+    }
+  ],
+  "strength_inference": "not performed",
+  "input_hashes_and_separation": "passed"
+}
