@@ -122,8 +122,8 @@ class AuditedEngine:
     def position(self, *, sfen, moves=None):
         self.send("position " + sfen + (" moves " + " ".join(moves) if moves else ""))
 
-    def go(self, *, nodes, listener):
-        self.send(f"go nodes {nodes}")
+    def go(self, *, nodes, listener, searchmoves=None):
+        self.send(f"go nodes {nodes}" + (" searchmoves " + " ".join(searchmoves) if searchmoves else ""))
         cache = []
         blended = 0
         while True:

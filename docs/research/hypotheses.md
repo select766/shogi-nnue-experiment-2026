@@ -45,11 +45,15 @@
 <!-- hypothesis id=H-MATCH-PROTOCOL status=held priority=2 -->
 ### H-MATCH-PROTOCOL: 履歴と動的重みのキャッシュ管理が棋力差の推定に影響する
 
-- 状態: 保留。[pilot](results/match-protocol-pilot-20260920/README.md)の7開始局面×8セルは完遂。
+- 状態: 保留。[qualification attempt-001](results/match-protocol-qualification-20260920/README.md)は
+  48件中8件完了、連続王手fixtureの不成searchmove不一致で途中失敗。棋力は未測定。
+  [感度試験計画](experiments/match-protocol-qualification-20260920.md)は事前登録済み。
+  [pilot](results/match-protocol-pilot-20260920/README.md)の7開始局面×8セルは完遂。
   6,034探索の履歴・cache証跡を検証し、clear介入で14/14着手列が変化した。
   履歴単独の着手列は一致したが、棋力影響の方向・大きさ・同等性はいずれも未確定。
-- 次: 実機の反復・連続王手fixtureと実行時版記録を補強し、棋力影響を測る別の
-  対応あり4条件感度試験を事前登録する。正式再現の主条件は成績で選ばず履歴・clearありを維持。
+- 次: 同ジョブをreplanしfixture専用の全合法手生成・失敗記録を補強して48件を再検証。
+  合格後にcost8で64局の費用を測り、reserve全1,324棋譜の対応あり感度試験をchunk化。
+  正式再現の主条件は成績で選ばず履歴・clearありを維持。
 
 <!-- hypothesis id=H-DAILY-ADJUDICATION status=unverified priority=3 -->
 ### H-DAILY-ADJUDICATION: 日次runnerの早期反復裁定が監視結果を変える
@@ -300,4 +304,5 @@
 | [対局手順pilot](results/match-protocol-pilot-20260920/README.md) | H-MATCH-PROTOCOL, H-DECISION-REPLICATION, H-DAILY-ADJUDICATION | 7開始局面56局・6,034探索の手順合格。棋力影響は保留、独立追試manifestと日次裁定を課題化 |
 | [Floodgate 2025データ整備](results/floodgate2025-preparation/README.md) | H-FLOODGATE-2025, H-DECISION-REPLICATION | 双方R3500以上38,351棋譜・実手数付き571万局面、棋譜分離と固定対局用1万局面を整備 |
 | [自律研究ループの再開準備](results/research-loop-autonomy-20260920/README.md) | H-DECISION-REPLICATION, H-FLOODGATE-2025 | 整備済み入力を登録し、完全分離証明の要求を撤回。通常不足は有界再計画または手法終了へ |
+| [対局手順qualification attempt-001](results/match-protocol-qualification-20260920/README.md) | H-MATCH-PROTOCOL | 8/48件で不成searchmove不一致、棋力未測定、同ジョブをreplan |
 <!-- result-ledger:end -->

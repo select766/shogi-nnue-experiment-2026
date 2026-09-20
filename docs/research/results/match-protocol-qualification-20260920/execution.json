@@ -1,0 +1,12 @@
+{
+  "phase": "execute",
+  "command": [
+    "bash",
+    "/home/select766/shogi/train-nnue/.research-loop/experiments/match-protocol-qualification/attempt-001/run.sh"
+  ],
+  "exit_code": 1,
+  "reason": "exited",
+  "elapsed_seconds": 26.04765291700096,
+  "finished_at": "2026-09-20T10:51:37.390872+00:00",
+  "log": "/tmp/research-match-protocol-qualification-execute-k287x0cl.log"
+}

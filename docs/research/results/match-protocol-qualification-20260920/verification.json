@@ -1,0 +1,17 @@
+{
+  "completed": 8,
+  "expected": 48,
+  "attempted": 9,
+  "unstarted": 39,
+  "stored_searches": 81,
+  "usi_searches": 82,
+  "failed_searches": 1,
+  "cshogi_version": "0.9.7",
+  "runtime_files_verified": 20,
+  "input_hashes_verified": 16,
+  "loaded_libraries_verified": 9,
+  "records_sha256": "6692f3287804b9a25ce4e0d738e362eb6add0315c7aebcb2207ae136738e4107",
+  "usi_log_sha256": "2ad0f39c923a0e0f0a5f71838bd5be3ed9fdc215a11fbc7f05a0a36082c3cf33",
+  "engine_launched_during_review": false,
+  "position_and_usi_trace_verified": 81
+}

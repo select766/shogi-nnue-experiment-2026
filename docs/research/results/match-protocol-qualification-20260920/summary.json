@@ -1,0 +1,7 @@
+{
+  "status": "failed",
+  "failure": "RuntimeError('forced move mismatch: 5c4c != 5c7c+')",
+  "expected": 48,
+  "complete": 8,
+  "strength_inference": "not measured"
+}

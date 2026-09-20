@@ -1,0 +1,30 @@
+{
+  "model": "candidate",
+  "fixture": "perpetual_check_black",
+  "history": false,
+  "clear": false,
+  "limit": 8,
+  "complete": false,
+  "trace": {
+    "start_sfen": "4k4/9/4R4/9/9/9/9/9/K8 w - 1",
+    "history": false,
+    "moves_usi": [
+      "5a4a"
+    ],
+    "searches": [
+      {
+        "turn": 1,
+        "position": "sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1",
+        "bestmove": "5a4a",
+        "nodes": 128,
+        "info": [
+          "info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]",
+          "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+          "info depth 5 seldepth 6 multipv 1 score cp -1161 nodes 128 nps 831 hashfull 0 time 154 pv 5a4a 5c4c+ 4a5a 4c3b 5a6a",
+          "bestmove 5a4a ponder 5c4c+"
+        ],
+        "elapsed_seconds": 0.1538551070007088
+      }
+    ]
+  }
+}

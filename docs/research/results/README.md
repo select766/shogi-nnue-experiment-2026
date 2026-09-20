@@ -1,5 +1,7 @@
 # 実験結果
 
+- [対局手順qualification attempt-001](match-protocol-qualification-20260920/README.md)
+
 - [2026-09-20研究レビューと既存対局再解析](research-review-20260920/README.md)
 - [24時間 深掘り検証](deep-validation-24h-20260828/README.md)
 - [浅いroot探索統計の棋力追試](root-search-stats-strength-20260828/README.md)

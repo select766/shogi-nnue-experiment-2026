@@ -1,0 +1,1392 @@
+[
+  {
+    "model": "candidate",
+    "fixture": "repetition_draw",
+    "history": false,
+    "clear": false,
+    "limit": 8,
+    "complete": true,
+    "trace": {
+      "start_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 1",
+      "history": false,
+      "moves_usi": [
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a",
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a"
+      ],
+      "searches": [
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1",
+          "bestmove": "5i6i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 836 hashfull 0 time 153 pv 5i6i 5a5b",
+            "bestmove 5i6i ponder 5a5b"
+          ],
+          "elapsed_seconds": 0.15280176599844708
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/3K5 w - 2",
+          "bestmove": "5a6a",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp 167 nodes 129 nps 934 hashfull 0 time 138 pv 5a6a",
+            "bestmove 5a6a ponder 6i6h"
+          ],
+          "elapsed_seconds": 0.13797184999930323
+        },
+        {
+          "turn": 0,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/3K5 b - 3",
+          "bestmove": "6i5i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 5 multipv 1 score cp -184 nodes 128 nps 927 hashfull 0 time 138 pv 6i5i 6a5b 5i6i 5b4a",
+            "bestmove 6i5i ponder 6a5b"
+          ],
+          "elapsed_seconds": 0.13799760899928515
+        },
+        {
+          "turn": 1,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/4K4 w - 4",
+          "bestmove": "6a5a",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp 121 nodes 128 nps 934 hashfull 0 time 137 pv 6a5a",
+            "bestmove 6a5a ponder 5i6h"
+          ],
+          "elapsed_seconds": 0.13740683599826298
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 5",
+          "bestmove": "5i6i",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 2 seldepth 5 multipv 1 score cp -167 upperbound nodes 129 nps 934 hashfull 0 time 138 pv 5i6i 5a4a",
+            "bestmove 5i6i ponder 5a4a"
+          ],
+          "elapsed_seconds": 0.13771953000104986
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/3K5 w - 6",
+          "bestmove": "5a6a",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 5 multipv 1 score cp 126 lowerbound nodes 128 nps 927 hashfull 0 time 138 pv 5a6a",
+            "bestmove 5a6a ponder 6i5i"
+          ],
+          "elapsed_seconds": 0.13742863700099406
+        },
+        {
+          "turn": 0,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/3K5 b - 7",
+          "bestmove": "6i5i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 5 multipv 1 score cp -164 nodes 128 nps 934 hashfull 0 time 137 pv 6i5i 6a5a",
+            "bestmove 6i5i ponder 6a5a"
+          ],
+          "elapsed_seconds": 0.1373416520000319
+        },
+        {
+          "turn": 1,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/4K4 w - 8",
+          "bestmove": "6a5a",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp 170 nodes 129 nps 941 hashfull 0 time 137 pv 6a5a 5i6h",
+            "bestmove 6a5a ponder 5i6h"
+          ],
+          "elapsed_seconds": 0.13735420599914505
+        }
+      ],
+      "result": 0,
+      "termination": "max_moves",
+      "final_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 9",
+      "elapsed_seconds": 1.3816727849989547
+    }
+  },
+  {
+    "model": "candidate",
+    "fixture": "repetition_draw",
+    "history": false,
+    "clear": false,
+    "limit": 12,
+    "complete": true,
+    "trace": {
+      "start_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 1",
+      "history": false,
+      "moves_usi": [
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a",
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a",
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a"
+      ],
+      "searches": [
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1",
+          "bestmove": "5i6i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 831 hashfull 0 time 154 pv 5i6i 5a5b",
+            "bestmove 5i6i ponder 5a5b"
+          ],
+          "elapsed_seconds": 0.1538326150002831
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/3K5 w - 2",
+          "bestmove": "5a6a",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp 167 nodes 129 nps 928 hashfull 0 time 139 pv 5a6a",
+            "bestmove 5a6a ponder 6i6h"
+          ],
+          "elapsed_seconds": 0.13917055800266098
+        },
+        {
+          "turn": 0,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/3K5 b - 3",
+          "bestmove": "6i5i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 5 multipv 1 score cp -184 nodes 128 nps 920 hashfull 0 time 139 pv 6i5i 6a5b 5i6i 5b4a",
+            "bestmove 6i5i ponder 6a5b"
+          ],
+          "elapsed_seconds": 0.13947603999986313
+        },
+        {
+          "turn": 1,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/4K4 w - 4",
+          "bestmove": "6a5a",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp 121 nodes 128 nps 927 hashfull 0 time 138 pv 6a5a",
+            "bestmove 6a5a ponder 5i6h"
+          ],
+          "elapsed_seconds": 0.13862217600035365
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 5",
+          "bestmove": "5i6i",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 2 seldepth 5 multipv 1 score cp -167 upperbound nodes 129 nps 928 hashfull 0 time 139 pv 5i6i 5a4a",
+            "bestmove 5i6i ponder 5a4a"
+          ],
+          "elapsed_seconds": 0.13850857999932487
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/3K5 w - 6",
+          "bestmove": "5a6a",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 5 multipv 1 score cp 126 lowerbound nodes 128 nps 920 hashfull 0 time 139 pv 5a6a",
+            "bestmove 5a6a ponder 6i5i"
+          ],
+          "elapsed_seconds": 0.13904992999960086
+        },
+        {
+          "turn": 0,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/3K5 b - 7",
+          "bestmove": "6i5i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 5 multipv 1 score cp -164 nodes 128 nps 927 hashfull 0 time 138 pv 6i5i 6a5a",
+            "bestmove 6i5i ponder 6a5a"
+          ],
+          "elapsed_seconds": 0.13825249400179018
+        },
+        {
+          "turn": 1,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/4K4 w - 8",
+          "bestmove": "6a5a",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp 170 nodes 129 nps 928 hashfull 0 time 139 pv 6a5a 5i6h",
+            "bestmove 6a5a ponder 5i6h"
+          ],
+          "elapsed_seconds": 0.13862107399836532
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 9",
+          "bestmove": "5i6i",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp -175 nodes 130 nps 942 hashfull 0 time 138 pv 5i6i 5a4a 6i6h",
+            "bestmove 5i6i ponder 5a4a"
+          ],
+          "elapsed_seconds": 0.13848959499955527
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/3K5 w - 10",
+          "bestmove": "5a6a",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 4 seldepth 5 multipv 1 score cp 118 nodes 128 nps 920 hashfull 0 time 139 pv 5a6a 6i7i",
+            "bestmove 5a6a ponder 6i7i"
+          ],
+          "elapsed_seconds": 0.1393324569980905
+        },
+        {
+          "turn": 0,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/3K5 b - 11",
+          "bestmove": "6i5i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp -170 nodes 128 nps 920 hashfull 0 time 139 pv 6i5i 6a5a",
+            "bestmove 6i5i ponder 6a5a"
+          ],
+          "elapsed_seconds": 0.13950234000003547
+        },
+        {
+          "turn": 1,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/4K4 w - 12",
+          "bestmove": "6a5a",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp 128 nodes 128 nps 920 hashfull 0 time 139 pv 6a5a",
+            "bestmove 6a5a ponder 5i5h"
+          ],
+          "elapsed_seconds": 0.13870855000277516
+        }
+      ],
+      "result": 0,
+      "termination": "repetition_draw",
+      "final_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 13",
+      "elapsed_seconds": 1.9477602820006723
+    }
+  },
+  {
+    "model": "candidate",
+    "fixture": "repetition_draw",
+    "history": false,
+    "clear": true,
+    "limit": 8,
+    "complete": true,
+    "trace": {
+      "start_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 1",
+      "history": false,
+      "moves_usi": [
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a",
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a"
+      ],
+      "searches": [
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1",
+          "bestmove": "5i6i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 815 hashfull 0 time 157 pv 5i6i 5a5b",
+            "bestmove 5i6i ponder 5a5b"
+          ],
+          "elapsed_seconds": 0.15780246299982537
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/3K5 w - 2",
+          "bestmove": "5a6a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 902 hashfull 0 time 144 pv 5a6a 6i5h",
+            "bestmove 5a6a ponder 6i5h"
+          ],
+          "elapsed_seconds": 0.14454255199962063
+        },
+        {
+          "turn": 0,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/3K5 b - 3",
+          "bestmove": "6i5i",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 895 hashfull 0 time 144 pv 6i5i 6a5a",
+            "bestmove 6i5i ponder 6a5a"
+          ],
+          "elapsed_seconds": 0.14388976099871797
+        },
+        {
+          "turn": 1,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/4K4 w - 4",
+          "bestmove": "6a5a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 909 hashfull 0 time 143 pv 6a5a 5i4h",
+            "bestmove 6a5a ponder 5i4h"
+          ],
+          "elapsed_seconds": 0.14319852699918556
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 5",
+          "bestmove": "5i6i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 888 hashfull 0 time 144 pv 5i6i 5a5b",
+            "bestmove 5i6i ponder 5a5b"
+          ],
+          "elapsed_seconds": 0.14370387799863238
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/3K5 w - 6",
+          "bestmove": "5a6a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 909 hashfull 0 time 143 pv 5a6a 6i5h",
+            "bestmove 5a6a ponder 6i5h"
+          ],
+          "elapsed_seconds": 0.14354784100214601
+        },
+        {
+          "turn": 0,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/3K5 b - 7",
+          "bestmove": "6i5i",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 902 hashfull 0 time 143 pv 6i5i 6a5a",
+            "bestmove 6i5i ponder 6a5a"
+          ],
+          "elapsed_seconds": 0.14355473500108928
+        },
+        {
+          "turn": 1,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/4K4 w - 8",
+          "bestmove": "6a5a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 902 hashfull 0 time 144 pv 6a5a 5i4h",
+            "bestmove 6a5a ponder 5i4h"
+          ],
+          "elapsed_seconds": 0.1438004709998495
+        }
+      ],
+      "result": 0,
+      "termination": "max_moves",
+      "final_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 9",
+      "elapsed_seconds": 1.4301700789983443
+    }
+  },
+  {
+    "model": "candidate",
+    "fixture": "repetition_draw",
+    "history": false,
+    "clear": true,
+    "limit": 12,
+    "complete": true,
+    "trace": {
+      "start_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 1",
+      "history": false,
+      "moves_usi": [
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a",
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a",
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a"
+      ],
+      "searches": [
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1",
+          "bestmove": "5i6i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 810 hashfull 0 time 158 pv 5i6i 5a5b",
+            "bestmove 5i6i ponder 5a5b"
+          ],
+          "elapsed_seconds": 0.1577112489976571
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/3K5 w - 2",
+          "bestmove": "5a6a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 902 hashfull 0 time 144 pv 5a6a 6i5h",
+            "bestmove 5a6a ponder 6i5h"
+          ],
+          "elapsed_seconds": 0.14378751700132852
+        },
+        {
+          "turn": 0,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/3K5 b - 3",
+          "bestmove": "6i5i",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 895 hashfull 0 time 144 pv 6i5i 6a5a",
+            "bestmove 6i5i ponder 6a5a"
+          ],
+          "elapsed_seconds": 0.14364770099928137
+        },
+        {
+          "turn": 1,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/4K4 w - 4",
+          "bestmove": "6a5a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 909 hashfull 0 time 143 pv 6a5a 5i4h",
+            "bestmove 6a5a ponder 5i4h"
+          ],
+          "elapsed_seconds": 0.1433156200000667
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 5",
+          "bestmove": "5i6i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 895 hashfull 0 time 143 pv 5i6i 5a5b",
+            "bestmove 5i6i ponder 5a5b"
+          ],
+          "elapsed_seconds": 0.14314846199704334
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/3K5 w - 6",
+          "bestmove": "5a6a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 909 hashfull 0 time 143 pv 5a6a 6i5h",
+            "bestmove 5a6a ponder 6i5h"
+          ],
+          "elapsed_seconds": 0.14329024099788512
+        },
+        {
+          "turn": 0,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/3K5 b - 7",
+          "bestmove": "6i5i",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 889 hashfull 0 time 145 pv 6i5i 6a5a",
+            "bestmove 6i5i ponder 6a5a"
+          ],
+          "elapsed_seconds": 0.14478435300043202
+        },
+        {
+          "turn": 1,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/4K4 w - 8",
+          "bestmove": "6a5a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 902 hashfull 0 time 144 pv 6a5a 5i4h",
+            "bestmove 6a5a ponder 5i4h"
+          ],
+          "elapsed_seconds": 0.14366576600150438
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 9",
+          "bestmove": "5i6i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 895 hashfull 0 time 143 pv 5i6i 5a5b",
+            "bestmove 5i6i ponder 5a5b"
+          ],
+          "elapsed_seconds": 0.14326018400242901
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/3K5 w - 10",
+          "bestmove": "5a6a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 902 hashfull 0 time 144 pv 5a6a 6i5h",
+            "bestmove 5a6a ponder 6i5h"
+          ],
+          "elapsed_seconds": 0.1434877569990931
+        },
+        {
+          "turn": 0,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/3K5 b - 11",
+          "bestmove": "6i5i",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 902 hashfull 0 time 143 pv 6i5i 6a5a",
+            "bestmove 6i5i ponder 6a5a"
+          ],
+          "elapsed_seconds": 0.14333801199973095
+        },
+        {
+          "turn": 1,
+          "position": "sfen 3k5/9/9/9/9/9/9/9/4K4 w - 12",
+          "bestmove": "6a5a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=4",
+            "info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 902 hashfull 0 time 144 pv 6a5a 5i4h",
+            "bestmove 6a5a ponder 5i4h"
+          ],
+          "elapsed_seconds": 0.14389934000064386
+        }
+      ],
+      "result": 0,
+      "termination": "repetition_draw",
+      "final_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 13",
+      "elapsed_seconds": 2.004056664001837
+    }
+  },
+  {
+    "model": "candidate",
+    "fixture": "repetition_draw",
+    "history": true,
+    "clear": false,
+    "limit": 8,
+    "complete": true,
+    "trace": {
+      "start_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 1",
+      "history": true,
+      "moves_usi": [
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a",
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a"
+      ],
+      "searches": [
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1",
+          "bestmove": "5i6i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 836 hashfull 0 time 153 pv 5i6i 5a5b",
+            "bestmove 5i6i ponder 5a5b"
+          ],
+          "elapsed_seconds": 0.1537099519991898
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i",
+          "bestmove": "5a6a",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp 167 nodes 129 nps 928 hashfull 0 time 139 pv 5a6a",
+            "bestmove 5a6a ponder 6i6h"
+          ],
+          "elapsed_seconds": 0.139095686001383
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a",
+          "bestmove": "6i5i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 5 multipv 1 score cp -184 nodes 128 nps 920 hashfull 0 time 139 pv 6i5i 6a5b 5i6i 5b4a",
+            "bestmove 6i5i ponder 6a5b"
+          ],
+          "elapsed_seconds": 0.13902451100148028
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i",
+          "bestmove": "6a5a",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp 121 nodes 128 nps 920 hashfull 0 time 139 pv 6a5a",
+            "bestmove 6a5a ponder 5i6h"
+          ],
+          "elapsed_seconds": 0.1390847959992243
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a",
+          "bestmove": "5i6i",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 2 seldepth 5 multipv 1 score cp -167 upperbound nodes 129 nps 928 hashfull 0 time 139 pv 5i6i 5a4a",
+            "bestmove 5i6i ponder 5a4a"
+          ],
+          "elapsed_seconds": 0.13908233099937206
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i",
+          "bestmove": "5a6a",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 5 multipv 1 score cp 126 lowerbound nodes 128 nps 920 hashfull 0 time 139 pv 5a6a",
+            "bestmove 5a6a ponder 6i5i"
+          ],
+          "elapsed_seconds": 0.13901946099940687
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a",
+          "bestmove": "6i5i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 5 multipv 1 score cp -164 nodes 128 nps 920 hashfull 0 time 139 pv 6i5i 6a5a",
+            "bestmove 6i5i ponder 6a5a"
+          ],
+          "elapsed_seconds": 0.13944899800117128
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i",
+          "bestmove": "6a5a",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp 170 nodes 129 nps 934 hashfull 0 time 138 pv 6a5a 5i6h",
+            "bestmove 6a5a ponder 5i6h"
+          ],
+          "elapsed_seconds": 0.13887310300196987
+        }
+      ],
+      "result": 0,
+      "termination": "max_moves",
+      "final_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 9",
+      "elapsed_seconds": 1.395125981001911
+    }
+  },
+  {
+    "model": "candidate",
+    "fixture": "repetition_draw",
+    "history": true,
+    "clear": false,
+    "limit": 12,
+    "complete": true,
+    "trace": {
+      "start_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 1",
+      "history": true,
+      "moves_usi": [
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a",
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a",
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a"
+      ],
+      "searches": [
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1",
+          "bestmove": "5i6i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 831 hashfull 0 time 154 pv 5i6i 5a5b",
+            "bestmove 5i6i ponder 5a5b"
+          ],
+          "elapsed_seconds": 0.15429953299826593
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i",
+          "bestmove": "5a6a",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp 167 nodes 129 nps 928 hashfull 0 time 139 pv 5a6a",
+            "bestmove 5a6a ponder 6i6h"
+          ],
+          "elapsed_seconds": 0.1392662409998593
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a",
+          "bestmove": "6i5i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 5 multipv 1 score cp -184 nodes 128 nps 914 hashfull 0 time 140 pv 6i5i 6a5b 5i6i 5b4a",
+            "bestmove 6i5i ponder 6a5b"
+          ],
+          "elapsed_seconds": 0.13978909500292502
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i",
+          "bestmove": "6a5a",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp 121 nodes 128 nps 920 hashfull 0 time 139 pv 6a5a",
+            "bestmove 6a5a ponder 5i6h"
+          ],
+          "elapsed_seconds": 0.13929853200170328
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a",
+          "bestmove": "5i6i",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 2 seldepth 5 multipv 1 score cp -167 upperbound nodes 129 nps 928 hashfull 0 time 139 pv 5i6i 5a4a",
+            "bestmove 5i6i ponder 5a4a"
+          ],
+          "elapsed_seconds": 0.13887443600106053
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i",
+          "bestmove": "5a6a",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 5 multipv 1 score cp 126 lowerbound nodes 128 nps 920 hashfull 0 time 139 pv 5a6a",
+            "bestmove 5a6a ponder 6i5i"
+          ],
+          "elapsed_seconds": 0.13877912499810918
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a",
+          "bestmove": "6i5i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 5 multipv 1 score cp -164 nodes 128 nps 927 hashfull 0 time 138 pv 6i5i 6a5a",
+            "bestmove 6i5i ponder 6a5a"
+          ],
+          "elapsed_seconds": 0.13860925200060592
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i",
+          "bestmove": "6a5a",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp 170 nodes 129 nps 928 hashfull 0 time 139 pv 6a5a 5i6h",
+            "bestmove 6a5a ponder 5i6h"
+          ],
+          "elapsed_seconds": 0.1386951450003835
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a",
+          "bestmove": "5i6i",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp -175 nodes 129 nps 928 hashfull 0 time 139 pv 5i6i 5a4a 6i6h",
+            "bestmove 5i6i ponder 5a4a"
+          ],
+          "elapsed_seconds": 0.1389551290012605
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a 5i6i",
+          "bestmove": "5a6a",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 3 seldepth 4 multipv 1 score cp 115 nodes 128 nps 920 hashfull 0 time 139 pv 5a6a",
+            "bestmove 5a6a ponder 6i7i"
+          ],
+          "elapsed_seconds": 0.1389854769986414
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a",
+          "bestmove": "6i5i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 4 seldepth 5 multipv 1 score cp -164 nodes 128 nps 920 hashfull 0 time 139 pv 6i5i 6a5b 5i6i 5b4a",
+            "bestmove 6i5i ponder 6a5b"
+          ],
+          "elapsed_seconds": 0.13942304800002603
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i",
+          "bestmove": "6a5a",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 127 seldepth 2 multipv 1 score cp -2 nodes 128 nps 920 hashfull 0 time 139 pv 6a5a",
+            "bestmove 6a5a ponder 5i6i"
+          ],
+          "elapsed_seconds": 0.13936890599870821
+        }
+      ],
+      "result": 0,
+      "termination": "repetition_draw",
+      "final_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 13",
+      "elapsed_seconds": 1.9523729899992759
+    }
+  },
+  {
+    "model": "candidate",
+    "fixture": "repetition_draw",
+    "history": true,
+    "clear": true,
+    "limit": 8,
+    "complete": true,
+    "trace": {
+      "start_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 1",
+      "history": true,
+      "moves_usi": [
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a",
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a"
+      ],
+      "searches": [
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1",
+          "bestmove": "5i6i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 810 hashfull 0 time 158 pv 5i6i 5a5b",
+            "bestmove 5i6i ponder 5a5b"
+          ],
+          "elapsed_seconds": 0.1584500940007274
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i",
+          "bestmove": "5a6a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 5a6a 6i5h",
+            "bestmove 5a6a ponder 6i5h"
+          ],
+          "elapsed_seconds": 0.14490660400042543
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a",
+          "bestmove": "6i5i",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 832 hashfull 0 time 155 pv 6i5i 6a5a",
+            "bestmove 6i5i ponder 6a5a"
+          ],
+          "elapsed_seconds": 0.15489844100011396
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i",
+          "bestmove": "6a5a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 902 hashfull 0 time 144 pv 6a5a 5i4h",
+            "bestmove 6a5a ponder 5i4h"
+          ],
+          "elapsed_seconds": 0.14462808499956736
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a",
+          "bestmove": "5i6i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 882 hashfull 0 time 145 pv 5i6i 5a5b",
+            "bestmove 5i6i ponder 5a5b"
+          ],
+          "elapsed_seconds": 0.14460930899804225
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i",
+          "bestmove": "5a6a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 5a6a 6i5h",
+            "bestmove 5a6a ponder 6i5h"
+          ],
+          "elapsed_seconds": 0.14458314000148675
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a",
+          "bestmove": "6i5i",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 895 hashfull 0 time 144 pv 6i5i 6a5a",
+            "bestmove 6i5i ponder 6a5a"
+          ],
+          "elapsed_seconds": 0.14480165500208386
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i",
+          "bestmove": "6a5a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 6a5a 5i4h",
+            "bestmove 6a5a ponder 5i4h"
+          ],
+          "elapsed_seconds": 0.14520160500251222
+        }
+      ],
+      "result": 0,
+      "termination": "max_moves",
+      "final_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 9",
+      "elapsed_seconds": 1.451425750998169
+    }
+  },
+  {
+    "model": "candidate",
+    "fixture": "repetition_draw",
+    "history": true,
+    "clear": true,
+    "limit": 12,
+    "complete": true,
+    "trace": {
+      "start_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 1",
+      "history": true,
+      "moves_usi": [
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a",
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a",
+        "5i6i",
+        "5a6a",
+        "6i5i",
+        "6a5a"
+      ],
+      "searches": [
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1",
+          "bestmove": "5i6i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 805 hashfull 0 time 159 pv 5i6i 5a5b",
+            "bestmove 5i6i ponder 5a5b"
+          ],
+          "elapsed_seconds": 0.15906773899769178
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i",
+          "bestmove": "5a6a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 5a6a 6i5h",
+            "bestmove 5a6a ponder 6i5h"
+          ],
+          "elapsed_seconds": 0.14474536800116766
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a",
+          "bestmove": "6i5i",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=4",
+            "info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 895 hashfull 0 time 144 pv 6i5i 6a5a",
+            "bestmove 6i5i ponder 6a5a"
+          ],
+          "elapsed_seconds": 0.14441526000155136
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i",
+          "bestmove": "6a5a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 6a5a 5i4h",
+            "bestmove 6a5a ponder 5i4h"
+          ],
+          "elapsed_seconds": 0.14461206400301307
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a",
+          "bestmove": "5i6i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 888 hashfull 0 time 144 pv 5i6i 5a5b",
+            "bestmove 5i6i ponder 5a5b"
+          ],
+          "elapsed_seconds": 0.1446205700012797
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i",
+          "bestmove": "5a6a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 5a6a 6i5h",
+            "bestmove 5a6a ponder 6i5h"
+          ],
+          "elapsed_seconds": 0.14508566500080633
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a",
+          "bestmove": "6i5i",
+          "nodes": 129,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 128 upperbound nodes 129 nps 895 hashfull 0 time 144 pv 6i5i 6a5a",
+            "bestmove 6i5i ponder 6a5a"
+          ],
+          "elapsed_seconds": 0.14458637599818758
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i",
+          "bestmove": "6a5a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 154 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 6a5a 5i4h",
+            "bestmove 6a5a ponder 5i4h"
+          ],
+          "elapsed_seconds": 0.14485309300289373
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a",
+          "bestmove": "5i6i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.43107733, 0.09202764, 0.10294005, 0.04031654, 0.30280915, 0.00618936, 0.01217676, 0.01246314]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 5 multipv 1 score cp 68 nodes 128 nps 876 hashfull 0 time 146 pv 5i6i 5a5b",
+            "bestmove 5i6i ponder 5a5b"
+          ],
+          "elapsed_seconds": 0.14549289899878204
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a 5i6i",
+          "bestmove": "5a6a",
+          "nodes": 130,
+          "info": [
+            "info string blending_weight=[0.42795724, 0.09279545, 0.10258639, 0.04001058, 0.30565330, 0.00610806, 0.01237490, 0.01251413]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 4 seldepth 6 multipv 1 score cp 155 upperbound nodes 130 nps 896 hashfull 0 time 145 pv 5a6a 6i5h",
+            "bestmove 5a6a ponder 6i5h"
+          ],
+          "elapsed_seconds": 0.1449417009971512
+        },
+        {
+          "turn": 0,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a",
+          "bestmove": "6i5i",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42899597, 0.09174986, 0.10409079, 0.04051633, 0.30362311, 0.00626462, 0.01232296, 0.01243638]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 7 seldepth 2 multipv 1 score cp -6 upperbound nodes 128 nps 888 hashfull 0 time 144 pv 6i5i",
+            "bestmove 6i5i ponder 6a5a"
+          ],
+          "elapsed_seconds": 0.14479177700195578
+        },
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/9/9/9/9/9/9/4K4 b - 1 moves 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i 6a5a 5i6i 5a6a 6i5i",
+          "bestmove": "6a5a",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.42344105, 0.09456453, 0.10449962, 0.04057268, 0.30562758, 0.00646202, 0.01212435, 0.01270810]",
+            "info string USI_Hash : Start clearing with 1 threads , size =  16[MB]",
+            "info string USI_Hash : Finish clearing.",
+            "info string dynamic_weight_cache clear=1 elapsed_ms=5",
+            "info depth 127 seldepth 2 multipv 1 score cp -2 nodes 128 nps 888 hashfull 0 time 144 pv 6a5a",
+            "bestmove 6a5a"
+          ],
+          "elapsed_seconds": 0.14492925799640943
+        }
+      ],
+      "result": 0,
+      "termination": "repetition_draw",
+      "final_sfen": "4k4/9/9/9/9/9/9/9/4K4 b - 13",
+      "elapsed_seconds": 2.0222614949998388
+    }
+  },
+  {
+    "model": "candidate",
+    "fixture": "perpetual_check_black",
+    "history": false,
+    "clear": false,
+    "limit": 8,
+    "complete": false,
+    "trace": {
+      "start_sfen": "4k4/9/4R4/9/9/9/9/9/K8 w - 1",
+      "history": false,
+      "moves_usi": [
+        "5a4a"
+      ],
+      "searches": [
+        {
+          "turn": 1,
+          "position": "sfen 4k4/9/4R4/9/9/9/9/9/K8 w - 1",
+          "bestmove": "5a4a",
+          "nodes": 128,
+          "info": [
+            "info string blending_weight=[0.21700948, 0.15858386, 0.14882734, 0.05208306, 0.30185458, 0.02421159, 0.06736470, 0.03006527]",
+            "info string dynamic_weight_cache clear=0 elapsed_ms=0",
+            "info depth 5 seldepth 6 multipv 1 score cp -1161 nodes 128 nps 831 hashfull 0 time 154 pv 5a4a 5c4c+ 4a5a 4c3b 5a6a",
+            "bestmove 5a4a ponder 5c4c+"
+          ],
+          "elapsed_seconds": 0.1538551070007088
+        }
+      ]
+    }
+  }
+]
